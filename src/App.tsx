@@ -1,0 +1,148 @@
+import { useRef, useState, useEffect } from 'react';
+import { LeftSidebar } from './components/sidebar/LeftSidebar';
+import { RoundStage } from './components/arena/RoundStage';
+import { MixedFeed } from './components/feed/MixedFeed';
+import { IntelTower } from './components/intel/IntelTower';
+import { useGameTimer } from './hooks/useGameTimer';
+import { useSimulation } from './hooks/useSimulation';
+import { useGameStore } from './store/gameStore';
+import { useWalletStore } from './store/walletStore';
+import { Menu, X } from 'lucide-react';
+
+// Layout Components
+import { MobileNavBar, TabId } from './components/layout/MobileNavBar';
+import { HamburgerMenu } from './components/layout/HamburgerMenu';
+
+// Dev tools
+import { DebugPanel } from './components/dev/DebugPanel';
+import { DevBadge } from './components/dev/DevBadge';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState<TabId>('ARENA');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  
+  // Initialize Heartbeat
+  useGameTimer();
+  useSimulation();
+
+  // Selectors
+  const phase = useGameStore(state => state.phase);
+  const players = useGameStore(state => state.players);
+  const { address } = useWalletStore();
+  
+  const aliveCount = players.filter(p => p.status === 'alive').length;
+  const totalInPlay = players.reduce((acc, p) => acc + p.mon, 0);
+
+  // Responsive Detection
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setViewMode('mobile');
+      else if (window.innerWidth < 1280) setViewMode('tablet');
+      else setViewMode('desktop');
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Mobile Content Switcher
+  const renderMobileContent = () => {
+    switch (activeTab) {
+      case 'ARENA': return <RoundStage />;
+      case 'INTEL': return <IntelTower />;
+      case 'PROFILE': return <LeftSidebar />;
+      case 'FEED': return <MixedFeed />;
+      default: return <RoundStage />;
+    }
+  };
+
+  return (
+    <div className="h-screen w-full bg-app-bg text-app-text font-sans flex flex-col overflow-hidden selection:bg-app-accent selection:text-black">
+      
+      {/* Tablet/Mobile Header */}
+      {viewMode !== 'desktop' && (
+        <header className="h-[60px] border-b border-app-border bg-[#0a0a0a] flex items-center justify-between px-6 shrink-0 z-50">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setIsMenuOpen(true)} className="p-2 -ml-2 text-app-muted hover:text-white transition-colors">
+              <Menu size={20} />
+            </button>
+            <span className="font-app-bold text-app-accent tracking-[4px] text-[14px]">RUMBLEX</span>
+          </div>
+          <div className="flex items-center gap-4">
+             <div className="font-app-mono text-[11px] text-app-muted">{address || '0x...'}</div>
+             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          </div>
+        </header>
+      )}
+
+      <main className={`flex-grow grid gap-0 overflow-hidden ${
+        viewMode === 'desktop' 
+          ? 'grid-cols-[260px_1fr_280px]' 
+          : viewMode === 'tablet'
+            ? 'grid-cols-[1fr_280px]'
+            : 'grid-cols-1'
+      }`}>
+        
+        {/* Left Sidebar (Desktop Only) */}
+        {viewMode === 'desktop' && (
+          <section className="overflow-hidden flex flex-col bg-[#0a0a0a] border-r border-app-border">
+            <LeftSidebar />
+          </section>
+        )}
+
+        {/* Main Center (Arena + Feed) */}
+        <section className={`bg-[#0D0D0D] flex flex-col overflow-hidden relative min-w-0 ${viewMode === 'desktop' ? 'border-r border-app-border' : ''}`}>
+          {viewMode === 'mobile' ? (
+            <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0">
+              {renderMobileContent()}
+            </div>
+          ) : (
+            <>
+              <RoundStage />
+              <div className="h-px w-full bg-app-border shrink-0" />
+              <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                 <MixedFeed />
+              </div>
+            </>
+          )}
+        </section>
+
+        {/* Intel Tower (Desktop & Tablet Only) */}
+        {viewMode !== 'mobile' && (
+          <IntelTower />
+        )}
+      </main>
+
+      {/* Footer (Desktop/Tablet) or Nav (Mobile) */}
+      {viewMode === 'mobile' ? (
+        <MobileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
+      ) : (
+        <footer className="h-[48px] bg-app-accent text-app-bg flex items-center px-8 font-app-bold uppercase text-[12px] justify-between shrink-0 z-10">
+          <div className="flex items-center gap-6">
+             <span>STATUS: {phase.replace('_', ' ')}</span>
+             <span className="opacity-40">|</span>
+             <span>ROUND #{useGameStore.getState().roundNumber}</span>
+          </div>
+          {phase === 'live' && (
+            <div className="flex gap-8">
+              <span>ALIVE: {aliveCount}</span>
+              <span>POOL: {totalInPlay.toFixed(1)} MON</span>
+            </div>
+          )}
+        </footer>
+      )}
+
+      {/* Overlay Components */}
+      <HamburgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      {/* Development Debug Panel */}
+      {process.env.NODE_ENV === 'development' && (
+        <>
+          <DebugPanel />
+          <DevBadge />
+        </>
+      )}
+    </div>
+  );
+}

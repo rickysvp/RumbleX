@@ -1,0 +1,19 @@
+{
+  "version": "0.1.0",
+  "name": "RumbleX",
+  "description": "RumbleX - AI-powered battle royale text game engine",
+  "channel": "alpha",
+  "releaseDate": "2026-04-19",
+  "changelog": {
+    "0.1.0": {
+      "date": "2026-04-19",
+      "changes": [
+        "Initial MVP release",
+        "Core battle royale simulation engine",
+        "Loadout system with items, skills, and strategies",
+        "Real-time kill board and game intel",
+        "Wallet integration framework"
+      ]
+    }
+  }
+}

@@ -1,0 +1,76 @@
+.intel-tower-container {
+  perspective: 1200px;
+  width: 100%;
+  height: 100%;
+}
+
+.intel-tower-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.intel-tower-inner.is-flipped {
+  transform: rotateY(-180deg);
+}
+
+.intel-tower-inner.is-flipped-reverse {
+  transform: rotateY(180deg);
+}
+
+.intel-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-col: column;
+  background-color: #0A0A0A;
+}
+
+.intel-face-back {
+  transform: rotateY(180deg);
+}
+
+@keyframes live-dot-flash {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-live-dot {
+  animation: live-dot-flash 1s infinite;
+}
+
+.animate-attack-flash {
+  animation: attack-flash 0.5s infinite;
+}
+
+@keyframes attack-flash {
+  0%, 100% { border-color: transparent; }
+  50% { border-color: #D9FF00; }
+}
+
+/* Custom scrollbar for deep sections */
+.intel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #222 transparent;
+}
+
+.intel-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.intel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.intel-scroll::-webkit-scrollbar-thumb {
+  background-color: #222;
+  border-radius: 2px;
+}
