@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "0.1.3",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
@@ -31,6 +31,12 @@
         "Loadout system with items, skills, and strategies",
         "Real-time kill board and game intel",
         "Wallet integration framework"
+      ]
+    },
+    "0.1.3": {
+      "date": "2026-04-20",
+      "changes": [
+        "Prepare for TS compilation fixes"
       ]
     }
   }
