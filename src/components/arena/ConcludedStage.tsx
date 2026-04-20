@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { Trophy, ChevronRight, History } from 'lucide-react';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -13,77 +14,135 @@ export function ConcludedStage() {
   const lastRoundResult = useGameStore(state => state.lastRoundResult);
   const queueRemaining = useGameStore(state => state.userLoadout.queueRemaining);
   const players = useGameStore(state => state.players);
+  const recentChampions = useGameStore(state => state.recentChampions);
   const openNextRound = useGameStore(state => state.openNextRound);
 
   const alivePlayers = players.filter(p => p.status === 'alive');
   const totalInPlay = players.reduce((acc, p) => acc + p.mon, 0);
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 animate-[fadeIn_0.15s_ease-in-out_forwards]">
+    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
       {/* Background brutalist element */}
-      <div className="absolute top-[-40px] right-[-20px] p-4 opacity-[0.03] pointer-events-none select-none">
-        <div className="text-[140px] md:text-[200px] font-app-bold leading-none tracking-tighter">{roundNumber}</div>
+      <div className="absolute top-[-20px] right-[-20px] p-4 opacity-[0.03] pointer-events-none select-none">
+        <div className="text-[120px] md:text-[200px] font-app-bold leading-none tracking-tighter">FIN</div>
       </div>
 
-      <div className="w-full max-w-xl z-10 flex flex-col items-center text-center px-4">
-        <h1 className="font-app-bold text-[22px] md:text-[28px] text-white uppercase tracking-widest mb-6 animate-[fadeIn_0.2s_ease-out]">
-          ROUND #{roundNumber} — CONCLUDED
-        </h1>
-
-        <div className="bg-[#151515] border border-[#333] w-full p-6 mb-8 relative overflow-hidden shadow-2xl animate-[fadeIn_0.5s_ease-out,slideDown_0.3s_ease-out]">
-           <div className="absolute left-0 top-0 w-1 md:w-2 h-full bg-app-accent shadow-[0_0_20px_rgba(217,255,0,0.3)]"></div>
-           <div className="text-[10px] md:text-[11px] text-app-muted font-app-bold uppercase tracking-[4px] mb-2">★ CHAMPION ★</div>
-           <div className="text-[28px] md:text-[40px] font-app-bold text-app-accent mb-2 leading-none tracking-tighter drop-shadow-lg">
-             {lastRoundResult ? lastRoundResult.champion : 'NONE'}
-           </div>
-           <div className="text-[12px] md:text-[14px] font-app-mono text-white opacity-80 uppercase tracking-widest">
-             +{lastRoundResult ? lastRoundResult.championMon.toFixed(1) : '0.0'} MON cashed out
-           </div>
+      <div className="w-full max-w-2xl z-10 flex flex-col items-center text-center px-4">
+        
+        {/* UPPER STATUS */}
+        <div className="flex items-center gap-3 mb-8 opacity-60">
+           <div className="h-[1px] w-8 bg-white/30" />
+           <span className="font-app-mono text-[10px] uppercase tracking-[4px]">POST_MATCH_SUMMARY</span>
+           <div className="h-[1px] w-8 bg-white/30" />
         </div>
 
-        <div className="flex gap-4 md:gap-8 w-full mb-8 justify-center border border-[#222] bg-[#0a0a0a] p-4">
-           <div className="flex flex-col items-center">
-             <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">SURVIVORS</span>
-             <span className="text-[16px] font-app-mono text-white">{alivePlayers.length}</span>
-           </div>
-           <div className="w-px h-10 bg-[#333]"></div>
-           <div className="flex flex-col items-center">
-             <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">TOTAL LOOT</span>
-             <span className="text-[16px] font-app-mono text-app-accent">{totalInPlay.toFixed(1)} MON</span>
-           </div>
-           {queueRemaining > 0 && (
-             <>
-               <div className="w-px h-10 bg-[#333]"></div>
-               <div className="flex flex-col items-center">
-                 <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">ROUNDS LEFT</span>
-                 <span className="text-[16px] font-app-mono text-white">Your queue: {queueRemaining}</span>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start w-full">
+          
+          {/* LEFT: CHAMPION SHOWCASE (8 cols) */}
+          <div className="md:col-span-12 lg:col-span-8 flex flex-col items-stretch">
+            <div className="bg-[#0D0D0D] border-2 border-app-accent/20 w-full p-8 mb-6 relative overflow-hidden shadow-[0_0_50px_rgba(217,255,0,0.05)] group">
+               <div className="absolute -right-4 -top-4 opacity-[0.05] group-hover:scale-110 transition-transform duration-700">
+                  <Trophy size={160} />
                </div>
-             </>
+               
+               <div className="text-[11px] text-app-muted font-app-bold uppercase tracking-[6px] mb-4 flex items-center justify-center gap-2">
+                 <span className="w-2 h-2 bg-app-accent rounded-full animate-pulse" />
+                 CHAMPION_CERTIFIED
+               </div>
+               
+               <div className="text-[36px] md:text-[56px] font-app-bold text-app-accent mb-2 leading-none tracking-tight drop-shadow-[0_0_20px_rgba(217,255,0,0.4)]">
+                 {lastRoundResult ? lastRoundResult.champion : 'NONE'}
+               </div>
+               
+               <div className="text-[14px] md:text-[18px] font-app-mono text-white opacity-80 uppercase tracking-[2px] mb-6">
+                 NET_PRIZE: <span className="font-app-bold">{lastRoundResult ? lastRoundResult.championMon.toFixed(1) : '0.0'} MON</span>
+               </div>
+
+               <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                  <div className="text-left">
+                     <div className="text-[9px] text-app-accent font-app-bold uppercase tracking-widest mb-1">PLATFORM_FEE</div>
+                     <div className="text-[14px] text-white font-app-mono">5.0%</div>
+                  </div>
+                  <div className="text-right">
+                     <div className="text-[9px] text-app-accent font-app-bold uppercase tracking-widest mb-1">SEASON_POOL</div>
+                     <div className="text-[14px] text-white font-app-mono">5.0%</div>
+                  </div>
+               </div>
+            </div>
+
+            {/* QUICK STATS */}
+            <div className="flex gap-4 md:gap-px bg-[#222] border border-[#222]">
+               <div className="flex-1 bg-[#050505] p-4 flex flex-col items-center">
+                 <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">ALIVE_END</span>
+                 <span className="text-[18px] font-app-mono text-white">{alivePlayers.length}</span>
+               </div>
+               <div className="flex-1 bg-[#050505] p-4 flex flex-col items-center">
+                 <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">ROUND_MON</span>
+                 <span className="text-[18px] font-app-mono text-app-accent">{lastRoundResult?.totalVolume.toFixed(1)}</span>
+               </div>
+               <div className="flex-1 bg-[#050505] p-4 flex flex-col items-center">
+                 <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">ROUND_ID</span>
+                 <span className="text-[18px] font-app-mono text-white">#{roundNumber}</span>
+               </div>
+            </div>
+          </div>
+
+          {/* RIGHT: RECENT HISTORY (4 cols - Hidden on small mobile if needed) */}
+          <div className="md:col-span-12 lg:col-span-4 flex flex-col items-stretch h-full">
+            <div className="bg-[#050505] border border-app-border p-4 h-full flex flex-col">
+               <div className="text-[10px] text-app-accent font-app-bold uppercase tracking-[4px] mb-4 flex items-center gap-2">
+                 <History size={12} />
+                 GLOBAL_HISTORY
+               </div>
+               
+               <div className="flex flex-col gap-3">
+                  {recentChampions.slice(0, 6).map((champ, i) => (
+                    <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 opacity-80 hover:opacity-100 transition-opacity">
+                       <span className="text-white font-app-mono text-[11px] uppercase tracking-wider">{champ}</span>
+                       <span className="text-app-muted font-app-mono text-[9px]">#{roundNumber - i - 1}</span>
+                    </div>
+                  ))}
+               </div>
+               
+               <div className="mt-auto pt-4 text-[8px] text-app-muted font-app-mono uppercase tracking-widest text-left">
+                  ALL CONTRACTS VERIFIED_OK
+               </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* BOTTOM ACTION */}
+        <div className="mt-10 w-full">
+           {queueRemaining > 0 ? (
+              <div className="bg-app-accent/5 border-2 border-app-accent/20 p-6 flex flex-col md:flex-row items-center justify-between gap-4 group">
+                 <div className="text-left">
+                    <div className="text-app-accent font-app-bold text-[18px] uppercase tracking-[6px] mb-1">AUTO_QUEUE_ACTIVE</div>
+                    <div className="text-app-muted text-[10px] font-app-mono uppercase tracking-[2px]">ROUNDS_REMAINING: {queueRemaining}</div>
+                 </div>
+                 <div className="flex flex-col items-end">
+                    <div className="text-white font-app-mono text-[24px] mb-1">{formatTime(timeRemaining)}</div>
+                    <div className="w-32 h-1 bg-white/10 overflow-hidden">
+                       <div className="h-full bg-app-accent animate-[scan_2s_linear_infinite]" style={{ width: '30%' }} />
+                    </div>
+                 </div>
+              </div>
+           ) : (
+              <div className="flex flex-col md:flex-row items-stretch gap-px bg-app-border border border-app-border shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                 <div className="flex-[2] bg-[#050505] p-6 flex flex-col items-start justify-center">
+                    <div className="text-white font-app-bold text-[14px] uppercase tracking-[4px] mb-1">NEXT_ROUND_INITIATION</div>
+                    <div className="text-app-muted font-app-mono text-[10px] uppercase">ENTRIES_OPENING_IN: {formatTime(timeRemaining)}</div>
+                 </div>
+                 <button 
+                   onClick={openNextRound}
+                   className="flex-1 bg-app-accent hover:bg-white text-black font-app-bold py-6 px-10 uppercase tracking-[6px] transition-all flex items-center justify-center gap-3 group"
+                 >
+                   RE_ENTER <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                 </button>
+              </div>
            )}
         </div>
 
-        {queueRemaining > 0 ? (
-           <div className="flex flex-col items-center w-full">
-             <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-widest mb-2">
-               NEXT ROUND IN: {formatTime(timeRemaining)}
-             </div>
-             <div className="px-4 py-3 md:py-4 bg-app-accent/10 border border-app-accent text-app-accent font-app-bold text-[10px] md:text-[12px] tracking-widest uppercase w-full">
-               YOUR NEXT LOADOUT IS READY. ROUND #{roundNumber + 1} STARTS IN {formatTime(timeRemaining)}
-             </div>
-           </div>
-        ) : (
-           <div className="flex flex-col items-center w-full max-w-xs">
-             <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-widest mb-3">
-               NEXT ROUND IN: {formatTime(timeRemaining)}
-             </div>
-             <button 
-               onClick={openNextRound}
-               className="bg-app-accent text-[#000] font-app-bold text-[14px] md:text-[16px] py-4 w-full uppercase tracking-widest hover:bg-white transition-colors"
-             >
-               Play to Win
-             </button>
-           </div>
-        )}
       </div>
     </div>
   );

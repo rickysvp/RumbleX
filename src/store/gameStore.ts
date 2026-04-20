@@ -287,6 +287,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         itemUsed: itemUsed || null
       };
 
+      const newState = {
         players: newPlayers,
         leaderboard: updatedLeaderboard,
         totalQualifiedKills,
