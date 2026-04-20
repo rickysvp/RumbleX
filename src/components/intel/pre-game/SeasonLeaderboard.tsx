@@ -1,15 +1,18 @@
 import React from 'react';
 import { useGameStore } from '../../../store/gameStore';
+import { useWalletStore } from '../../../store/walletStore';
 import { SEASON_CONFIG } from '../../../lib/seasonConfig';
 
 export function SeasonLeaderboard() {
   const leaderboard = useGameStore(state => state.leaderboard || []);
+  const { status: walletStatus } = useWalletStore();
   const top5 = leaderboard.slice(0, 5);
   const userEntry = leaderboard.find(e => e.isUser);
   const userRank = leaderboard.findIndex(e => e.isUser) + 1;
   const isInTop5 = userRank > 0 && userRank <= 5;
   
   const threshold = SEASON_CONFIG.SEASON_KILL_THRESHOLD;
+  const isConnected = walletStatus === "connected";
 
   return (
     <div className="p-5 border-b border-app-border">
@@ -38,13 +41,13 @@ export function SeasonLeaderboard() {
               <div 
                 key={p.handle}
                 className={`grid grid-cols-[30px_1fr_45px_75px] gap-2 items-center py-2 px-2 transition-colors ${
-                  p.isUser ? 'bg-app-accent/5 border border-app-accent/20 rounded-sm' : ''
+                  isConnected && p.isUser ? 'bg-app-accent/5 border border-app-accent/20 rounded-sm' : ''
                 }`}
               >
                 <div className={`font-app-bold text-[11px] ${i === 0 ? 'text-app-accent' : 'text-white'}`}>#{i + 1}</div>
-                <div className={`font-app-bold text-[11px] truncate flex flex-wrap items-center gap-1.5 ${p.isUser ? 'text-white' : 'text-app-muted'}`}>
-                  <span>{p.isUser ? '★ ' : ''}{p.handle}</span>
-                  {!p.qualified && (
+                <div className={`font-app-bold text-[11px] truncate flex flex-wrap items-center gap-1.5 ${isConnected && p.isUser ? 'text-white' : 'text-app-muted'}`}>
+                  <span>{isConnected && p.isUser ? '★ ' : ''}{p.handle}</span>
+                  {isConnected && !p.qualified && (
                     <span className="text-[7px] bg-red-500/20 text-red-400 px-1 py-0.5 rounded-[1px] tracking-tight border border-red-500/30">NOT QUALIFIED</span>
                   )}
                 </div>
@@ -55,7 +58,8 @@ export function SeasonLeaderboard() {
               </div>
             ))}
 
-            {!isInTop5 && userEntry && (
+            {/* 用户不在前5时的位置显示 - 只在登录后显示 */}
+            {isConnected && !isInTop5 && userEntry && (
               <>
                 <div className="text-center py-1 text-app-muted tracking-[4px]">---</div>
                 <div className="grid grid-cols-[30px_1fr_45px_75px] gap-2 items-center py-2 px-2 bg-app-accent/5 border border-app-accent/20 rounded-sm">
@@ -74,8 +78,8 @@ export function SeasonLeaderboard() {
               </>
             )}
             
-            {/* User Qualification Progress Bar */}
-            {userEntry && !userEntry.qualified && (
+            {/* User Qualification Progress Bar - 只在登录后显示 */}
+            {isConnected && userEntry && !userEntry.qualified && (
               <div className="mt-6 px-1">
                  <div className="flex justify-between items-end mb-2">
                    <div className="text-[9px] font-app-bold text-white uppercase tracking-widest">

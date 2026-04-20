@@ -1,10 +1,29 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.4",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.4": {
+      "date": "2026-04-20",
+      "changes": [
+        "Simplify LIVE stage UI - remove confusing labels",
+        "Add ENDS IN label above countdown",
+        "Show only ALIVE and PRIZE POOL stats",
+        "Fix SeasonLeaderboard to show user info only when logged in",
+        "Remove decorative HUD elements from EntryOpenStage",
+        "Redesign ConcludedStage to show survivor leaderboard",
+        "Fix KillBoard to display player names",
+        "Merge SeasonInfo title sections"
+      ]
+    },
+    "0.1.3": {
+      "date": "2026-04-20",
+      "changes": [
+        "Prepare for TS compilation fixes"
+      ]
+    },
     "0.1.2": {
       "date": "2026-04-20",
       "changes": [
@@ -31,12 +50,6 @@
         "Loadout system with items, skills, and strategies",
         "Real-time kill board and game intel",
         "Wallet integration framework"
-      ]
-    },
-    "0.1.3": {
-      "date": "2026-04-20",
-      "changes": [
-        "Prepare for TS compilation fixes"
       ]
     }
   }

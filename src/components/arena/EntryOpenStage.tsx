@@ -37,21 +37,13 @@ export function EntryOpenStage() {
     <>
       <div className="absolute inset-0 flex flex-col justify-center p-6 md:p-12 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
 
-        {/* SYSTEM HEADER */}
-        <div className="absolute top-6 left-12 flex items-center gap-4 opacity-50 z-20">
-          <div className="w-1.5 h-1.5 rounded-full bg-app-accent animate-pulse" />
-          <div className="font-app-mono text-[10px] uppercase tracking-[4px]">SYS.ROUND_{roundNumber.toString().padStart(3, '0')}</div>
-          <div className="w-px h-3 bg-app-border mx-2" />
-          <div className="font-app-mono text-[10px] uppercase tracking-[2px]">STATUS: OPEN_QUEUE</div>
-        </div>
-
         <div className="flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-16 z-10 w-full max-w-6xl mx-auto">
-          
+
           {/* LEFT COLUMN: HERO TIMER */}
           <div className="flex flex-col justify-center items-center md:items-start flex-1 text-center md:text-left">
-            <div className="text-app-muted font-app-bold text-[11px] uppercase tracking-[6px] mb-4 flex items-center gap-3">
-              <span className="w-4 h-[1px] bg-app-muted" />
-              ARENA LOCKDOWN
+            <div className="text-white font-app-bold text-[11px] uppercase tracking-[6px] mb-4 flex items-center gap-3">
+              <span className="w-4 h-[1px] bg-white" />
+              ROUND #{roundNumber}
             </div>
             
             <div 
@@ -63,17 +55,6 @@ export function EntryOpenStage() {
               {formatTime(timeRemaining)}
             </div>
 
-            <div className="flex items-center gap-6 mt-2">
-               <div className="flex flex-col">
-                  <span className="text-[10px] text-app-muted uppercase font-app-bold tracking-widest mb-1">DATA STORAGE</span>
-                  <span className="font-app-mono text-[11px] text-white">MODIFIER: X1.2</span>
-               </div>
-               <div className="w-px h-6 bg-app-border" />
-               <div className="flex flex-col">
-                  <span className="text-[10px] text-app-muted uppercase font-app-bold tracking-widest mb-1">PROTOCOL</span>
-                  <span className="font-app-mono text-[11px] text-white">V_0.8.4_STABLE</span>
-               </div>
-            </div>
           </div>
 
           {/* RIGHT COLUMN: ACTION ZONE */}
@@ -145,20 +126,10 @@ export function EntryOpenStage() {
                 </button>
               )}
               
-              <div className="flex justify-between items-center px-2 opacity-30 mt-2">
-                 <div className="font-app-mono text-[8px] tracking-widest uppercase">ENCRYPTED_SIGN_REQUIRED</div>
-                 <div className="font-app-mono text-[8px] tracking-widest uppercase">REV: 02</div>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* FOOTER DISCLAIMER */}
-        <div className="absolute bottom-6 left-12 right-12 flex justify-center items-end opacity-20 pointer-events-none font-app-mono">
-          <div className="text-[9px] uppercase tracking-[2px] max-w-xs leading-loose">
-            CHAMPION: 75% | RUNNER-UP: 10% | THIRD: 5% | SEASON_1: 5% | PROTOCOL_FEES: 5%
-          </div>
-        </div>
       </div>
 
       {isLoadoutOpen && createPortal(

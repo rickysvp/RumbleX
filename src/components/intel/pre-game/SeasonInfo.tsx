@@ -16,12 +16,12 @@ export function SeasonInfo() {
 
   return (
     <div className="p-5 border-b border-app-border">
+      {/* 合并标题 */}
       <div className="font-app-bold text-[14px] uppercase tracking-widest mb-5 flex items-center gap-2 before:content-[''] before:block before:w-2 before:h-2 before:bg-app-accent">
-        Season {seasonNumber}
+        Season {seasonNumber} Prize Pool
       </div>
       
       <div className="mb-6">
-        <div className="text-[10px] text-app-muted uppercase font-app-bold tracking-widest mb-1">S{seasonNumber} Prize Pool</div>
         <div className="text-[28px] font-app-bold text-app-accent leading-none mb-1">{seasonPool.toFixed(0)} MON</div>
         <div className="text-[10px] text-app-muted font-app-mono italic">
           10% of every round · airdropped to {SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ kill players

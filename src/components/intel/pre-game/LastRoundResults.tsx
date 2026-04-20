@@ -3,6 +3,7 @@ import { useGameStore } from '../../../store/gameStore';
 
 export function LastRoundResults() {
   const lastRoundResult = useGameStore(state => state.lastRoundResult);
+  const roundNumber = useGameStore(state => state.roundNumber);
 
   if (!lastRoundResult) {
     return (
@@ -15,48 +16,46 @@ export function LastRoundResults() {
     );
   }
 
+  // 显示所有存活玩家，按收益排序
+  const survivors = lastRoundResult.payouts
+    .filter(p => p.mon > 0)
+    .sort((a, b) => b.mon - a.mon);
+
   return (
     <div className="p-5 border-b border-app-border">
       <div className="font-app-bold text-[14px] uppercase tracking-widest mb-5 flex items-center gap-2 before:content-[''] before:block before:w-2 before:h-2 before:bg-app-accent">
         Round #{lastRoundResult.roundNumber} Results
       </div>
 
-      <div className="bg-[#111] border border-[#222] p-4 mb-5 relative rounded-sm">
-        <div className="text-[9px] text-app-muted uppercase font-app-bold tracking-widest mb-1">Champion</div>
-        <div className="text-[18px] font-app-bold text-app-accent leading-none mb-1">
-          ★★ {lastRoundResult.champion}
-        </div>
-        <div className="text-[10px] text-app-accent/80 font-app-mono uppercase tracking-tight">
-          +{lastRoundResult.championMon.toFixed(1)} MON Cashed Out
-        </div>
+      {/* 统计信息 */}
+      <div className="flex items-center justify-between mb-4 px-2">
+        <div className="text-[10px] text-app-muted uppercase">{survivors.length} Survivors</div>
+        <div className="text-[10px] text-app-accent font-app-mono">{lastRoundResult.totalVolume.toFixed(1)} MON</div>
       </div>
 
-      <div className="grid grid-cols-[30px_1fr_70px] gap-2 text-[8px] text-app-muted uppercase font-app-bold tracking-widest mb-2 px-2">
+      {/* 表头 */}
+      <div className="grid grid-cols-[30px_1fr_50px_70px] gap-2 text-[8px] text-app-muted uppercase font-app-bold tracking-widest mb-2 px-2">
         <div>Rank</div>
         <div>Player</div>
-        <div className="text-right">Payout</div>
+        <div className="text-right">Kills</div>
+        <div className="text-right">Earned</div>
       </div>
 
+      {/* 存活榜单 */}
       <div className="flex flex-col gap-0.5">
-         {lastRoundResult.payouts.map((row, i) => (
-           <div key={i} className="grid grid-cols-[30px_1fr_70px] gap-2 items-center py-1.5 px-2 text-[10px] font-app-mono">
-             <div className="text-app-muted">#{row.place}</div>
+         {survivors.map((row, i) => (
+           <div 
+             key={i} 
+             className={`grid grid-cols-[30px_1fr_50px_70px] gap-2 items-center py-1.5 px-2 text-[10px] font-app-mono ${
+               i === 0 ? 'bg-app-accent/10 border border-app-accent/20' : ''
+             }`}
+           >
+             <div className={i === 0 ? 'text-app-accent' : 'text-app-muted'}>#{i + 1}</div>
              <div className="text-white truncate">{row.handle}</div>
-             <div className={`text-right ${i === 0 ? 'text-app-accent' : 'text-white'}`}>{row.mon.toFixed(2)} MON</div>
+             <div className="text-right text-[#666]">{row.kills || 0}K</div>
+             <div className={`text-right ${i === 0 ? 'text-app-accent' : 'text-white'}`}>{row.mon.toFixed(1)} MON</div>
            </div>
          ))}
-      </div>
-
-      {/* Protocol / Season Cuts Summary */}
-      <div className="mt-4 pt-3 border-t border-[#1a1a1a] flex flex-col gap-2">
-          <div className="flex justify-between text-[9px] font-app-mono text-app-muted uppercase">
-             <span>Season Pool +</span>
-             <span className="text-white">{(lastRoundResult.totalVolume * 0.05).toFixed(2)} MON</span>
-          </div>
-          <div className="flex justify-between text-[9px] font-app-mono text-app-muted uppercase">
-             <span>Protocol Vault +</span>
-             <span className="text-white">{(lastRoundResult.totalVolume * 0.05).toFixed(2)} MON</span>
-          </div>
       </div>
     </div>
   );

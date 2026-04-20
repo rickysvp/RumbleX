@@ -56,26 +56,17 @@ export function LiveStage() {
       <EliminationCinematic />
 
       <div className={`w-full max-w-2xl flex flex-col items-center text-center px-2 z-10 transition-transform ${shake ? 'scale-[1.01]' : 'scale-100'}`}>
-        <div className="flex justify-between w-full mb-3 md:mb-6 uppercase tracking-[0.3em] border-b border-[#222] pb-4">
-           <div className="flex flex-col items-start">
-              <span className="text-app-muted font-app-bold text-[10px] md:text-[12px]">SECTOR_07</span>
-              <span className="text-white font-app-bold text-[12px] md:text-[14px]">ROUND #{roundNumber}</span>
-           </div>
-           <div className="flex flex-col items-end">
-              <span className="text-app-accent font-app-bold text-[10px] md:text-[12px] flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-app-accent animate-pulse"></span>
-                ACTIVE_SIMULATION
-              </span>
-              <span className="text-app-muted text-[10px] font-app-mono whitespace-nowrap">FREQ: 155.43 MHZ</span>
-           </div>
+        <div className="flex justify-center w-full mb-3 md:mb-6 uppercase tracking-[0.3em] border-b border-[#222] pb-4">
+           <span className="text-white font-app-bold text-[14px] md:text-[18px]">ROUND #{roundNumber}</span>
         </div>
 
-        <div className="mb-6 md:mb-10 relative">
+        <div className="mb-6 md:mb-10 relative flex flex-col items-center">
           {timeRemaining <= 10 && (
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-app-danger font-app-bold text-[10px] tracking-[5px] animate-pulse">
               !! CRITICAL_WINDOW !!
             </div>
           )}
+          <div className="text-[10px] md:text-[11px] text-app-muted uppercase font-app-bold tracking-[6px] mb-2">ENDS IN</div>
           <div 
             className={`font-app-bold text-[64px] md:text-[96px] leading-none tracking-[-0.05em] ${
               timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent'
@@ -84,25 +75,17 @@ export function LiveStage() {
           >
             {formatTime(timeRemaining)}
           </div>
-          <div className="text-[10px] md:text-[11px] text-app-muted uppercase font-app-bold tracking-[6px] mt-2">TEMPORAL_LOCKDOWN</div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-8 max-w-2xl">
+        {/* 简化的统计信息 - 只显示存活和奖池 */}
+        <div className="grid grid-cols-2 gap-4 w-full mb-8 max-w-md">
           <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">SIGNALS_LIVE</span>
+            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">ALIVE</span>
             <span className="text-[18px] text-white font-app-mono font-bold">{aliveCount}<span className="text-[12px] text-[#444] ml-1">/{totalInRound}</span></span>
           </div>
           <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">APEX_PREDATOR</span>
-            <span className="text-[14px] text-white font-app-mono truncate max-w-full font-bold">{killLeader ? killLeader.handle : '---'}</span>
-          </div>
-          <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">APEX_BALANCE</span>
-            <span className="text-[18px] text-app-accent font-app-mono font-bold">{killLeader ? killLeader.mon.toFixed(1) : '0.0'}</span>
-          </div>
-          <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">TOTAL_VOLUME</span>
-            <span className="text-[18px] text-app-accent font-app-mono font-bold">{totalInPlay.toFixed(1)}</span>
+            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">PRIZE POOL</span>
+            <span className="text-[18px] text-app-accent font-app-mono font-bold">{totalInPlay.toFixed(1)} MON</span>
           </div>
         </div>
 
@@ -124,12 +107,7 @@ export function LiveStage() {
               <span className="font-app-bold">ELIMINATED BY {user.eliminatedBy?.toUpperCase()}</span>
               <span className="text-[10px] opacity-60">AT {formatTime(user.eliminatedAt || 0)}</span>
             </div>
-          ) : (
-            <div className="flex flex-col items-center text-app-muted">
-              <span className="text-[10px] font-app-bold tracking-[4px] uppercase mb-1">PASSIVE_MODE</span>
-              <span className="font-app-bold">SPECTATING_ONLY</span>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
