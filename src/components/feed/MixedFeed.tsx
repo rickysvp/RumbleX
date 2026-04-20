@@ -31,11 +31,39 @@ export function MixedFeed() {
   });
 
   // Auto-scroll logic
+  // Auto-scroll logic
   useEffect(() => {
     if (filteredEvents.length > 0) {
       virtualizer.scrollToIndex(filteredEvents.length - 1, { align: 'end', behavior: 'smooth' });
     }
   }, [filteredEvents.length, virtualizer]);
+
+  const [message, setMessage] = useState('');
+  const addFeedEvent = useGameStore(state => state.addFeedEvent);
+  const timeRemaining = useGameStore(state => state.timeRemaining);
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+    
+    addFeedEvent({
+      timestamp: 600 - timeRemaining,
+      type: 'system',
+      text: `[PILOT_01]: ${message.trim()}`,
+      attacker: 'PILOT_01',
+      target: null,
+      monAmount: null,
+      skillUsed: null,
+      itemUsed: null
+    });
+    
+    setMessage('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
 
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-[#0D0D0D]">
@@ -104,7 +132,10 @@ export function MixedFeed() {
           <input 
             type="text" 
             placeholder="TRANSMIT COMM..."
-            className="w-full bg-[#111] border border-[#333] text-white py-3 pl-8 pr-4 font-app-mono text-[13px] focus:outline-none focus:border-app-accent"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full bg-[#111] border border-[#333] text-white py-3 pl-8 pr-4 font-app-mono text-[13px] focus:outline-none focus:border-app-accent placeholder:text-neutral-700"
           />
         </div>
       </div>

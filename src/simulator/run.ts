@@ -1,7 +1,5 @@
-import { tickSimulation } from '../lib/simulationEngine';
-import { generateNarrative } from '../lib/narrativeEngine';
+import { generateMockPlayers } from './mockPlayers';
 import { Player, FeedEvent } from '../store/types';
-import { mockPlayers } from './mockPlayers';
 
 function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -28,45 +26,49 @@ function chunkText(text: string, maxLength: number): string[] {
 }
 
 export function runSimulation() {
-    let players: Player[] = mockPlayers.map(p => ({
+    const players: Player[] = generateMockPlayers(10, true).map(p => ({
         ...p,
         mon: 1.0,
-        status: 'alive',
+        status: 'alive' as const,
         kills: 0,
-        isUser: p.handle === 'Pilot_01'
+        isUser: p.handle === 'PILOT_01'
     }));
 
-    const allEvents: FeedEvent[] = [];
-    let currentTime = 600;
-
     console.log(`\nStarting RumbleX Simulation (v2 Engine)...\n`);
+    console.log(`Players: ${players.length}`);
+    console.log(`═══════════════════════════════════\n`);
 
-    // Simulate to the end
+    let currentTime = 600;
+    let eventIndex = 0;
+
     while (players.filter(p => p.status === 'alive').length > 1 && currentTime > 0) {
         const step = Math.floor(Math.random() * 15) + 5;
         currentTime -= step;
         
-        const result = tickSimulation(players);
-        if (result) {
-            players = result.players;
-            const narrative = generateNarrative(result.event, players);
-            const feedEvent: FeedEvent = {
-                id: Math.random().toString(36).substr(2, 9),
-                timestamp: currentTime,
-                type: result.event.type as any,
-                text: narrative
-            };
-            allEvents.push(feedEvent);
-            
-            // Output Log
-            const timeStr = formatTime(currentTime);
-            const prefix = `${timeStr} ⚔️  `;
-            const lines = chunkText(narrative, 60);
-            console.log(`${prefix}${lines[0]}`);
-            for (let i = 1; i < lines.length; i++) {
-                console.log(`            ${lines[i]}`);
-            }
+        const alive = players.filter(p => p.status === 'alive');
+        if (alive.length <= 1) break;
+
+        const attacker = alive[Math.floor(Math.random() * alive.length)];
+        const targets = alive.filter(p => p.id !== attacker.id);
+        const target = targets[Math.floor(Math.random() * targets.length)];
+
+        const looted = target.mon * 0.9;
+        target.status = 'eliminated';
+        target.eliminatedAt = 600 - currentTime;
+        target.eliminatedBy = attacker.handle;
+        attacker.mon += looted;
+        target.mon = 0;
+        attacker.kills += 1;
+
+        const timeStr = formatTime(currentTime);
+        const narrative = `${attacker.handle} eliminated ${target.handle} for ${looted.toFixed(1)} MON`;
+        const lines = chunkText(narrative, 60);
+        console.log(`${timeStr} ⚔️  ${lines[0]}`);
+        for (let i = 1; i < lines.length; i++) {
+            console.log(`            ${lines[i]}`);
         }
+        
+        eventIndex++;
     }
 
     const alive = players.filter(p => p.status === 'alive');
@@ -84,7 +86,7 @@ export function runSimulation() {
     });
 
     console.log(`\n═══════════════════════════════════\n`);
-    console.log(`✅ Round simulation complete.`);
+    console.log(`✅ Round simulation complete. ${eventIndex} events generated.`);
 }
 
 if (typeof process !== 'undefined' && process.argv && process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {

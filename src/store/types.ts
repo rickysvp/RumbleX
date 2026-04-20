@@ -117,4 +117,8 @@ export interface GameState {
   // User history
   userHistory: UserHistoryEntry[];
   userStats: UserStats;
+
+  // Audit/UX Loop triggers
+  recentChampions: string[];
+  lastElimination: { attacker: string; target: string; mon: number; timestamp: number } | null;
 }

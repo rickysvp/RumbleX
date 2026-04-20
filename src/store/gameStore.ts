@@ -66,7 +66,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         phase: 'live' as const,
         timeRemaining: ROUND_DURATION,
         players: livePlayers,
-        feedEvents: [newEvent, ...state.feedEvents].slice(0, 200)
+        feedEvents: [...state.feedEvents, newEvent].slice(-200)
       };
     });
   },
@@ -86,7 +86,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (!champion) return state; // Safety check
 
       const totalRoundMON = state.players.reduce((acc, p) => acc + p.mon, 0);
-      const prizePool = totalRoundMON * 0.9; // 10% total cuts (5% platform, 5% season)
+      const feeTotal = totalRoundMON * 0.1;
+      const prizePool = totalRoundMON - feeTotal; // 10% total cuts (5% platform, 5% season)
       
       // Standings based on survival time and then mon
       const standings = [
@@ -155,10 +156,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
         },
         timeRemaining: INTERMISSION_DURATION,
         userLoadout: newLoadout,
-        feedEvents: [newEvent, ...state.feedEvents].slice(0, 200),
-        protocolVault: state.protocolVault + (roundSummary.totalVolume * 0.1),
+        feedEvents: [...state.feedEvents, newEvent].slice(-200),
+        protocolVault: state.protocolVault + (feeTotal * 0.5),
+        seasonPool: state.seasonPool + (feeTotal * 0.5),
+        recentChampions: [champion.handle, ...state.recentChampions].slice(0, 10),
         totalRoundsPlayed: state.totalRoundsPlayed + 1,
-        totalVolume: state.totalVolume + roundSummary.totalVolume
+        totalVolume: state.totalVolume + totalRoundMON
       };
     });
   },
@@ -196,7 +199,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           text: `★ PILOT_01 auto-queued for ROUND #${nextRound}. ${newLoadout.queueRemaining} round(s) remaining.`,
           attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
         };
-        state.feedEvents.unshift(autoQueueEvent as any);
+        state.feedEvents.push(autoQueueEvent as any);
       } else {
         newLoadout.queued = false;
         // Reset to strategy defaults if queue is empty
@@ -223,14 +226,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         timeRemaining: ENTRY_DURATION,
         players: freshPlayers,
         userLoadout: newLoadout,
-        feedEvents: [newEvent, ...state.feedEvents].slice(0, 200)
+        feedEvents: [...state.feedEvents, newEvent].slice(-200)
       };
     });
   },
 
   addFeedEvent: (event) => {
     set((state) => ({
-      feedEvents: [{ ...event, id: Math.random().toString(36).substr(2, 9) }, ...state.feedEvents].slice(0, 200)
+      feedEvents: [...state.feedEvents, { ...event, id: Math.random().toString(36).substr(2, 9) }].slice(-200)
     }));
   },
 
@@ -284,11 +287,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
         itemUsed: itemUsed || null
       };
 
-      const newState = {
         players: newPlayers,
         leaderboard: updatedLeaderboard,
         totalQualifiedKills,
-        feedEvents: [newEvent, ...state.feedEvents].slice(0, 200)
+        feedEvents: [...state.feedEvents, newEvent].slice(-200),
+        lastElimination: { 
+          attacker: attacker.handle, 
+          target: target.handle, 
+          mon: monLooted, 
+          timestamp: Date.now() 
+        }
       };
 
       // Check for survivor auto-conclude
@@ -330,7 +338,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           estimatedPayout: 0
         })),
         totalQualifiedKills: 0,
-        feedEvents: [finishEvent, ...state.feedEvents].slice(0, 200)
+        feedEvents: [...state.feedEvents, finishEvent].slice(-200)
       };
     });
   },
@@ -368,7 +376,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         userLoadout: newLoadout,
         players: newPlayers,
         prizePool: state.prizePool + totalCost,
-        feedEvents: [newEvent, ...state.feedEvents].slice(0, 200)
+        feedEvents: [...state.feedEvents, newEvent].slice(-200)
       };
     });
   }

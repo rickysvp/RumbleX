@@ -2,10 +2,10 @@ import React from 'react';
 import { useDevStore } from '../../store/devStore';
 import { useGameStore } from '../../store/gameStore';
 import { simulationEngine } from '../../lib/simulationEngine';
-import { INITIAL_MOCK_STATE } from '../../lib/mockData';
+import { generateMockPlayers } from '../../simulator/mockPlayers';
 
 export function SimControl() {
-  const { simulationIntervalMs, setSimulationSpeed } = useDevStore();
+  const { simulationIntervalMs, setSimulationSpeed, playerCount } = useDevStore();
 
   const handleFireEvent = () => {
     simulationEngine.generateCombatEvent();
@@ -31,21 +31,26 @@ export function SimControl() {
   };
 
   const handleResetRound = () => {
-    // Reset players but keep User pilot
-    const freshPlayers = INITIAL_MOCK_STATE.players.map(p => ({
-        ...p,
-        status: p.isUser ? 'spectating' as const : 'queued' as const,
-        mon: 0.8,
-        kills: 0,
-        eliminatedAt: null,
-        eliminatedBy: null
+    const freshPlayers = generateMockPlayers(playerCount, true).map(p => ({
+      ...p,
+      status: p.isUser ? 'spectating' as const : 'queued' as const,
+      mon: 0.8,
+      kills: 0,
+      eliminatedAt: null,
+      eliminatedBy: null
     }));
 
     useGameStore.setState({ 
         phase: 'entry_open', 
         timeRemaining: 300, 
         players: freshPlayers,
-        feedEvents: INITIAL_MOCK_STATE.feedEvents 
+        feedEvents: [{
+          id: 'reset_1',
+          timestamp: 0,
+          type: 'system' as const,
+          text: `ROUND RESET. ${freshPlayers.length - 1} PLAYERS QUEUED.`,
+          attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+        }]
     });
   };
 

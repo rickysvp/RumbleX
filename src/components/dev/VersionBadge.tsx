@@ -7,16 +7,19 @@ interface VersionInfo {
   releaseDate: string;
 }
 
+interface ChangelogEntry {
+  date: string;
+  changes: string[];
+}
+
 export function VersionBadge() {
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
 
   useEffect(() => {
-    // Fetch version info from version.json
     fetch('/version.json')
       .then(res => res.json())
       .then(data => setVersionInfo(data))
       .catch(() => {
-        // Fallback if version.json is not available
         setVersionInfo({
           version: '0.1.0',
           name: 'RumbleX',
@@ -51,12 +54,12 @@ export function VersionBadge() {
 
 export function VersionDisplay() {
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
-  const [changelog, setChangelog] = useState<Record<string, { date: string; changes: string[] }> | null>(null);
+  const [changelog, setChangelog] = useState<Record<string, ChangelogEntry> | null>(null);
 
   useEffect(() => {
     fetch('/version.json')
       .then(res => res.json())
-      .then(data => {
+      .then((data: VersionInfo & { changelog: Record<string, ChangelogEntry> }) => {
         setVersionInfo(data);
         setChangelog(data.changelog);
       })
@@ -100,7 +103,7 @@ export function VersionDisplay() {
                   <span className="text-xs text-white/40">{info.date}</span>
                 </div>
                 <ul className="space-y-1">
-                  {info.changes.map((change, idx) => (
+                  {info.changes.map((change: string, idx: number) => (
                     <li key={idx} className="text-xs text-white/60 flex items-start gap-2">
                       <span className="text-white/30">•</span>
                       {change}

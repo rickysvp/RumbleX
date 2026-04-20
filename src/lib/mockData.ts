@@ -86,5 +86,7 @@ export const INITIAL_MOCK_STATE: GameState = {
     wins: 2,
     games: 5,
     netMon: 1.4
-  }
+  },
+  recentChampions: ["VoidWalker", "DegenBear25", "CryptoKnight"],
+  lastElimination: null
 };

@@ -22,12 +22,30 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
 
   const renderNarrative = (text: string) => {
     if (!text) return null;
+    
+    // First split by MON
     let parts = text.split(/([\d.]+ MON)/g);
+    
     return parts.flatMap((part, i) => {
       if (part.match(/[\d.]+ MON/)) {
         return <span key={`mon-${i}`} className="text-app-accent font-bold">{part}</span>;
       }
-      return [part];
+      
+      // For non-MON parts, look for handles (UPPER_CASE or CamelCase)
+      // We look for patterns like PILOT_01, CryptoKnight, etc.
+      // Also catch [PILOT_01] format from chat
+      let handleParts = part.split(/(\[?[A-Z][a-zA-Z0-9_]{3,}\]?)/g);
+      return handleParts.map((hp, j) => {
+        if (hp.match(/^\[?[A-Z][a-zA-Z0-9_]{3,}\]?$/) && !hp.includes('MON')) {
+          const isUser = hp.includes('PILOT_01');
+          return (
+            <span key={`h-${i}-${j}`} className={`${isUser ? 'text-app-accent font-app-bold' : 'text-cyan-400'} font-bold`}>
+              {hp}
+            </span>
+          );
+        }
+        return hp;
+      });
     });
   };
 

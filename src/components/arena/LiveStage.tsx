@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { EliminationCinematic } from './EliminationCinematic';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -11,7 +12,18 @@ export function LiveStage() {
   const roundNumber = useGameStore(state => state.roundNumber);
   const timeRemaining = useGameStore(state => state.timeRemaining);
   const players = useGameStore(state => state.players);
+  const lastElim = useGameStore(state => state.lastElimination);
   
+  const [shake, setShake] = useState(false);
+
+  useEffect(() => {
+    if (lastElim) {
+      setShake(true);
+      const timer = setTimeout(() => setShake(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [lastElim]);
+
   const alivePlayers = players.filter(p => p.status === 'alive');
   const aliveCount = alivePlayers.length;
   const totalInRound = players.filter(p => p.status !== 'spectating').length;
@@ -21,71 +33,102 @@ export function LiveStage() {
     : null;
   
   const totalInPlay = players.reduce((acc, p) => acc + p.mon, 0);
-  
   const user = players.find(p => p.isUser);
 
   return (
-    <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 animate-[fadeIn_0.15s_ease-in-out_forwards] ${timeRemaining <= 10 ? 'animate-vignette' : ''}`}>
-      {/* Background brutalist element */}
-      <div className="absolute top-[-40px] right-[-20px] p-4 opacity-[0.03] pointer-events-none select-none">
-        <div className="text-[140px] md:text-[200px] font-app-bold leading-none tracking-tighter">{roundNumber}</div>
+    <div className={`h-full w-full flex flex-col items-center justify-center p-4 overflow-hidden relative transition-all duration-75 ${
+      shake ? 'translate-x-1 translate-y-1' : 'translate-x-0 translate-y-0'
+    } ${timeRemaining <= 10 ? 'animate-vignette' : ''}`}>
+      
+      {/* CORNER HUD DECORATIONS */}
+      <div className="absolute top-10 left-10 w-8 h-8 border-t border-l border-app-accent/20" />
+      <div className="absolute top-10 right-10 w-8 h-8 border-t border-r border-app-accent/20" />
+      <div className="absolute bottom-10 left-10 w-8 h-8 border-b border-l border-app-accent/20" />
+      <div className="absolute bottom-10 right-10 w-8 h-8 border-b border-r border-app-accent/20" />
+
+      {/* BACKGROUND DATA STREAM (Subtle) */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none select-none flex flex-wrap gap-4 p-4 font-app-mono text-[8px] overflow-hidden">
+        {Array.from({ length: 40 }).map((_, i) => (
+          <span key={i}>OX_TRACE_{Math.random().toString(16).slice(2, 10).toUpperCase()}</span>
+        ))}
       </div>
 
-      <div className="w-full max-w-2xl z-10 flex flex-col items-center text-center px-4">
-        {/* Row 1: Status header */}
-        <div className="flex justify-between w-full mb-4 md:mb-6 font-app-bold text-[14px] md:text-[16px] uppercase tracking-widest border-b border-[#222] pb-2">
-           <span className="text-app-muted">ROUND #{roundNumber}</span>
-           <span className="text-app-accent flex items-center gap-2">
-             <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-app-accent animate-pulse"></span>
-             LIVE
-           </span>
+      <EliminationCinematic />
+
+      <div className={`w-full max-w-2xl flex flex-col items-center text-center px-2 z-10 transition-transform ${shake ? 'scale-[1.01]' : 'scale-100'}`}>
+        <div className="flex justify-between w-full mb-3 md:mb-6 uppercase tracking-[0.3em] border-b border-[#222] pb-4">
+           <div className="flex flex-col items-start">
+              <span className="text-app-muted font-app-bold text-[10px] md:text-[12px]">SECTOR_07</span>
+              <span className="text-white font-app-bold text-[12px] md:text-[14px]">ROUND #{roundNumber}</span>
+           </div>
+           <div className="flex flex-col items-end">
+              <span className="text-app-accent font-app-bold text-[10px] md:text-[12px] flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-app-accent animate-pulse"></span>
+                ACTIVE_SIMULATION
+              </span>
+              <span className="text-app-muted text-[10px] font-app-mono whitespace-nowrap">FREQ: 155.43 MHZ</span>
+           </div>
         </div>
 
-        {/* Row 2: Countdown */}
-        <div className="mb-6 md:mb-8">
+        <div className="mb-6 md:mb-10 relative">
+          {timeRemaining <= 10 && (
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-app-danger font-app-bold text-[10px] tracking-[5px] animate-pulse">
+              !! CRITICAL_WINDOW !!
+            </div>
+          )}
           <div 
-            className={`font-app-mono text-[56px] md:text-[80px] leading-none shadow-sm ${
-              timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent animate-pulse-timer'
+            className={`font-app-bold text-[64px] md:text-[96px] leading-none tracking-[-0.05em] ${
+              timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent'
             }`} 
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >
             {formatTime(timeRemaining)}
           </div>
-          <div className="text-[10px] md:text-[12px] text-app-muted uppercase font-app-bold tracking-widest mt-2 md:mt-3">TIME REMAINING</div>
+          <div className="text-[10px] md:text-[11px] text-app-muted uppercase font-app-bold tracking-[6px] mt-2">TEMPORAL_LOCKDOWN</div>
         </div>
 
-        {/* Row 3: Live Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full mb-6 max-w-xl">
-          <div className="bg-[#0a0a0a] border border-[#222] p-3 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">ALIVE</span>
-            <span className="text-[16px] text-white font-app-mono">{aliveCount} / {totalInRound}</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-8 max-w-2xl">
+          <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
+            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">SIGNALS_LIVE</span>
+            <span className="text-[18px] text-white font-app-mono font-bold">{aliveCount}<span className="text-[12px] text-[#444] ml-1">/{totalInRound}</span></span>
           </div>
-          <div className="bg-[#0a0a0a] border border-[#222] p-3 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">KILL LEADER</span>
-            <span className="text-[14px] text-white font-app-mono truncate w-full px-1">{killLeader ? killLeader.handle : '---'}</span>
+          <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
+            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">APEX_PREDATOR</span>
+            <span className="text-[14px] text-white font-app-mono truncate max-w-full font-bold">{killLeader ? killLeader.handle : '---'}</span>
           </div>
-          <div className="bg-[#0a0a0a] border border-[#222] p-3 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">LEADER MON</span>
-            <span className="text-[16px] text-app-accent font-app-mono">{killLeader ? killLeader.mon.toFixed(1) : '0.0'} MON</span>
+          <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
+            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">APEX_BALANCE</span>
+            <span className="text-[18px] text-app-accent font-app-mono font-bold">{killLeader ? killLeader.mon.toFixed(1) : '0.0'}</span>
           </div>
-          <div className="bg-[#0a0a0a] border border-[#222] p-3 flex flex-col items-center">
-            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">IN PLAY</span>
-            <span className="text-[16px] text-app-accent font-app-mono">{totalInPlay.toFixed(1)} MON</span>
+          <div className="bg-[#050505] border border-app-border p-4 flex flex-col items-center">
+            <span className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">TOTAL_VOLUME</span>
+            <span className="text-[18px] text-app-accent font-app-mono font-bold">{totalInPlay.toFixed(1)}</span>
           </div>
         </div>
 
-        {/* Row 4: Your Status */}
-        <div className="w-full max-w-xl bg-[#151515] border border-[#333] p-4 text-[12px] md:text-[14px] font-app-mono tracking-wide uppercase">
+        <div className="w-full max-w-xl bg-white/5 border border-white/10 backdrop-blur-md p-5 md:p-6 text-[12px] md:text-[14px] font-app-mono tracking-wider relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          
           {user?.status === 'alive' ? (
-            <span className="text-white">
-              YOU: <span className="font-app-bold">PILOT_01</span> — <span className="text-app-accent">{user.mon.toFixed(1)} MON</span> — ALIVE
-            </span>
+            <div className="flex flex-col items-center">
+               <span className="text-[10px] text-app-accent font-app-bold tracking-[4px] uppercase mb-1">LINK_ESTABLISHED</span>
+               <div className="flex items-center gap-4">
+                  <span className="text-white font-app-bold uppercase text-[16px]">PILOT_01</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-app-accent animate-pulse" />
+                  <span className="text-app-accent font-app-bold text-[16px]">{user.mon.toFixed(1)} MON</span>
+               </div>
+            </div>
           ) : user?.status === 'eliminated' ? (
-            <span className="text-[#888]">
-              YOU: ELIMINATED AT {formatTime(user.eliminatedAt || 0)} BY {user.eliminatedBy}
-            </span>
+            <div className="flex flex-col items-center text-app-danger">
+              <span className="text-[10px] font-app-bold tracking-[4px] uppercase mb-1">LINK_SEVERED</span>
+              <span className="font-app-bold">ELIMINATED BY {user.eliminatedBy?.toUpperCase()}</span>
+              <span className="text-[10px] opacity-60">AT {formatTime(user.eliminatedAt || 0)}</span>
+            </div>
           ) : (
-            <span className="text-[#666]">YOU: SPECTATING</span>
+            <div className="flex flex-col items-center text-app-muted">
+              <span className="text-[10px] font-app-bold tracking-[4px] uppercase mb-1">PASSIVE_MODE</span>
+              <span className="font-app-bold">SPECTATING_ONLY</span>
+            </div>
           )}
         </div>
       </div>

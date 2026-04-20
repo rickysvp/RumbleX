@@ -8,8 +8,7 @@ export function RoundStage() {
   const phase = useGameStore(state => state.phase);
 
   return (
-    <div className="w-full flex-1 md:flex-none md:h-[420px] shrink-0 bg-[#0A0A0A] relative overflow-hidden transition-all duration-150 ease-in-out border-b border-app-border">
-      {/* Background Depth & Textures */}
+    <div className="w-full flex-1 md:flex-none md:h-[420px] shrink-0 bg-[#0A0A0A] relative overflow-hidden border-b border-app-border">
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.5)_100%)] opacity-60" />
