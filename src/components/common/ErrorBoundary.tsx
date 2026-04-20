@@ -1,8 +1,8 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React from 'react';
 
 interface Props {
-  children?: ReactNode;
-  fallback?: ReactNode;
+  children?: React.ReactNode;
+  fallback?: React.ReactNode;
 }
 
 interface State {
@@ -10,23 +10,29 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null
-  };
+export class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
+
+  public state: State;
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
   }
 
   public render() {
+    const { fallback, children } = (this as any).props;
     if (this.state.hasError) {
-      return this.props.fallback || (
+      return fallback || (
         <div className="h-screen w-full bg-[#0A0A0A] flex items-center justify-center p-10 font-app-mono">
           <div className="max-w-xl w-full border border-red-500/30 bg-red-500/5 p-8">
             <h1 className="text-red-500 font-app-bold text-[24px] uppercase tracking-tighter mb-4">
@@ -51,6 +57,6 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return children;
   }
 }

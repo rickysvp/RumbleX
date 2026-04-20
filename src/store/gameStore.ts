@@ -114,8 +114,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         newUserHistory = [
           {
             roundNumber: state.roundNumber,
-            result: user.status === 'alive' ? 'win' : 'elim',
-            monDelta: user.mon,
+            result: (user.status === 'alive' ? 'win' : 'elim') as 'win' | 'elim',
+            monDelta: user.status === 'alive'
+              ? parseFloat((user.mon - state.entryFee).toFixed(2))
+              : parseFloat((-state.entryFee).toFixed(2)),
             skill: user.skill
           },
           ...state.userHistory
@@ -185,21 +187,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Handle Queue Persistence
       let newLoadout = { ...state.userLoadout };
       let userInNextRound = false;
+      let extraEvents: any[] = [];
 
       if (newLoadout.queueRemaining > 0) {
         newLoadout.queueRemaining -= 1;
         newLoadout.queued = true;
         userInNextRound = true;
 
-        // Add auto-queue system message
-        const autoQueueEvent = {
+        extraEvents.push({
           id: Math.random().toString(36).substr(2, 9),
           timestamp: 0,
           type: 'system' as const,
           text: `★ PILOT_01 auto-queued for ROUND #${nextRound}. ${newLoadout.queueRemaining} round(s) remaining.`,
-          attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
-        };
-        state.feedEvents.push(autoQueueEvent as any);
+          attacker: null, target: null, monAmount: null, 
+          skillUsed: null, itemUsed: null
+        });
       } else {
         newLoadout.queued = false;
         // Reset to strategy defaults if queue is empty
@@ -226,7 +228,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         timeRemaining: ENTRY_DURATION,
         players: freshPlayers,
         userLoadout: newLoadout,
-        feedEvents: [...state.feedEvents, newEvent].slice(-200)
+        feedEvents: [...state.feedEvents, ...extraEvents, newEvent].slice(-200)
       };
     });
   },

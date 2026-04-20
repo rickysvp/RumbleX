@@ -1,4 +1,4 @@
-import { Player, FeedEvent } from '../store/types';
+import { Player, FeedEvent, SkillId, ItemId } from '../store/types';
 import { useGameStore } from '../store/gameStore';
 import { skillEngine } from './skillEngine';
 import { itemEngine } from './itemEngine';
@@ -27,7 +27,7 @@ export const simulationEngine = {
 
     // 2. Chaos Mode check
     if (attacker.strategy === 'chaos_mode' && Math.random() < 0.2) {
-        simulationEngine.handleChaosEvent(alivePlayers, addFeedEvent);
+        simulationEngine.handleChaosEvent(alivePlayers, addFeedEvent, useGameStore.getState);
         return;
     }
 
@@ -64,8 +64,37 @@ export const simulationEngine = {
 
     // Resolve Skill
     const skillRes = skillEngine.resolveSkill(attacker.skill, attacker, target, players);
+
+    // Defensive skills: interrupt the attack entirely
+    const DEFENSIVE_SKILLS = ['smoke_out', 'play_dead', 'miss_me'];
+    if (
+      skillRes.success &&
+      skillRes.modifiedTarget === null &&
+      attacker.skill &&
+      DEFENSIVE_SKILLS.includes(attacker.skill)
+    ) {
+      const defenseMessages: Record<string, string> = {
+        smoke_out: `${attacker.handle} vanished in a puff of bad intentions. Attack avoided.`,
+        play_dead:  `${attacker.handle} played dead. Everyone moved on. Attacker confused.`,
+        miss_me:    `${attacker.handle} made the attacker miss completely. Nothing happened.`
+      };
+      addFeedEvent({
+        timestamp: 600 - state.timeRemaining,
+        type: 'ability',
+        text: defenseMessages[attacker.skill] || 
+              `${attacker.handle} invoked defense and avoided conflict.`,
+        attacker: attacker.handle,
+        target: null,
+        monAmount: 0,
+        skillUsed: attacker.skill,
+        itemUsed: null
+      });
+      return; // ← Interrupt: no kill this event
+    }
+
+    // Offensive skills: retarget if needed
     if (skillRes.success && skillRes.modifiedTarget) {
-        target = skillRes.modifiedTarget;
+      target = skillRes.modifiedTarget;
     }
 
     // Check for No U (Reversal) - 30% chance if target has skill
@@ -100,17 +129,39 @@ export const simulationEngine = {
     }
   },
 
-  handleChaosEvent: (alivePlayers: Player[], addFeedEvent: any) => {
+  handleChaosEvent: (
+    alivePlayers: Player[], 
+    addFeedEvent: any,
+    getState: () => any
+  ) => {
     const eventType = Math.random() < 0.5 ? 'redistribution' : 'loot_drop';
     
     if (eventType === 'redistribution') {
       const victim = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
-      const amount = victim.mon * 0.1;
-      // In a real impl, we'd distribute this, for MVP just system feed
+      const amount = parseFloat((victim.mon * 0.1).toFixed(2));
+      const recipients = alivePlayers.filter(p => p.id !== victim.id);
+      const sharePerPlayer = recipients.length > 0
+        ? parseFloat((amount / recipients.length).toFixed(2))
+        : 0;
+
+      // Apply state changes via store
+      const store = useGameStore.getState();
+      const currentPlayers = store.players;
+      const updatedPlayers = currentPlayers.map(p => {
+        if (p.id === victim.id) {
+          return { ...p, mon: parseFloat((p.mon - amount).toFixed(2)) };
+        }
+        if (recipients.find(r => r.id === p.id)) {
+          return { ...p, mon: parseFloat((p.mon + sharePerPlayer).toFixed(2)) };
+        }
+        return p;
+      });
+      useGameStore.setState({ players: updatedPlayers });
+
       addFeedEvent({
         timestamp: 0,
         type: 'system',
-        text: `CHAOS: MON REDISTRIBUTION triggered. ${victim.handle} lost ${amount.toFixed(1)} MON.`,
+        text: `CHAOS: MON REDISTRIBUTION. ${victim.handle} lost ${amount.toFixed(2)} MON — split among ${recipients.length} survivors.`,
         attacker: null,
         target: victim.handle,
         monAmount: amount,

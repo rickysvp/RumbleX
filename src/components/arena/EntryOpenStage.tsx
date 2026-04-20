@@ -20,7 +20,7 @@ export function EntryOpenStage() {
   const { status: walletStatus } = useWalletStore();
 
   const isConnected = walletStatus === "connected";
-  const isQueued = userLoadout.queued && userLoadout.queueRemaining >= 0;
+  const isQueued = userLoadout.queued && userLoadout.queueRemaining > 0;
 
   let userView: 'queued' | 'connected' | 'disconnected' = 'disconnected';
   if (isQueued) userView = 'queued';
@@ -36,12 +36,6 @@ export function EntryOpenStage() {
   return (
     <>
       <div className="absolute inset-0 flex flex-col justify-center p-6 md:p-12 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
-        
-        {/* HUD DECORATIONS (Corners) */}
-        <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-app-accent/30 pointer-events-none" />
-        <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-app-accent/30 pointer-events-none" />
-        <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-app-accent/30 pointer-events-none" />
-        <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-app-accent/30 pointer-events-none" />
 
         {/* SYSTEM HEADER */}
         <div className="absolute top-6 left-12 flex items-center gap-4 opacity-50 z-20">
@@ -117,7 +111,7 @@ export function EntryOpenStage() {
                   <div className="grid grid-cols-2 gap-px bg-app-border border border-app-border">
                     <div className="bg-[#050505] p-3 flex flex-col items-center">
                       <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">ROUNDS</span>
-                      <span className="text-[14px] text-white font-app-mono">{userLoadout.queueRemaining + 1}</span>
+                      <span className="text-[14px] text-white font-app-mono">{userLoadout.queueRemaining}</span>
                     </div>
                     <div className="bg-[#050505] p-3 flex flex-col items-center">
                       <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">STRATEGY</span>
@@ -160,11 +154,10 @@ export function EntryOpenStage() {
         </div>
 
         {/* FOOTER DISCLAIMER */}
-        <div className="absolute bottom-6 left-12 right-12 flex justify-between items-end opacity-20 pointer-events-none font-app-mono">
+        <div className="absolute bottom-6 left-12 right-12 flex justify-center items-end opacity-20 pointer-events-none font-app-mono">
           <div className="text-[9px] uppercase tracking-[2px] max-w-xs leading-loose">
             CHAMPION: 75% | RUNNER-UP: 10% | THIRD: 5% | SEASON_1: 5% | PROTOCOL_FEES: 5%
           </div>
-          <div className="text-[12px] uppercase tracking-[8px] font-app-bold">RUMBLEX_CORP</div>
         </div>
       </div>
 

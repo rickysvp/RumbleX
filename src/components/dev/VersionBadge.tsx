@@ -93,7 +93,7 @@ export function VersionDisplay() {
       {changelog && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-white/80">Changelog</h3>
-          {Object.entries(changelog)
+          {Object.entries(changelog as Record<string, ChangelogEntry>)
             .sort(([a], [b]) => b.localeCompare(a))
             .slice(0, 3)
             .map(([version, info]) => (

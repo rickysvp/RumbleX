@@ -20,7 +20,7 @@ export function useSimulation() {
         // Use dev override if available, otherwise 8-15s random
         const delay = simulationIntervalMs !== null 
           ? simulationIntervalMs 
-          : Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+          : Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
         
         timeoutRef.current = setTimeout(() => {
           if (useGameStore.getState().phase === 'live') {

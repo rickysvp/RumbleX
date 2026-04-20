@@ -17,7 +17,7 @@ export function IntelTower() {
       setIsFlipped(targetFlipped);
       
       // Midpoint flash animation with proper cleanup
-      let flashOffTimer: number;
+      let flashOffTimer: ReturnType<typeof setTimeout>;
       const flashOnTimer = setTimeout(() => {
         setMidpointFlash(true);
         flashOffTimer = setTimeout(() => setMidpointFlash(false), 150);
