@@ -52,9 +52,9 @@ export const INITIAL_MOCK_STATE: GameState = {
     champion: "CryptoKnight",
     championMon: 3.2,
     payouts: [
-      { place: 1, handle: "CryptoKnight", mon: 2.40 },
-      { place: 2, handle: "DegenBear25",  mon: 0.32 },
-      { place: 3, handle: "VoidWalker",   mon: 0.16 },
+      { place: 1, handle: "CryptoKnight", mon: 2.40, kills: 3 },
+      { place: 2, handle: "DegenBear25",  mon: 0.32, kills: 1 },
+      { place: 3, handle: "VoidWalker",   mon: 0.16, kills: 0 },
     ],
     totalVolume: 43.2
   },

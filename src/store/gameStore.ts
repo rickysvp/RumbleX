@@ -25,11 +25,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...INITIAL_MOCK_STATE,
 
   tickTimer: () => {
-    const { phase, timeRemaining, seasonEndsIn, startRound, concludeRound, openNextRound, concludeSeason } = get();
+    const { phase, players, timeRemaining, seasonEndsIn, startRound, concludeRound, openNextRound, concludeSeason } = get();
     
     // Check for season end
     if (seasonEndsIn <= 0) {
       concludeSeason();
+    }
+
+    // Auto-conclude if only 1 survivor left (and round is live)
+    if (phase === 'live') {
+      const remaining = players.filter(p => p.status === 'alive').length;
+      if (remaining <= 1) {
+        concludeRound();
+        return;
+      }
     }
 
     if (timeRemaining <= 0) {
@@ -100,9 +109,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         champion: champion.handle,
         championMon: prizePool * 0.75, // 75% share
         payouts: [
-          { place: 1, handle: champion.handle, mon: prizePool * 0.75 },
-          ...(standings[1] ? [{ place: 2, handle: standings[1].handle, mon: prizePool * 0.10 }] : []),
-          ...(standings[2] ? [{ place: 3, handle: standings[2].handle, mon: prizePool * 0.05 }] : [])
+          { place: 1, handle: champion.handle, mon: prizePool * 0.75, kills: champion.kills },
+          ...(standings[1] ? [{ place: 2, handle: standings[1].handle, mon: prizePool * 0.10, kills: standings[1].kills }] : []),
+          ...(standings[2] ? [{ place: 3, handle: standings[2].handle, mon: prizePool * 0.05, kills: standings[2].kills }] : [])
         ],
         totalVolume: totalRoundMON
       };

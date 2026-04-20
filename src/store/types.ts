@@ -48,7 +48,7 @@ export interface RoundResult {
   roundNumber: number;
   champion: string;
   championMon: number;
-  payouts: { place: number; handle: string; mon: number }[];
+  payouts: { place: number; handle: string; mon: number; kills: number }[];
   totalVolume: number;
 }
 
