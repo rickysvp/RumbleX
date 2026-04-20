@@ -13,10 +13,10 @@ export function KillBoard() {
   return (
     <div className="flex flex-col flex-grow min-h-0 overflow-hidden">
       <div className="p-5 flex justify-between items-center border-b border-app-border shrink-0">
-         <div className="font-app-bold text-[14px] uppercase tracking-widest flex items-center gap-2 before:content-[''] before:block before:w-2 before:h-2 before:bg-app-accent">
+         <div className="font-app-bold text-[14px] uppercase tracking-wide flex items-center gap-2 before:content-[''] before:block before:w-2 before:h-2 before:bg-app-accent">
           Kill Board
         </div>
-        <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-widest">
+        <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-wide">
           {alive.length} Alive
         </div>
       </div>
@@ -24,7 +24,7 @@ export function KillBoard() {
       <div className="flex-grow overflow-y-auto intel-scroll px-1 py-2 relative">
         {alive.length === 0 && dead.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-             <div className="text-app-muted text-[10px] font-app-mono uppercase tracking-[4px] leading-relaxed opacity-60">
+             <div className="text-app-muted text-[10px] font-app-bold uppercase tracking-[4px] leading-relaxed opacity-60">
                Waiting for first blood...
              </div>
              <div className="mt-4 w-12 h-[1px] bg-app-border animate-blockBlink"></div>

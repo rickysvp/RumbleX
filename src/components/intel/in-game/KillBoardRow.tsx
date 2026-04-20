@@ -32,7 +32,7 @@ export const KillBoardRow = React.memo(({ player, rank, isUser, isRichest, isUnd
       }`}
     >
       {/* Rank */}
-      <div className={`text-[11px] font-app-mono ${isRichest ? 'text-app-accent' : 'text-app-muted'}`}>
+      <div className={`text-[11px] font-app-bold ${isRichest ? 'text-app-accent' : 'text-app-muted'}`}>
         {rank !== undefined ? (typeof rank === 'number' ? `#${rank}` : rank) : '✕'}
       </div>
 
@@ -51,14 +51,14 @@ export const KillBoardRow = React.memo(({ player, rank, isUser, isRichest, isUnd
       </div>
 
       {/* MON */}
-      <div className={`text-right font-app-mono text-[12px] transition-all duration-300 ${
+      <div className={`text-right font-app-bold text-[12px] transition-all duration-300 ${
         !isAlive ? 'text-app-danger line-through' : (isRichest ? 'text-app-accent' : 'text-white')
       } ${shouldFlash ? 'animate-val-update' : ''}`}>
         {player.mon.toFixed(1)} <span className="text-[9px] opacity-70">MON</span>
       </div>
 
       {/* Kills */}
-      <div className={`text-right text-[11px] font-app-mono ${isUser ? 'text-app-accent' : 'text-[#666]'}`}>
+      <div className={`text-right text-[11px] font-app-bold ${isUser ? 'text-app-accent' : 'text-[#666]'}`}>
         {player.kills}K
       </div>
     </div>

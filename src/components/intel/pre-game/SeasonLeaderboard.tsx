@@ -17,13 +17,13 @@ export function SeasonLeaderboard() {
   return (
     <div className="p-5 border-b border-app-border">
       <div className="flex justify-between items-center mb-5">
-        <div className="font-app-bold text-[14px] uppercase tracking-widest flex items-center gap-2 before:content-[''] before:block before:w-2 before:h-2 before:bg-app-accent">
+        <div className="font-app-bold text-[14px] uppercase tracking-wide flex items-center gap-2 before:content-[''] before:block before:w-2 before:h-2 before:bg-app-accent">
           Leaderboard
         </div>
-        <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-widest">Top 5</div>
+        <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-wide">Top 5</div>
       </div>
 
-      <div className="grid grid-cols-[30px_1fr_45px_75px] gap-2 text-[9px] text-app-muted uppercase font-app-bold tracking-widest mb-3 px-2">
+      <div className="grid grid-cols-[30px_1fr_45px_75px] gap-2 text-[9px] text-app-muted uppercase font-app-bold tracking-wide mb-3 px-2">
         <div>Rank</div>
         <div>Player</div>
         <div className="text-right">Kills</div>
@@ -32,8 +32,8 @@ export function SeasonLeaderboard() {
 
         {top5.length === 0 ? (
           <div className="py-12 flex flex-col items-center justify-center border border-dashed border-[#222] bg-[#050505]">
-            <div className="text-[10px] text-app-muted font-app-mono uppercase tracking-[3px] mb-2 opacity-50">Season just started</div>
-            <div className="text-[9px] text-[#444] font-app-mono uppercase">First blood await...</div>
+            <div className="text-[10px] text-app-muted font-app-bold uppercase tracking-[3px] mb-2 opacity-50">Season just started</div>
+            <div className="text-[9px] text-[#444] font-app-bold uppercase">First blood await...</div>
           </div>
         ) : (
           <div className="flex flex-col gap-1">
@@ -51,9 +51,9 @@ export function SeasonLeaderboard() {
                     <span className="text-[7px] bg-red-500/20 text-red-400 px-1 py-0.5 rounded-[1px] tracking-tight border border-red-500/30">NOT QUALIFIED</span>
                   )}
                 </div>
-                <div className="text-right font-app-mono text-[11px] text-white">{p.kills}K</div>
-                <div className="text-right font-app-mono text-[10px] text-app-accent">
-                  {p.estimatedPayout.toFixed(0)} MON <span className="text-[8px] text-app-muted italic opacity-60">est.</span>
+                <div className="text-right font-app-bold text-[11px] text-white">{p.kills}K</div>
+                <div className="text-right font-app-bold text-[10px] text-app-accent">
+                  {p.estimatedPayout.toFixed(0)} MON
                 </div>
               </div>
             ))}
@@ -70,9 +70,9 @@ export function SeasonLeaderboard() {
                         <span className="text-[7px] bg-red-500/20 text-red-400 px-1 py-0.5 rounded-[1px] tracking-tight border border-red-500/30">NOT QUALIFIED</span>
                       )}
                     </div>
-                    <div className="text-right font-app-mono text-[11px] text-white">{userEntry.kills}K</div>
-                    <div className="text-right font-app-mono text-[10px] text-app-accent">
-                      {userEntry.estimatedPayout.toFixed(0)} MON <span className="text-[8px] text-app-muted italic opacity-60">est.</span>
+                    <div className="text-right font-app-bold text-[11px] text-white">{userEntry.kills}K</div>
+                    <div className="text-right font-app-bold text-[10px] text-app-accent">
+                      {userEntry.estimatedPayout.toFixed(0)} MON
                     </div>
                 </div>
               </>
@@ -82,10 +82,10 @@ export function SeasonLeaderboard() {
             {isConnected && userEntry && !userEntry.qualified && (
               <div className="mt-6 px-1">
                  <div className="flex justify-between items-end mb-2">
-                   <div className="text-[9px] font-app-bold text-white uppercase tracking-widest">
+                   <div className="text-[9px] font-app-bold text-white uppercase tracking-wide">
                      ★ {userEntry.handle}: {userEntry.kills} / {threshold} Kills
                    </div>
-                   <div className="text-[8px] font-app-mono text-app-muted uppercase">
+                   <div className="text-[8px] font-app-bold text-app-muted uppercase">
                      {threshold - userEntry.kills} TO QUALIFY
                    </div>
                  </div>

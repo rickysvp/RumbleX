@@ -46,13 +46,6 @@ export function LiveStage() {
       <div className="absolute bottom-10 left-10 w-8 h-8 border-b border-l border-app-accent/20" />
       <div className="absolute bottom-10 right-10 w-8 h-8 border-b border-r border-app-accent/20" />
 
-      {/* BACKGROUND DATA STREAM (Subtle) */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none select-none flex flex-wrap gap-4 p-4 font-app-mono text-[8px] overflow-hidden">
-        {Array.from({ length: 40 }).map((_, i) => (
-          <span key={i}>OX_TRACE_{Math.random().toString(16).slice(2, 10).toUpperCase()}</span>
-        ))}
-      </div>
-
       <EliminationCinematic />
 
       <div className={`w-full max-w-2xl flex flex-col items-center text-center px-2 z-10 transition-transform ${shake ? 'scale-[1.01]' : 'scale-100'}`}>
