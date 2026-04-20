@@ -35,19 +35,19 @@ export function EntryOpenStage() {
 
   return (
     <>
-      <div className="absolute inset-0 flex flex-col justify-center p-6 md:p-12 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
+      <div className="h-full w-full flex flex-col justify-center p-4 sm:p-6 md:p-12 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
 
-        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-16 z-10 w-full max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-16 z-10 w-full max-w-6xl mx-auto">
 
           {/* LEFT COLUMN: HERO TIMER */}
           <div className="flex flex-col justify-center items-center md:items-start flex-1 text-center md:text-left">
-            <div className="text-white font-app-bold text-[11px] uppercase tracking-[6px] mb-4 flex items-center gap-3">
-              <span className="w-4 h-[1px] bg-white" />
+            <div className="text-white font-app-bold text-[10px] sm:text-[11px] uppercase tracking-[4px] sm:tracking-[6px] mb-2 sm:mb-4 flex items-center gap-2 sm:gap-3">
+              <span className="w-3 sm:w-4 h-[1px] bg-white" />
               ROUND #{roundNumber}
             </div>
             
             <div 
-              className={`font-app-bold text-[60px] md:text-[100px] leading-[0.85] tracking-[-0.05em] mb-6 drop-shadow-[0_0_30px_rgba(235,255,0,0.15)] ${
+              className={`font-app-bold text-[48px] sm:text-[60px] md:text-[100px] leading-[0.85] tracking-[-0.05em] mb-4 sm:mb-6 drop-shadow-[0_0_30px_rgba(235,255,0,0.15)] ${
                 timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent'
               }`}
               style={{ fontVariantNumeric: 'tabular-nums' }}
@@ -61,21 +61,21 @@ export function EntryOpenStage() {
           <div className="flex flex-col justify-center w-full md:w-[400px] shrink-0">
             
             {/* STATS HUD BOX */}
-            <div className="bg-[#050505] border-2 border-app-border p-6 mb-6 relative overflow-hidden">
+            <div className="bg-[#050505] border-2 border-app-border p-4 sm:p-6 mb-4 sm:mb-6 relative overflow-hidden">
                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-app-accent/5 to-transparent pointer-events-none" />
                
-               <div className="grid grid-cols-2 gap-8 relative z-10">
+               <div className="grid grid-cols-2 gap-4 sm:gap-8 relative z-10">
                   <div className="flex flex-col">
-                    <span className="text-[9px] text-app-accent uppercase font-app-bold tracking-[3px] mb-2 flex items-center gap-1.5">
+                    <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 sm:mb-2 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-app-accent" /> ENTRY_FEE
                     </span>
-                    <span className="text-[28px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[14px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[22px] sm:text-[28px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[12px] sm:text-[14px] text-app-muted ml-1">MON</span></span>
                   </div>
-                  <div className="flex flex-col border-l border-app-border pl-8">
-                    <span className="text-[9px] text-app-accent uppercase font-app-bold tracking-[3px] mb-2 flex items-center gap-1.5">
+                  <div className="flex flex-col border-l border-app-border pl-4 sm:pl-8">
+                    <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 sm:mb-2 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-app-accent" /> PRIZE_POOL
                     </span>
-                    <span className="text-[28px] font-app-bold text-white leading-none whitespace-nowrap">{prizePool.toFixed(0)}<span className="text-[14px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[22px] sm:text-[28px] font-app-bold text-white leading-none whitespace-nowrap">{prizePool.toFixed(0)}<span className="text-[12px] sm:text-[14px] text-app-muted ml-1">MON</span></span>
                   </div>
                </div>
             </div>
@@ -84,9 +84,9 @@ export function EntryOpenStage() {
             <div className="flex flex-col gap-3">
               {userView === 'queued' ? (
                 <div className="flex flex-col gap-3">
-                  <div className="bg-app-accent text-black p-5 flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(235,255,0,0.2)]">
-                    <CheckCircle2 size={24} />
-                    <span className="font-app-bold text-[20px] uppercase tracking-[6px]">AUTH_OK</span>
+                  <div className="bg-app-accent text-black p-4 sm:p-5 flex items-center justify-center gap-2 sm:gap-3 shadow-[0_0_30px_rgba(235,255,0,0.2)]">
+                    <CheckCircle2 size={20} className="sm:w-6 sm:h-6" />
+                    <span className="font-app-bold text-[16px] sm:text-[20px] uppercase tracking-[4px] sm:tracking-[6px]">AUTH_OK</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-px bg-app-border border border-app-border">
@@ -102,7 +102,7 @@ export function EntryOpenStage() {
 
                   <button 
                     onClick={() => openLoadout(true)}
-                    className="w-full bg-[#111] border border-app-border hover:border-white text-app-muted hover:text-white py-4 text-[11px] font-app-bold uppercase tracking-[4px] transition-all"
+                    className="w-full bg-[#111] border border-app-border hover:border-white text-app-muted hover:text-white py-3 sm:py-4 text-[10px] sm:text-[11px] font-app-bold uppercase tracking-[4px] transition-all"
                   >
                     [ CONFIG_VIEW ]
                   </button>
@@ -110,7 +110,7 @@ export function EntryOpenStage() {
               ) : userView === 'connected' ? (
                 <button 
                   onClick={() => openLoadout(false)}
-                  className="group relative bg-app-accent text-black font-app-bold text-[18px] py-6 px-12 uppercase tracking-[6px] transition-all hover:bg-white overflow-hidden"
+                  className="group relative bg-app-accent text-black font-app-bold text-[16px] sm:text-[18px] py-5 sm:py-6 px-8 sm:px-12 uppercase tracking-[4px] sm:tracking-[6px] transition-all hover:bg-white overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-black" />
                   <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-black" />
@@ -120,7 +120,7 @@ export function EntryOpenStage() {
               ) : (
                 <button 
                   onClick={mockWallet.connect}
-                  className="bg-[#111] border-2 border-app-accent/30 text-app-accent font-app-bold text-[14px] md:text-[16px] py-6 px-8 uppercase tracking-[3px] hover:bg-app-accent hover:text-black transition-all"
+                  className="bg-[#111] border-2 border-app-accent/30 text-app-accent font-app-bold text-[14px] sm:text-[16px] py-5 sm:py-6 px-6 sm:px-8 uppercase tracking-[3px] hover:bg-app-accent hover:text-black transition-all"
                 >
                   CONNECT_IDENTITY_KEY
                 </button>

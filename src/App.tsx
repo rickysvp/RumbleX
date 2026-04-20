@@ -49,11 +49,32 @@ export default function App() {
   // Mobile Content Switcher
   const renderMobileContent = () => {
     switch (activeTab) {
-      case 'ARENA': return <RoundStage />;
+      case 'ARENA': 
+        return (
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="shrink-0 h-[40vh] min-h-[280px] max-h-[380px]">
+              <RoundStage />
+            </div>
+            <div className="h-px w-full bg-app-border shrink-0" />
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <MixedFeed />
+            </div>
+          </div>
+        );
       case 'INTEL': return <IntelTower />;
       case 'PROFILE': return <LeftSidebar />;
       case 'FEED': return <MixedFeed />;
-      default: return <RoundStage />;
+      default: return (
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="shrink-0 h-[40vh] min-h-[280px] max-h-[380px]">
+            <RoundStage />
+          </div>
+          <div className="h-px w-full bg-app-border shrink-0" />
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <MixedFeed />
+          </div>
+        </div>
+      );
     }
   };
 
@@ -62,15 +83,15 @@ export default function App() {
       
       {/* Tablet/Mobile Header */}
       {viewMode !== 'desktop' && (
-        <header className="h-[60px] border-b border-app-border bg-[#0a0a0a] flex items-center justify-between px-6 shrink-0 z-50">
-          <div className="flex items-center gap-3">
+        <header className="h-[50px] sm:h-[60px] border-b border-app-border bg-[#0a0a0a] flex items-center justify-between px-4 sm:px-6 shrink-0 z-50">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button onClick={() => setIsMenuOpen(true)} className="p-2 -ml-2 text-app-muted hover:text-white transition-colors">
-              <Menu size={20} />
+              <Menu size={18} className="sm:w-5 sm:h-5" />
             </button>
-            <span className="font-app-bold text-app-accent tracking-[4px] text-[14px]">RUMBLEX</span>
+            <span className="font-app-bold text-app-accent tracking-[2px] sm:tracking-[4px] text-[12px] sm:text-[14px]">RUMBLEX</span>
           </div>
-          <div className="flex items-center gap-4">
-             <div className="font-app-mono text-[11px] text-app-muted">{address || '0x...'}</div>
+          <div className="flex items-center gap-2 sm:gap-4">
+             <div className="font-app-mono text-[9px] sm:text-[11px] text-app-muted truncate max-w-[100px] sm:max-w-none">{address || '0x...'}</div>
              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
           </div>
         </header>
@@ -94,7 +115,7 @@ export default function App() {
         {/* Main Center (Arena + Feed) */}
         <section className={`bg-[#0D0D0D] flex flex-col overflow-hidden relative min-w-0 ${viewMode === 'desktop' ? 'border-r border-app-border' : ''}`}>
           {viewMode === 'mobile' ? (
-            <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0">
+            <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0 pb-[64px]">
               {renderMobileContent()}
             </div>
           ) : (
@@ -118,14 +139,14 @@ export default function App() {
       {viewMode === 'mobile' ? (
         <MobileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
       ) : (
-        <footer className="h-[48px] bg-app-accent text-app-bg flex items-center px-8 font-app-bold uppercase text-[12px] justify-between shrink-0 z-10">
-          <div className="flex items-center gap-6">
+        <footer className="h-[40px] sm:h-[48px] bg-app-accent text-app-bg flex items-center px-4 sm:px-8 font-app-bold uppercase text-[10px] sm:text-[12px] justify-between shrink-0 z-10">
+          <div className="flex items-center gap-3 sm:gap-6">
              <span>STATUS: {phase.replace('_', ' ')}</span>
              <span className="opacity-40">|</span>
              <span>ROUND #{useGameStore.getState().roundNumber}</span>
           </div>
           {phase === 'live' && (
-            <div className="flex gap-8">
+            <div className="flex gap-4 sm:gap-8">
               <span>ALIVE: {aliveCount}</span>
               <span>POOL: {totalInPlay.toFixed(1)} MON</span>
             </div>
