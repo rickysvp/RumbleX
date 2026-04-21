@@ -47,14 +47,14 @@ export function useSimulation() {
             if (isJoin) {
               const count = state.players.filter(p => p.status === 'queued').length + 1;
               state.addFeedEvent({
-                timestamp: Date.now(),
+                timestamp: 300 - state.timeRemaining,
                 type: 'system',
                 text: narrativeEngine.generateSystem('player_join', { handle, count }),
                 attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
               });
             } else {
               state.addFeedEvent({
-                timestamp: Date.now(),
+                timestamp: 300 - state.timeRemaining,
                 type: 'chat',
                 text: CHAT_SAMPLES[Math.floor(Math.random() * CHAT_SAMPLES.length)],
                 attacker: handle,

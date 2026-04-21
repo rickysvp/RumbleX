@@ -10,9 +10,9 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
   const renderSystemNarrative = (text: string) => {
     if (!text) return null;
 
-    // Highlight Round #IDs, Numbers with decimals, and MON specifically
+    // Highlight Round #IDs, Numbers with decimals, Usernames (CamelCase), and MON specifically
     // Uses word boundaries (\b) to avoid catching surrounding punctuation
-    let parts = text.split(/(#\d+|\b\d+\.?\d*(?:\s?MON)?\b)/g);
+    let parts = text.split(/(#\d+|\b\d+\.?\d*(?:\s?MON)?\b|[A-Z][a-zA-Z0-9_]+)/g);
 
     return parts.map((part, i) => {
       if (!part) return null;
@@ -25,6 +25,11 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
       }
       if (part.match(/MON/)) {
         return <span key={i} className="text-app-accent font-app-bold mx-0.5 sm:mx-1 text-[11px] sm:text-[13px]">{part}</span>;
+      }
+      // Highlight usernames (CamelCase words like SatoshiFan, DiamondHands, NeonPulse, VitalikDrip)
+      if (part.match(/^[A-Z][a-zA-Z0-9_]+$/) && part.length > 3) {
+        const isUser = part.includes('PILOT_01');
+        return <span key={i} className={`${isUser ? 'text-app-accent' : 'text-white'} font-app-bold mx-0.5 sm:mx-1 bg-white/10 px-1 py-0.5 rounded text-[11px] sm:text-[13px]`}>{part}</span>;
       }
       return <span key={i} className="text-app-muted text-[11px] sm:text-[13px]">{part}</span>;
     });

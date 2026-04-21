@@ -33,7 +33,7 @@ export const INITIAL_MOCK_STATE: GameState = {
 
   feedEvents: [
     {
-      id: 'init_1', timestamp: Date.now(), type: 'system', text: "ROUND #843 OPEN. ENTRY: 1 MON.",
+      id: 'init_1', timestamp: 0, type: 'system', text: "ROUND #843 OPEN. ENTRY: 1 MON.",
       attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
     }
   ],

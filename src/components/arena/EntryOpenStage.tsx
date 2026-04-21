@@ -70,7 +70,7 @@ export function EntryOpenStage() {
 
             {/* ROUND & TIMER */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left mb-4">
-              <div className="text-white font-app-bold text-[14px] sm:text-[16px] uppercase tracking-[3px] mb-2">
+              <div className="text-white font-app-bold text-[18px] sm:text-[20px] uppercase tracking-[3px] mb-2">
                 ROUND #{roundNumber}
               </div>
               <div

@@ -78,8 +78,9 @@ export const simulationEngine = {
         play_dead:  `${attacker.handle} played dead. Everyone moved on. Attacker confused.`,
         miss_me:    `${attacker.handle} made the attacker miss completely. Nothing happened.`
       };
+      const state = useGameStore.getState();
       addFeedEvent({
-        timestamp: Date.now(),
+        timestamp: 600 - state.timeRemaining,
         type: 'ability',
         text: defenseMessages[attacker.skill] || 
               `${attacker.handle} invoked defense and avoided conflict.`,
@@ -116,8 +117,9 @@ export const simulationEngine = {
     if (Math.random() < successChance) {
         playerEliminated(killCreditId, target.id, target.mon * 0.9, skillToCredit, itemToCredit);
     } else {
+        const currentState = useGameStore.getState();
         addFeedEvent({
-            timestamp: Date.now(),
+            timestamp: 600 - currentState.timeRemaining,
             type: 'ability',
             text: `${attacker.handle} targeted ${target.handle} but missed the opportunity.`,
             attacker: attacker.handle,
@@ -158,8 +160,9 @@ export const simulationEngine = {
       });
       useGameStore.setState({ players: updatedPlayers });
 
+      const storeState = useGameStore.getState();
       addFeedEvent({
-        timestamp: Date.now(),
+        timestamp: 600 - storeState.timeRemaining,
         type: 'system',
         text: `CHAOS: MON REDISTRIBUTION. ${victim.handle} lost ${amount.toFixed(2)} MON — split among ${recipients.length} survivors.`,
         attacker: null,
@@ -169,8 +172,9 @@ export const simulationEngine = {
         itemUsed: null
       });
     } else {
+      const storeState2 = useGameStore.getState();
       addFeedEvent({
-        timestamp: Date.now(),
+        timestamp: 600 - storeState2.timeRemaining,
         type: 'system',
         text: `CHAOS: EXTRA LOOT DROP! Prize pool increased.`,
         attacker: null,
