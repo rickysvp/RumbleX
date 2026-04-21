@@ -107,7 +107,7 @@ export function SeasonInfo() {
         <div className="relative" ref={tooltipRef}>
           <button 
             onClick={() => setShowTooltip(!showTooltip)}
-            className="text-app-muted hover:text-app-accent transition-colors"
+            className="text-white hover:text-app-accent transition-colors"
           >
             <SolidHelpIcon size={14} />
           </button>
