@@ -1,10 +1,20 @@
 {
-  "version": "0.1.43",
+  "version": "0.1.44",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-21",
   "changelog": {
+    "0.1.44": {
+      "date": "2026-04-21",
+      "changes": [
+        "Align game rules and UI to 'Survivors Keep Stack' model",
+        "Normalize all feed events to round-relative timestamps",
+        "Purge 'Champion' terminology and replace with 'Round Leader' / 'Top Stack'",
+        "StatsPage: Replace hardcoded mock data with real store-backed performance stats",
+        "Rename 'Est. Payout' to 'Season Estimate' to clarify rewards layer"
+      ]
+    },
     "0.1.43": {
       "date": "2026-04-21",
       "changes": [

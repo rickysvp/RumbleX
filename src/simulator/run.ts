@@ -72,12 +72,12 @@ export function runSimulation() {
     }
 
     const alive = players.filter(p => p.status === 'alive');
-    const champion = alive.length > 0 ? alive.reduce((prev, current) => (prev.mon > current.mon) ? prev : current) : null;
+    const leader = alive.length > 0 ? alive.reduce((prev, current) => (prev.mon > current.mon) ? prev : current) : null;
 
     console.log(`\n═══════════════════════════════════`);
     console.log(`ROUND CONCLUDED`);
     console.log(`═══════════════════════════════════`);
-    console.log(`Champion:        ${champion ? champion.handle : 'NONE'}`);
+    console.log(`Round Leader:    ${leader ? leader.handle : 'NONE'}`);
     console.log(`Survivors:       ${alive.length}`);
     
     console.log(`\nFINAL STANDINGS`);

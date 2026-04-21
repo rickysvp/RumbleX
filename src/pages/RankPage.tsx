@@ -65,7 +65,8 @@ export function RankPage() {
                   <div className="text-app-accent font-app-mono text-[16px]">
                     {player.estimatedPayout.toFixed(0)} MON
                   </div>
-                  <div className="text-[10px] text-app-muted">Est. Payout</div>
+                  <div className="text-[10px] text-app-muted">Season Estimate</div>
+                  <div className="text-[8px] text-[#444] uppercase tracking-tighter">Season share if closed now</div>
                 </div>
               </div>
             ))}

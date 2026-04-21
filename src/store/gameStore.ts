@@ -237,7 +237,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         timeRemaining: INTERMISSION_DURATION,
         userLoadout: newLoadout,
         feedEvents: [...state.feedEvents, ...extraEvents].slice(-200),
-        recentChampions: survivors.length > 0 ? [survivors[0].handle, ...state.recentChampions].slice(0, 10) : state.recentChampions,
+        recentTopStacks: survivors.length > 0 ? [survivors[0].handle, ...state.recentTopStacks].slice(0, 10) : state.recentTopStacks,
         totalRoundsPlayed: state.totalRoundsPlayed + 1,
         totalVolume: state.totalVolume + totalVolume
       };
@@ -374,7 +374,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           attacker: attacker.handle, 
           target: target.handle, 
           mon: monLooted, 
-          timestamp: Date.now() 
+          timestamp: ROUND_DURATION - state.timeRemaining 
         }
       };
 

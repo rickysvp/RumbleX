@@ -27,7 +27,7 @@ export function SeasonLeaderboard() {
         <div>Rank</div>
         <div>Player</div>
         <div className="text-right">Kills</div>
-        <div className="text-right">Est. Payout</div>
+        <div className="text-right">Season Estimate</div>
       </div>
 
         {top5.length === 0 ? (

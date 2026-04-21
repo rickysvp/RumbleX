@@ -150,7 +150,7 @@ export function SettingsPage() {
         {/* App Info */}
         <div className="mt-8 p-4 bg-[#111] border border-[#222]">
           <div className="text-[11px] text-app-muted text-center">
-            RumbleX v0.1.40 • Built with React & Tailwind
+            RumbleX v0.1.44 • Built with React & Tailwind
           </div>
         </div>
       </div>

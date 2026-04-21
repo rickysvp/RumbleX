@@ -18,15 +18,15 @@ export function SimControl() {
     useGameStore.getState().playerEliminated("DEBUG_KILL", victim.id, 0);
   };
 
-  const handleForceChampion = () => {
+  const handleForceLeader = () => {
     const alive = useGameStore.getState().players.filter(p => p.status === 'alive');
     if (alive.length <= 1) return;
     
-    const champ = alive.reduce((prev, curr) => (prev.mon > curr.mon ? prev : curr));
-    const others = alive.filter(p => p.id !== champ.id);
+    const leader = alive.reduce((prev, curr) => (prev.mon > curr.mon ? prev : curr));
+    const others = alive.filter(p => p.id !== leader.id);
     
     others.forEach(v => {
-      useGameStore.getState().playerEliminated("DEBUG_CHAMP", v.id, 0);
+      useGameStore.getState().playerEliminated("DEBUG_LEADER", v.id, 0);
     });
   };
 
@@ -93,7 +93,7 @@ export function SimControl() {
       <div className="grid grid-cols-2 gap-1 mt-1">
         <button onClick={handleFireEvent} className="bg-[#111] border border-[#222] text-[9px] py-1.5 text-white uppercase font-app-bold hover:bg-[#222]">Fire One Event</button>
         <button onClick={handleElimRandom} className="bg-[#111] border border-[#222] text-[9px] py-1.5 text-white uppercase font-app-bold hover:bg-[#222]">Elim Random</button>
-        <button onClick={handleForceChampion} className="bg-[#111] border border-[#222] text-[9px] py-1.5 text-white uppercase font-app-bold hover:bg-[#222]">Force Champ</button>
+        <button onClick={handleForceLeader} className="bg-[#111] border border-[#222] text-[9px] py-1.5 text-white uppercase font-app-bold hover:bg-[#222]">Force Leader</button>
         <button onClick={handleResetRound} className="bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] py-1.5 uppercase font-app-bold hover:bg-red-500/20">Reset Round</button>
       </div>
     </div>

@@ -130,6 +130,6 @@ export interface GameState {
   userStats: UserStats;
 
   // Audit/UX Loop triggers
-  recentChampions: string[];
+  recentTopStacks: string[];
   lastElimination: { attacker: string; target: string; mon: number; timestamp: number } | null;
 }

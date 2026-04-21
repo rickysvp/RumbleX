@@ -67,8 +67,8 @@ export function RoundHero({ onConfirmLoadout }: { onConfirmLoadout: (config: any
         Play to Win
       </button>
 
-      <div className="text-[10px] text-app-muted font-app-mono tracking-wide relative z-10">
-        CHAMPION: 75% | RUNNER-UP: 10% | THIRD: 5% | S1 PRIZE: 5% | PROTOCOL: 5%
+      <div className="text-[10px] text-app-muted font-app-bold tracking-[2px] uppercase relative z-10 selection:bg-app-accent selection:text-black">
+        ELIMS TAKE ALL | SURVIVORS KEEP WHAT THEY HOLD
       </div>
     </div>
   );

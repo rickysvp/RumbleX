@@ -13,17 +13,17 @@ export function StatsPage() {
   const userEntry = leaderboard.find(p => p.handle === 'PILOT_01');
   const userPlayer = players.find(p => p.handle === 'PILOT_01');
   
-  // Calculate stats
+  const userStats = useGameStore(state => state.userStats);
+  
+  // Stats from store
   const totalKills = userEntry?.kills || 0;
   const isQualified = userEntry?.qualified || false;
   const estimatedPayout = userEntry?.estimatedPayout || 0;
-  const roundsPlayed = userLoadout.rounds || 0;
+  const gamesPlayed = userStats?.games || 0;
   const queueRemaining = userLoadout.queueRemaining || 0;
-  
-  // Mock historical data (would come from store in real implementation)
-  const winRate = 12; // percentage
-  const totalEarnings = 245.5; // MON
-  const bestRank = 3;
+  const winRate = gamesPlayed > 0 ? Math.round((userStats.wins / gamesPlayed) * 100) : 0;
+  const netMon = userStats?.netMon || 0;
+  const wins = userStats?.wins || 0;
 
   return (
     <div className="h-full w-full bg-[#0a0a0a] overflow-y-auto custom-scrollbar p-6">
@@ -59,7 +59,7 @@ export function StatsPage() {
               />
               <StatCard 
                 icon={<Trophy size={20} />}
-                label="Est. Payout"
+                label="Season Estimate"
                 value={`${estimatedPayout.toFixed(1)}`}
                 subtext="MON"
                 highlight={estimatedPayout > 0}
@@ -73,7 +73,7 @@ export function StatsPage() {
               <StatCard 
                 icon={<Skull size={20} />}
                 label="Rounds"
-                value={roundsPlayed.toString()}
+                value={gamesPlayed.toString()}
                 subtext={queueRemaining > 0 ? `${queueRemaining} queued` : 'Completed'}
               />
             </div>
@@ -83,12 +83,14 @@ export function StatsPage() {
               <h2 className="text-[14px] font-app-bold text-white uppercase mb-4">Performance Summary</h2>
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <div className="text-[11px] text-app-muted uppercase mb-1">Total Earnings</div>
-                  <div className="text-[24px] font-app-mono text-app-accent">{totalEarnings.toFixed(1)} <span className="text-[14px]">MON</span></div>
+                  <div className="text-[11px] text-app-muted uppercase mb-1">Net MON</div>
+                  <div className={`text-[24px] font-app-mono ${netMon >= 0 ? 'text-app-accent' : 'text-red-500'}`}>
+                    {netMon >= 0 ? '+' : ''}{netMon.toFixed(1)} <span className="text-[14px]">MON</span>
+                  </div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-app-muted uppercase mb-1">Best Rank</div>
-                  <div className="text-[24px] font-app-mono text-white">#{bestRank}</div>
+                  <div className="text-[11px] text-app-muted uppercase mb-1">Total Wins</div>
+                  <div className="text-[24px] font-app-mono text-white">{wins}</div>
                 </div>
               </div>
             </div>
