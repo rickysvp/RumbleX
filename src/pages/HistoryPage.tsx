@@ -90,16 +90,16 @@ export function HistoryPage() {
             </h1>
           </div>
           <p className="text-app-muted text-[13px]">
-            Complete on-chain record of all RumbleX rounds. Every result is verifiable and immutable.
+            Historical round snapshot archive. Metadata provided for simulation and prototype verification.
           </p>
         </div>
 
         {/* Verification Banner */}
-        <div className="bg-green-500/10 border border-green-500/30 p-4 mb-6 flex items-center gap-3">
-          <Shield size={18} className="text-green-400" />
+        <div className="bg-app-accent/10 border border-app-accent/30 p-4 mb-6 flex items-center gap-3">
+          <Shield size={18} className="text-app-accent" />
           <div>
-            <div className="text-[12px] text-green-400 font-app-bold uppercase">On-Chain Verified</div>
-            <div className="text-[11px] text-app-muted">All round results are recorded on Monad blockchain and permanently auditable.</div>
+            <div className="text-[12px] text-app-accent font-app-bold uppercase">System Archive</div>
+            <div className="text-[11px] text-app-muted">Round results are archived for prototype evaluation. Transaction hashes shown are simulated.</div>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ export function HistoryPage() {
             <div className="col-span-1">Round</div>
             <div className="col-span-2">Time</div>
             <div className="col-span-2 text-right">Players</div>
-            <div className="col-span-2 text-right">Prize Pool</div>
+            <div className="col-span-2 text-right">Round Volume</div>
             <div className="col-span-3">Survivors</div>
             <div className="col-span-2 text-right">Verification</div>
           </div>
@@ -146,7 +146,7 @@ export function HistoryPage() {
                     </div>
                   </div>
                   
-                  {/* Prize Pool */}
+                  {/* Round Volume */}
                   <div className="col-span-2 text-right">
                     <span className="text-app-accent font-app-mono text-[14px]">{round.prizePool}</span>
                     <span className="text-[10px] text-app-muted ml-1">MON</span>
@@ -194,7 +194,7 @@ export function HistoryPage() {
                           </div>
                           <div className="flex items-center gap-6">
                             <span className="text-[11px] text-app-muted">{survivor.kills} kills</span>
-                            <span className="text-[13px] text-app-accent font-app-mono">+{survivor.earnings.toFixed(1)} MON</span>
+                            <span className="text-[13px] text-app-accent font-app-mono">+{survivor.earnings.toFixed(1)} MON Carry Out</span>
                           </div>
                         </div>
                       ))}
@@ -217,7 +217,7 @@ export function HistoryPage() {
             <div className="text-[28px] font-app-mono text-app-accent">284,392</div>
           </div>
           <div className="bg-[#111] border border-[#222] p-4 text-center">
-            <div className="text-[10px] text-app-muted uppercase mb-1">Total Prize Pool</div>
+            <div className="text-[10px] text-app-muted uppercase mb-1">Total Volume</div>
             <div className="text-[28px] font-app-mono text-app-accent">142.5K</div>
             <div className="text-[10px] text-app-muted">MON</div>
           </div>

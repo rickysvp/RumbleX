@@ -1,11 +1,15 @@
 import { GameState } from '../store/types';
 
+// Generate random 6-digit number
+const generatePlayerId = () => Math.floor(100000 + Math.random() * 900000).toString();
+
 export const INITIAL_MOCK_STATE: GameState = {
   phase: "entry_open",
   roundNumber: 843,
   timeRemaining: 299,
   entryFee: 1,
   prizePool: 432,
+  userHandle: `PLAYER${generatePlayerId()}`,
 
   players: [
     { 

@@ -185,7 +185,15 @@ export default function App() {
       )}
 
       {/* Overlay Components */}
-      <HamburgerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <HamburgerMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        currentView={currentView}
+        onNavigate={(view) => {
+          setCurrentView(view);
+          setIsMenuOpen(false);
+        }}
+      />
 
       {/* Development Debug Panel */}
       {process.env.NODE_ENV === 'development' && (

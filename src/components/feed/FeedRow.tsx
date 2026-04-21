@@ -1,18 +1,29 @@
 import React from 'react';
 import { FeedEvent } from '../../store/types';
+import { useGameStore } from '../../store/gameStore';
 
 interface FeedRowProps {
   event: FeedEvent;
 }
 
 export const FeedRow = React.memo(({ event }: FeedRowProps) => {
+  const userHandle = useGameStore(state => state.userHandle);
+
+  // Get all player handles from the game state for highlighting
+  const playerHandles = useGameStore(state => state.players.map(p => p.handle));
+
   // Specialized renderer for System Logs (Dynamic, Less Aggressive)
   const renderSystemNarrative = (text: string) => {
     if (!text) return null;
 
-    // Highlight Round #IDs, Numbers with decimals, Usernames (CamelCase), and MON specifically
-    // Uses word boundaries (\b) to avoid catching surrounding punctuation
-    let parts = text.split(/(#\d+|\b\d+\.?\d*(?:\s?MON)?\b|[A-Z][a-zA-Z0-9_]+)/g);
+    // Build a regex pattern that matches all player handles (escape special regex chars)
+    const handlePattern = playerHandles
+      .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+
+    // Split by: Round #IDs, Numbers with decimals, MON, or player handles
+    const splitRegex = new RegExp(`(#\\d+|\\b\\d+\\.?\\d*(?:\\s?MON)?\\b|${handlePattern})`, 'g');
+    let parts = text.split(splitRegex);
 
     return parts.map((part, i) => {
       if (!part) return null;
@@ -26,10 +37,10 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
       if (part.match(/MON/)) {
         return <span key={i} className="text-app-accent font-app-bold mx-0.5 sm:mx-1 text-[11px] sm:text-[13px]">{part}</span>;
       }
-      // Highlight usernames (CamelCase words like SatoshiFan, DiamondHands, NeonPulse, VitalikDrip)
-      if (part.match(/^[A-Z][a-zA-Z0-9_]+$/) && part.length > 3) {
-        const isUser = part.includes('PILOT_01');
-        return <span key={i} className={`${isUser ? 'text-app-accent' : 'text-white'} font-app-bold mx-0.5 sm:mx-1 bg-white/10 px-1 py-0.5 rounded text-[11px] sm:text-[13px]`}>{part}</span>;
+      // Highlight player handles - current user gets accent color, others get white
+      if (playerHandles.includes(part)) {
+        const isCurrentUser = part === userHandle;
+        return <span key={i} className={`${isCurrentUser ? 'text-app-accent' : 'text-white'} font-app-bold mx-0.5 sm:mx-1 bg-white/10 px-1 py-0.5 rounded text-[11px] sm:text-[13px]`}>{part}</span>;
       }
       return <span key={i} className="text-app-muted text-[11px] sm:text-[13px]">{part}</span>;
     });
@@ -38,26 +49,29 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
   const renderCombatNarrative = (text: string) => {
     if (!text) return null;
 
-    // Legacy logic for combat that highlights MON
-    let parts = text.split(/([\d.]+ MON)/g);
+    // Build a regex pattern that matches all player handles
+    const handlePattern = playerHandles
+      .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+
+    // Split by MON amounts or player handles
+    const monRegex = /([\d.]+ MON)/g;
+    let parts = text.split(monRegex);
 
     return parts.flatMap((part, i) => {
       if (part.match(/[\d.]+ MON/)) {
         return <span key={`mon-${i}`} className="text-app-accent font-bold mx-0.5 sm:mx-1 bg-app-accent/10 px-1 py-0.5 rounded text-[11px] sm:text-[13px]">{part}</span>;
       }
 
-      // Look for specific handles (UPPER_CASE or CamelCase)
-      let handleParts = part.split(/(\[?[A-Z][a-zA-Z0-9_]{3,}\]?)/g);
-      return handleParts.map((hp, j) => {
-        // Only highlight if it looks like a known format and NOT common words like ROUND, OPEN, etc.
-        // We'll use a blacklist or just be more restrictive
-        const commonWords = ['ROUND', 'OPEN', 'ENTRY', 'FINAL', 'CALL', 'REMAIN', 'SCALE', 'LATE', 'TOTAL'];
-        const isCommon = commonWords.includes(hp.replace(/[\[\]]/g, ''));
+      // Split remaining parts by player handles
+      const handleRegex = new RegExp(`(${handlePattern})`, 'g');
+      let handleParts = part.split(handleRegex);
 
-        if (hp.match(/^\[?[A-Z][a-zA-Z0-9_]{3,}\]?$/) && !hp.includes('MON') && !isCommon) {
-          const isUser = hp.includes('PILOT_01');
+      return handleParts.map((hp, j) => {
+        if (playerHandles.includes(hp)) {
+          const isCurrentUser = hp === userHandle;
           return (
-            <span key={`h-${i}-${j}`} className={`${isUser ? 'text-app-accent font-app-bold' : 'text-cyan-400'} font-bold mx-0.5 sm:mx-1 bg-white/5 px-1 py-0.5 rounded text-[11px] sm:text-[13px]`}>
+            <span key={`h-${i}-${j}`} className={`${isCurrentUser ? 'text-app-accent font-app-bold' : 'text-white'} font-bold mx-0.5 sm:mx-1 bg-white/5 px-1 py-0.5 rounded text-[11px] sm:text-[13px]`}>
               {hp}
             </span>
           );
@@ -91,12 +105,13 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
 
   // CHAT BRANCH
   if (event.type === 'chat') {
+    const isCurrentUser = event.attacker === userHandle;
     return (
       <div className="px-3 sm:px-5 py-2.5 border-b border-white/[0.03] transition-colors hover:bg-white/[0.02] animate-row-in">
         <div className="flex gap-2 sm:gap-4">
           <TimeColumn />
           <div className="flex-1 min-w-0">
-            <span className={`${event.attacker === 'PILOT_01' ? 'text-app-accent' : 'text-cyan-400'} font-app-bold text-[12px] sm:text-[13px]`}>
+            <span className={`${isCurrentUser ? 'text-app-accent' : 'text-cyan-400'} font-app-bold text-[12px] sm:text-[13px]`}>
               {event.attacker || 'ANON'}
             </span>
             <span className="text-white/80 text-[12px] sm:text-[13px] ml-2 break-words">{event.text}</span>

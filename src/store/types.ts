@@ -98,6 +98,9 @@ export interface GameState {
   entryFee: number;
   prizePool: number;
 
+  // User Profile
+  userHandle: string;
+
   // Players
   players: Player[];
 

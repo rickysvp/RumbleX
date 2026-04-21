@@ -1,10 +1,19 @@
 {
-  "version": "0.1.40",
+  "version": "0.1.41",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-21",
   "changelog": {
+    "0.1.41": {
+      "date": "2026-04-21",
+      "changes": [
+        "Fix FeedRow username highlighting - use player handles from game state",
+        "Add userHandle field to GameState",
+        "Add nickname editing feature in SettingsPage",
+        "Default nickname format: PLAYER + random 6-digit number"
+      ]
+    },
     "0.1.40": {
       "date": "2026-04-21",
       "changes": [

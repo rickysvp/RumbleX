@@ -5,9 +5,11 @@ import { LeftSidebar } from '../sidebar/LeftSidebar';
 interface HamburgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  currentView: string;
+  onNavigate: (view: string) => void;
 }
 
-export function HamburgerMenu({ isOpen, onClose }: HamburgerMenuProps) {
+export function HamburgerMenu({ isOpen, onClose, currentView, onNavigate }: HamburgerMenuProps) {
   if (!isOpen) return null;
 
   return (
@@ -28,7 +30,7 @@ export function HamburgerMenu({ isOpen, onClose }: HamburgerMenuProps) {
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          <LeftSidebar />
+          <LeftSidebar currentView={currentView} onNavigate={onNavigate} />
         </div>
       </div>
     </div>

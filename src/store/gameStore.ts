@@ -15,6 +15,7 @@ interface GameStore extends GameState {
   playerEliminated: (killCreditId: string, targetId: string, monLooted: number, skillUsed?: SkillId | null, itemUsed?: ItemId | null) => void;
   queueUserLoadout: (loadout: Partial<UserLoadout>, txHash?: string) => void;
   concludeSeason: () => void;
+  updateUserHandle: (handle: string) => void;
 }
 
 const ROUND_DURATION = 600;
@@ -461,6 +462,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
         players: newPlayers,
         prizePool: state.prizePool + totalCost,
         feedEvents: [...state.feedEvents, newEvent].slice(-200)
+      };
+    });
+  },
+
+  updateUserHandle: (handle: string) => {
+    set((state) => {
+      const newHandle = handle.trim() || state.userHandle;
+      // Update user player handle
+      const newPlayers = state.players.map(p => 
+        p.isUser ? { ...p, handle: newHandle } : p
+      );
+      // Update leaderboard
+      const newLeaderboard = state.leaderboard.map(e => 
+        e.isUser ? { ...e, handle: newHandle } : e
+      );
+      return {
+        userHandle: newHandle,
+        players: newPlayers,
+        leaderboard: newLeaderboard
       };
     });
   }

@@ -25,25 +25,25 @@ export function GuidePage() {
             <h2 className="text-[16px] font-app-bold text-white uppercase">The Game</h2>
           </div>
           <p className="text-[14px] text-white leading-relaxed mb-4">
-            RumbleX is a battle royale where players fight for survival. 
-            Each round lasts <span className="text-app-accent font-bold">10 minutes</span>. Survive until the timer ends or become the last survivor to claim your rewards.
+            RumbleX is a battlefield where you fight for MON. 
+            Each round has a fixed <span className="text-app-accent font-bold">10 minute timer</span>. Eliminate opponents to steal their stack, and survive until the timer ends to keep everything you're holding.
           </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-black/40 p-4 border border-app-accent/20">
               <div className="flex items-center gap-2 mb-2">
                 <Clock size={14} className="text-app-accent" />
-                <span className="text-[12px] text-app-muted uppercase">Time Limit</span>
+                <span className="text-[12px] text-app-muted uppercase">Duration</span>
               </div>
               <p className="text-[20px] font-app-bold text-white">10 Minutes</p>
-              <p className="text-[11px] text-app-muted mt-1">Per round max duration</p>
+              <p className="text-[11px] text-app-muted mt-1">Fixed round timer</p>
             </div>
             <div className="bg-black/40 p-4 border border-app-accent/20">
               <div className="flex items-center gap-2 mb-2">
                 <Skull size={14} className="text-app-accent" />
                 <span className="text-[12px] text-app-muted uppercase">Objective</span>
               </div>
-              <p className="text-[20px] font-app-bold text-white">Survive</p>
-              <p className="text-[11px] text-app-muted mt-1">Until timer ends or last one standing</p>
+              <p className="text-[20px] font-app-bold text-white">Loot & Survive</p>
+              <p className="text-[11px] text-app-muted mt-1">Steal MON and stay alive</p>
             </div>
           </div>
         </div>
@@ -52,36 +52,36 @@ export function GuidePage() {
         <div className="space-y-6 mb-6">
           <GuideSection 
             icon={<Zap size={18} />}
-            title="Round Rewards"
-            content="Eliminate opponents to earn MON. Every kill adds to your stack. If you survive until the timer ends or become the last survivor, you keep all the MON you've earned during the round. The longer you survive and the more you kill, the bigger your payout."
+            title="How MON Works"
+            content="Every player enters the arena with an entry amount (their starting MON). When you eliminate another pilot, you instantly steal 100% of the MON they were carrying. MON is not 'earned' from the system—it is taken from your enemies."
           />
 
-          {/* Prize Distribution */}
+          {/* Survival Mechanics */}
           <div className="bg-[#111] border border-[#222] p-5">
             <div className="flex items-center gap-2 mb-4">
               <Scale size={18} className="text-app-accent" />
-              <h2 className="text-[14px] font-app-bold text-white uppercase">Prize Distribution</h2>
+              <h2 className="text-[14px] font-app-bold text-white uppercase">Retention Rules</h2>
             </div>
             <p className="text-[13px] text-app-muted leading-relaxed mb-4">
-              Each round's prize pool is distributed among survivors based on their performance:
+              RumbleX operates on a 'Keep What You Carry' model. There are no prize tiers or complex survival bonuses:
             </p>
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
-                <span className="text-[12px] text-white">Base Pool (Entry Fees)</span>
-                <span className="text-[12px] text-app-accent font-app-mono">100% distributed</span>
+                <span className="text-[12px] text-white">Survivor Retention</span>
+                <span className="text-[12px] text-app-accent font-app-mono">Keep 100% of held MON</span>
               </div>
               <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
-                <span className="text-[12px] text-white">Kill Rewards</span>
-                <span className="text-[12px] text-app-accent font-app-mono">Per kill bonus</span>
+                <span className="text-[12px] text-white">Elimination Penalty</span>
+                <span className="text-[12px] text-red-500 font-app-mono">Lose all held MON</span>
               </div>
               <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
-                <span className="text-[12px] text-white">Survival Bonus</span>
-                <span className="text-[12px] text-app-accent font-app-mono">Extra for survivors</span>
+                <span className="text-[12px] text-white">Payout Distribution</span>
+                <span className="text-[12px] text-app-muted font-app-mono">None (Instant theft loop)</span>
               </div>
             </div>
             <p className="text-[11px] text-app-muted mt-4 leading-relaxed">
-              All rewards are calculated transparently and distributed automatically via smart contracts. 
-              Transaction hashes are publicly available for verification.
+              When the timer hits zero, any pilot still alive successfully extracts with their current stack. 
+              The round volume shown in history represents the total MON in play during the combat loop.
             </p>
           </div>
 
@@ -173,11 +173,11 @@ export function GuidePage() {
             </li>
             <li className="flex items-start gap-3">
               <span className="text-app-accent font-bold text-[14px]">4.</span>
-              <span className="text-app-muted">Survive the round to claim your earnings</span>
+              <span className="text-app-muted">Survive the round timer to keep your stack</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-app-accent font-bold text-[14px]">5.</span>
-              <span className="text-app-muted">Accumulate 100+ kills for season airdrop</span>
+              <span className="text-app-muted">Climb the kill leaderboard for season rewards</span>
             </li>
           </ol>
         </div>
