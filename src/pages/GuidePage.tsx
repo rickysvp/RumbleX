@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollText, Play, Shield, Zap, Target } from 'lucide-react';
+import { ScrollText, Play, Shield, Zap, Target, Trophy, Clock, Skull } from 'lucide-react';
 
 export function GuidePage() {
   return (
@@ -14,70 +14,105 @@ export function GuidePage() {
             </h1>
           </div>
           <p className="text-app-muted text-[13px]">
-            Learn the basics and master the game
+            Master the arena. Survive. Claim your rewards.
           </p>
         </div>
 
-        {/* Quick Start */}
+        {/* Core Concept */}
         <div className="bg-app-accent/10 border border-app-accent/30 p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Play size={18} className="text-app-accent" />
-            <h2 className="text-[16px] font-app-bold text-white uppercase">Quick Start</h2>
+            <Target size={18} className="text-app-accent" />
+            <h2 className="text-[16px] font-app-bold text-white uppercase">The Game</h2>
           </div>
-          <ol className="space-y-3 text-[13px] text-app-muted">
-            <li className="flex items-start gap-3">
-              <span className="text-app-accent font-bold">1.</span>
-              Connect your wallet to access the game
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-app-accent font-bold">2.</span>
-              Click "Play to Win" when entry is open
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-app-accent font-bold">3.</span>
-              Configure your loadout (strategy, skill, item)
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-app-accent font-bold">4.</span>
-              Pay the entry fee to join the round
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-app-accent font-bold">5.</span>
-              Survive until the end to win the prize!
-            </li>
-          </ol>
+          <p className="text-[14px] text-white leading-relaxed mb-4">
+            RumbleX is a battle royale where players fight for survival. 
+            Each round lasts <span className="text-app-accent font-bold">10 minutes</span>. Survive until the timer ends or become the last survivor to claim your rewards.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-black/40 p-4 border border-app-accent/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock size={14} className="text-app-accent" />
+                <span className="text-[12px] text-app-muted uppercase">Time Limit</span>
+              </div>
+              <p className="text-[20px] font-app-bold text-white">10 Minutes</p>
+              <p className="text-[11px] text-app-muted mt-1">Per round max duration</p>
+            </div>
+            <div className="bg-black/40 p-4 border border-app-accent/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Skull size={14} className="text-app-accent" />
+                <span className="text-[12px] text-app-muted uppercase">Objective</span>
+              </div>
+              <p className="text-[20px] font-app-bold text-white">Survive</p>
+              <p className="text-[11px] text-app-muted mt-1">Until timer ends or last one standing</p>
+            </div>
+          </div>
         </div>
 
-        {/* Game Mechanics */}
-        <div className="space-y-6">
+        {/* Round Rewards */}
+        <div className="space-y-6 mb-6">
           <GuideSection 
-            icon={<Target size={18} />}
-            title="The Objective"
-            content="Be the last player standing. Each round is a battle royale where players fight to survive. Use strategy, skills, and items to outlast your opponents."
+            icon={<Zap size={18} />}
+            title="Round Rewards"
+            content="Eliminate opponents to earn MON. Every kill adds to your stack. If you survive until the timer ends or become the last survivor, you keep all the MON you've earned during the round. The longer you survive and the more you kill, the bigger your payout."
           />
 
           <GuideSection 
             icon={<Shield size={18} />}
             title="Loadout System"
-            content="Before each round, configure your loadout: Strategy determines your playstyle, Skills provide special abilities, and Items give you equipment advantages. Choose wisely based on your preferred tactics."
-          />
-
-          <GuideSection 
-            icon={<Zap size={18} />}
-            title="Combat & Elimination"
-            content="During live rounds, players automatically engage in combat based on their loadouts. You can be eliminated by other players or environmental hazards. Each kill counts toward your season ranking."
+            content="Before entering, configure your strategy, skill, and item. Your choices determine your combat effectiveness. Skills provide special abilities, items give equipment advantages, and strategy defines your AI behavior. Choose wisely based on your playstyle."
           />
         </div>
 
-        {/* Tips */}
-        <div className="mt-8 p-4 bg-[#111] border border-[#222]">
-          <h3 className="text-[12px] font-app-bold text-white uppercase mb-3">Pro Tips</h3>
-          <ul className="space-y-2 text-[12px] text-app-muted">
-            <li>• Queue multiple rounds at once to save on gas fees</li>
-            <li>• Balance your loadout cost with potential rewards</li>
-            <li>• Watch the kill feed to learn successful strategies</li>
-            <li>• Aim for 100+ kills this season to qualify for rewards</li>
-          </ul>
+        {/* Season Rewards */}
+        <div className="bg-[#111] border border-[#222] p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy size={18} className="text-app-accent" />
+            <h2 className="text-[16px] font-app-bold text-white uppercase">Season Airdrop</h2>
+          </div>
+          <p className="text-[13px] text-app-muted leading-relaxed mb-4">
+            At the end of each season, qualified players receive a MON airdrop based on their total kills.
+          </p>
+          <div className="bg-black/40 p-4 border border-app-accent/20">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[12px] text-app-muted uppercase">Qualification</span>
+              <span className="text-[14px] text-app-accent font-bold">100+ Kills</span>
+            </div>
+            <div className="h-px bg-app-border mb-3" />
+            <p className="text-[13px] text-white">
+              The more kills you accumulate throughout the season, the larger your share of the airdrop. 
+              Top performers receive significantly higher rewards.
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Start */}
+        <div className="bg-[#0a0a0a] border border-app-border p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Play size={18} className="text-app-accent" />
+            <h2 className="text-[16px] font-app-bold text-white uppercase">Quick Start</h2>
+          </div>
+          <ol className="space-y-3 text-[13px]">
+            <li className="flex items-start gap-3">
+              <span className="text-app-accent font-bold text-[14px]">1.</span>
+              <span className="text-app-muted">Connect your wallet</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-app-accent font-bold text-[14px]">2.</span>
+              <span className="text-app-muted">Click "Play to Win" when entry opens</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-app-accent font-bold text-[14px]">3.</span>
+              <span className="text-app-muted">Configure your loadout and pay entry fee</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-app-accent font-bold text-[14px]">4.</span>
+              <span className="text-app-muted">Survive the round to claim your earnings</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-app-accent font-bold text-[14px]">5.</span>
+              <span className="text-app-muted">Accumulate 100+ kills for season airdrop</span>
+            </li>
+          </ol>
         </div>
       </div>
     </div>

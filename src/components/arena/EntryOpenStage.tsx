@@ -48,46 +48,56 @@ export function EntryOpenStage() {
 
   return (
     <>
-      <div className="h-full w-full flex flex-col justify-center p-3 sm:p-4 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
+      <div className="h-full w-full flex flex-col justify-center p-3 sm:p-4 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards] relative">
+        {/* Background Image - scaled down and shifted left */}
+        <div 
+          className="absolute inset-y-0 left-0 w-full bg-no-repeat"
+          style={{ 
+            backgroundImage: 'url(/bg.png)',
+            backgroundPosition: 'left center',
+            backgroundSize: '80% 100%'
+          }}
+        />
+        {/* Black fill for right side */}
+        <div className="absolute inset-y-0 right-0 w-[30%] bg-black" />
 
-        <div className="flex flex-col md:flex-row items-center md:items-center gap-4 md:gap-8 z-10 w-full max-w-3xl mx-auto">
+        <div className="flex flex-col md:flex-row items-start md:items-start gap-4 md:gap-8 z-10 w-full max-w-3xl mx-auto relative">
 
-          {/* LEFT COLUMN: HERO TIMER */}
-          <div className="flex flex-col justify-center items-center md:items-start flex-1 text-center md:text-left">
-            <div className="text-white font-app-bold text-[10px] sm:text-[11px] uppercase tracking-[2px] sm:tracking-[3px] mb-1">
-              ROUND #{roundNumber}
-            </div>
-
-            <div
-              className={`font-app-bold text-[48px] sm:text-[56px] md:text-[72px] leading-[0.9] tracking-[-0.05em] drop-shadow-[0_0_20px_rgba(235,255,0,0.15)] ${
-                timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent'
-              }`}
-              style={{ fontVariantNumeric: 'tabular-nums' }}
-            >
-              {formatTime(timeRemaining)}
-            </div>
-
-          </div>
+          {/* LEFT COLUMN: Empty for background image */}
+          <div className="hidden md:block flex-1" />
 
           {/* RIGHT COLUMN: ACTION ZONE */}
-          <div className="flex flex-col justify-center w-full md:w-[280px] shrink-0">
-            
-            {/* STATS HUD BOX */}
-            <div className="bg-[#050505] border border-app-border p-3 mb-2 relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-10 h-10 bg-gradient-to-bl from-app-accent/5 to-transparent pointer-events-none" />
+          <div className="flex flex-col justify-start w-full md:w-[320px] shrink-0">
 
-               <div className="grid grid-cols-2 gap-3 relative z-10">
+            {/* ROUND & TIMER */}
+            <div className="flex flex-col items-center md:items-start text-center md:text-left mb-4">
+              <div className="text-white font-app-bold text-[14px] sm:text-[16px] uppercase tracking-[3px] mb-2">
+                ROUND #{roundNumber}
+              </div>
+              <div
+                className={`font-app-bold text-[56px] sm:text-[64px] md:text-[72px] leading-[0.85] tracking-[-0.04em] ${
+                  timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent'
+                }`}
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
+                {formatTime(timeRemaining)}
+              </div>
+            </div>
+
+            {/* STATS HUD BOX */}
+            <div className="bg-[#0a0a0a] border border-app-border p-4 mb-3">
+               <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <span className="text-[8px] text-app-accent uppercase font-app-bold tracking-[2px] mb-0.5 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-app-accent" /> Entry Fee
+                    <span className="text-[9px] text-app-muted uppercase font-app-bold tracking-[2px] mb-1">
+                      Entry Fee
                     </span>
-                    <span className="text-[20px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[10px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[24px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[11px] text-app-muted ml-1">MON</span></span>
                   </div>
-                  <div className="flex flex-col border-l border-app-border pl-3">
-                    <span className="text-[8px] text-app-accent uppercase font-app-bold tracking-[2px] mb-0.5 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-app-accent" /> Prize Pool
+                  <div className="flex flex-col border-l border-app-border pl-4">
+                    <span className="text-[9px] text-app-muted uppercase font-app-bold tracking-[2px] mb-1">
+                      Prize Pool
                     </span>
-                    <span className="text-[20px] font-app-bold text-white leading-none whitespace-nowrap">{prizePool.toFixed(0)}<span className="text-[10px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[24px] font-app-bold text-app-accent leading-none">{prizePool.toFixed(0)}<span className="text-[11px] opacity-60 ml-1">MON</span></span>
                   </div>
                </div>
             </div>

@@ -85,7 +85,7 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
   }, [status]);
 
   return (
-    <header className="h-[56px] bg-[#0a0a0a] border-b border-app-border flex items-center justify-between px-4 shrink-0 z-50">
+    <header className="h-[64px] bg-[#0a0a0a] border-b border-app-border flex items-center justify-between px-4 shrink-0 z-50">
       {/* Left: Menu + Logo */}
       <div className="flex items-center gap-3">
         {showMenu && (
@@ -93,19 +93,19 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
             onClick={onMenuOpen} 
             className="p-2 -ml-2 text-app-muted hover:text-white transition-colors"
           >
-            <Menu size={20} />
+            <Menu size={24} />
           </button>
         )}
-        <img src="/rumblex.png" alt="RumbleX" className="h-6 object-contain" />
+        <img src="/rumblex.png" alt="RumbleX" className="h-8 object-contain" />
       </div>
 
       {/* Right: Wallet */}
-      <div className="flex items-center gap-3" ref={dropdownRef}>
+      <div className="flex items-center gap-4" ref={dropdownRef}>
         {!isConnected ? (
           <button
             onClick={mockWallet.connect}
             disabled={status === 'connecting'}
-            className={`flex items-center gap-2 px-3 py-1.5 font-app-bold text-[11px] uppercase tracking-wider transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 font-app-bold text-[13px] uppercase tracking-wider transition-colors ${
               status === 'error'
                 ? 'bg-[#111] border border-app-danger/50 text-app-danger hover:bg-app-danger/10'
                 : status === 'connecting'
@@ -113,7 +113,7 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                 : 'bg-app-accent text-black hover:bg-white'
             }`}
           >
-            <Wallet size={14} />
+            <Wallet size={16} />
             <span className="hidden sm:inline">
               {status === 'error' ? 'Retry' : status === 'connecting' ? 'Connecting...' : 'Connect'}
             </span>
@@ -121,13 +121,14 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
         ) : (
           <>
             {/* Balance & Pass Display */}
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="flex items-center gap-1.5 text-app-accent">
-                <span className="text-[13px] font-app-bold">{displayBalance.toFixed(1)}</span>
-                <span className="text-[10px] opacity-60">MON</span>
+            <div className="hidden sm:flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-[#111] border border-app-border px-3 py-1.5">
+                <span className="text-[9px] text-app-muted uppercase tracking-wider">BALANCE</span>
+                <span className="text-[15px] font-app-bold text-app-accent">{displayBalance.toFixed(1)}</span>
+                <span className="text-[11px] text-app-accent opacity-60">MON</span>
               </div>
               {hasRumbleXPass && (
-                <span className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2 py-0.5 tracking-wider">
+                <span className="bg-app-accent text-black text-[10px] uppercase font-app-bold px-2.5 py-1 tracking-wider">
                   PASS
                 </span>
               )}
@@ -135,13 +136,13 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
 
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#111] border border-app-border hover:border-white transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#111] border border-app-border hover:border-white transition-colors"
             >
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[11px] font-app-mono text-app-muted">
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[13px] font-app-mono text-app-muted">
                 {formatAddress(address || '')}
               </span>
-              <ChevronDown size={14} className={`text-app-muted transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+              <ChevronDown size={16} className={`text-app-muted transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown Menu */}

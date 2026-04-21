@@ -75,6 +75,8 @@ export function MyHistory() {
           )}
         </>
       )}
+      {/* Bottom padding for scroll */}
+      <div className="h-4" />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { MyHistory } from './pre-game/MyHistory';
 
 export function PreGamePanel() {
   return (
-    <div className="flex flex-col h-full intel-scroll overflow-y-auto">
+    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
       <SeasonInfo />
       <SeasonLeaderboard />
       <LastRoundResults />
