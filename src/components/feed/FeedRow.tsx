@@ -78,26 +78,15 @@ export const FeedRow = React.memo(({ event, playerHandles, userHandle }: FeedRow
     });
   };
 
-  const formatSeconds = (sec: number) => {
-    const m = Math.floor(sec / 60).toString().padStart(2, '0');
-    const s = Math.floor(sec % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
-  const timeString = formatSeconds(event.timestamp);
-  const timeDisplay = `[${timeString}]`;
+  // Format current real time as HH:MM:SS
+  const now = new Date();
+  const timeDisplay = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
-  // Standard Header for Time Metadata
-  const TimeColumn = ({ type }: { type?: string }) => (
-    <div className="shrink-0 w-[70px] sm:w-[100px] flex flex-col justify-center relative z-10 font-app-mono">
-      {type === 'system' && (
-        <span className="text-app-accent/80 text-[6px] sm:text-[7px] font-app-bold tracking-[0.2em] uppercase mb-0.5 leading-none">
-          SYSTEM_LOG
-        </span>
-      )}
-      <span className={`${type === 'system' ? 'text-[10px] sm:text-[11px] text-[#555]' : 'text-[11px] sm:text-[13px] text-[#444]'} leading-none`}>
-        {timeDisplay}
-      </span>
-    </div>
+  // Time display component - positioned at the right
+  const TimeDisplay = ({ type }: { type?: string }) => (
+    <span className={`shrink-0 font-app-mono ${type === 'system' ? 'text-[10px] sm:text-[11px] text-[#555]' : 'text-[11px] sm:text-[13px] text-[#444]'} leading-none`}>
+      {timeDisplay}
+    </span>
   );
 
   // CHAT BRANCH
@@ -105,14 +94,14 @@ export const FeedRow = React.memo(({ event, playerHandles, userHandle }: FeedRow
     const isCurrentUser = event.attacker === userHandle;
     return (
       <div className="px-3 sm:px-5 py-2.5 border-b border-white/[0.03] transition-colors hover:bg-white/[0.02] animate-row-in">
-        <div className="flex gap-2 sm:gap-4">
-          <TimeColumn />
+        <div className="flex gap-2 sm:gap-4 items-center">
           <div className="flex-1 min-w-0">
             <span className={`${isCurrentUser ? 'text-app-accent' : 'text-cyan-400'} font-app-bold text-[12px] sm:text-[13px]`}>
               {event.attacker || 'ANON'}
             </span>
             <span className="text-white/80 text-[12px] sm:text-[13px] ml-2 break-words">{event.text}</span>
           </div>
+          <TimeDisplay />
         </div>
       </div>
     );
@@ -121,12 +110,12 @@ export const FeedRow = React.memo(({ event, playerHandles, userHandle }: FeedRow
   // SYSTEM BRANCH
   if (event.type === 'system') {
     return (
-      <div className="px-3 sm:px-5 py-3 border-b border-white/[0.03] bg-app-accent/5 relative group animate-row-in">
-        <div className="flex gap-2 sm:gap-4">
-          <TimeColumn type="system" />
+      <div className="px-3 sm:px-5 py-3 border-b border-white/[0.03] bg-app-accent/5 relative group animate-row-in border-l-2 border-l-app-accent/30">
+        <div className="flex gap-2 sm:gap-4 items-center">
           <div className="flex-1 relative z-10 italic min-w-0">
             {renderSystemNarrative(event.text)}
           </div>
+          <TimeDisplay type="system" />
         </div>
       </div>
     );
@@ -139,9 +128,9 @@ export const FeedRow = React.memo(({ event, playerHandles, userHandle }: FeedRow
         ? 'animate-flash-danger bg-red-500/5'
         : 'hover:bg-white/[0.02]'
     }`}>
-      <div className="flex gap-2 sm:gap-4">
-        <TimeColumn />
+      <div className="flex gap-2 sm:gap-4 items-center">
         <div className="text-white/90 flex-1 min-w-0 text-[12px] sm:text-[13px]">{renderCombatNarrative(event.text)}</div>
+        <TimeDisplay />
       </div>
     </div>
   );

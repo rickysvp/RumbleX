@@ -39,7 +39,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const checkpoints = [270, 240, 210, 180, 150, 120, 90, 60, 30, 10];
         if (checkpoints.includes(timeRemaining)) {
           addFeedEvent({
-            timestamp: 0,
+            timestamp: ENTRY_DURATION - timeRemaining,
             type: 'system',
             text: narrativeEngine.generateSystem('entry_countdown', { time: timeRemaining, round: roundNumber }),
             attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
@@ -272,7 +272,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         extraEvents.push({
           id: Math.random().toString(36).substr(2, 9),
-          timestamp: 0,
+          timestamp: 0, // Round just opened
           type: 'system' as const,
           text: `★ PILOT_01 auto-queued for ROUND #${nextRound}. ${newLoadout.queueRemaining} round(s) remaining.`,
           attacker: null, target: null, monAmount: null, 
@@ -400,7 +400,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       const finishEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: 0,
+        timestamp: ROUND_DURATION,
         type: 'system' as const,
         text: `SEASON ${state.seasonNumber} CONCLUDED. ${qualifiedCount} PLAYERS QUALIFIED. ${state.seasonPool.toFixed(0)} MON AIRDROPPED.`,
         attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
@@ -447,7 +447,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const txSuffix = txHash ? ` TX: ${txHash.substring(0, 10)}...` : '';
       const newEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: 0,
+        timestamp: state.phase === 'entry_open' ? (ENTRY_DURATION - state.timeRemaining) : 0,
         type: 'system' as const,
         text: `★ PILOT_01 queued ${newLoadout.rounds} round(s) for ${totalCost.toFixed(1)} MON. Loadout locked.${txSuffix}`,
         attacker: null,

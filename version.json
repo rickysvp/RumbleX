@@ -1,10 +1,22 @@
 {
-  "version": "0.1.44",
+  "version": "0.1.45",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-21",
   "changelog": {
+    "0.1.45": {
+      "date": "2026-04-21",
+      "changes": [
+        "Fix FeedRow timestamp to display real time (HH:MM:SS)",
+        "Move timestamp to right side of feed messages",
+        "Add left border accent for system messages",
+        "Remove SYSTEM_LOG label from feed",
+        "Update SeasonLeaderboard: remove K suffix from kills, change header to REWARDS",
+        "Remove 'Season share if closed now' tooltip text",
+        "Various UI polish and text improvements"
+      ]
+    },
     "0.1.44": {
       "date": "2026-04-21",
       "changes": [

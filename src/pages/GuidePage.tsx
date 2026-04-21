@@ -63,7 +63,7 @@ export function GuidePage() {
               <h2 className="text-[14px] font-app-bold text-white uppercase">Retention Rules</h2>
             </div>
             <p className="text-[13px] text-app-muted leading-relaxed mb-4">
-              RumbleX operates on a 'Keep What You Carry' model. There are no prize tiers or complex survival bonuses:
+              RumbleX operates on a 'Keep What You Carry' model. There are no prize tiers or bonus payout layers:
             </p>
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
@@ -120,7 +120,7 @@ export function GuidePage() {
               <div>
                 <div className="text-[12px] text-white font-app-bold uppercase mb-1">Penalties</div>
                 <ul className="text-[11px] text-app-muted space-y-1">
-                  <li>• Confiscation of all earned MON in the round</li>
+                  <li>• Confiscation of all carried MON in the round</li>
                   <li>• Permanent wallet blacklist from future rounds</li>
                   <li>• Forfeiture of season airdrop eligibility</li>
                   <li>• Public reporting on-chain for transparency</li>

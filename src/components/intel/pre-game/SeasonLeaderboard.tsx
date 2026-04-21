@@ -27,7 +27,7 @@ export function SeasonLeaderboard() {
         <div>Rank</div>
         <div>Player</div>
         <div className="text-right">Kills</div>
-        <div className="text-right">Season Estimate</div>
+        <div className="text-right">REWARDS</div>
       </div>
 
         {top5.length === 0 ? (
@@ -51,7 +51,7 @@ export function SeasonLeaderboard() {
                     <span className="text-[7px] bg-red-500/20 text-red-400 px-1 py-0.5 rounded-[1px] tracking-tight border border-red-500/30">NOT QUALIFIED</span>
                   )}
                 </div>
-                <div className="text-right font-app-bold text-[11px] text-white">{p.kills}K</div>
+                <div className="text-right font-app-bold text-[11px] text-white">{p.kills}</div>
                 <div className="text-right font-app-bold text-[10px] text-app-accent">
                   {p.estimatedPayout.toFixed(0)} MON
                 </div>
@@ -70,7 +70,7 @@ export function SeasonLeaderboard() {
                         <span className="text-[7px] bg-red-500/20 text-red-400 px-1 py-0.5 rounded-[1px] tracking-tight border border-red-500/30">NOT QUALIFIED</span>
                       )}
                     </div>
-                    <div className="text-right font-app-bold text-[11px] text-white">{userEntry.kills}K</div>
+                    <div className="text-right font-app-bold text-[11px] text-white">{userEntry.kills}</div>
                     <div className="text-right font-app-bold text-[10px] text-app-accent">
                       {userEntry.estimatedPayout.toFixed(0)} MON
                     </div>

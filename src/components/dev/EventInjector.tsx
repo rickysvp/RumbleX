@@ -12,8 +12,22 @@ export function EventInjector() {
     
     if (!activeText) return;
 
+    const state = useGameStore.getState();
+    const phase = state.phase;
+    const timeRemaining = state.timeRemaining;
+    
+    // Calculate realistic timestamp
+    let currentTimestamp = 0;
+    if (phase === 'live') {
+      currentTimestamp = 600 - timeRemaining;
+    } else if (phase === 'entry_open') {
+      currentTimestamp = 300 - timeRemaining;
+    } else if (phase === 'concluded') {
+      currentTimestamp = 600;
+    }
+
     useGameStore.getState().addFeedEvent({
-      timestamp: 0,
+      timestamp: currentTimestamp,
       type: activeType,
       text: activeText,
       attacker: activeType === 'elim' ? 'CryptoKnight' : null,

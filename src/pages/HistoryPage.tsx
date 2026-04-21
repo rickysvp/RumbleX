@@ -12,9 +12,9 @@ const roundHistoryData = [
     prizePool: 447,
     txHash: '0x7a8b9c...d2e3f4',
     survivorList: [
-      { name: 'CRYPTOKNIGHT', kills: 12, earnings: 156.5 },
-      { name: 'VIPER_X', kills: 8, earnings: 98.2 },
-      { name: 'NEONBLADE', kills: 5, earnings: 67.3 },
+      { name: 'CRYPTOKNIGHT', kills: 12, carryOut: 156.5 },
+      { name: 'VIPER_X', kills: 8, carryOut: 98.2 },
+      { name: 'NEONBLADE', kills: 5, carryOut: 67.3 },
     ]
   },
   {
@@ -26,7 +26,7 @@ const roundHistoryData = [
     prizePool: 398,
     txHash: '0x1a2b3c...d4e5f6',
     survivorList: [
-      { name: 'SHADOWHUNTER', kills: 18, earnings: 284.0 },
+      { name: 'SHADOWHUNTER', kills: 18, carryOut: 284.0 },
     ]
   },
   {
@@ -38,8 +38,8 @@ const roundHistoryData = [
     prizePool: 521,
     txHash: '0x9a8b7c...d6e5f4',
     survivorList: [
-      { name: 'GHOSTWALKER', kills: 15, earnings: 245.5 },
-      { name: 'IRONFIST', kills: 11, earnings: 178.3 },
+      { name: 'GHOSTWALKER', kills: 15, carryOut: 245.5 },
+      { name: 'IRONFIST', kills: 11, carryOut: 178.3 },
     ]
   },
   {
@@ -51,10 +51,10 @@ const roundHistoryData = [
     prizePool: 412,
     txHash: '0x3a4b5c...d7e8f9',
     survivorList: [
-      { name: 'BLAZE_RUNNER', kills: 9, earnings: 98.0 },
-      { name: 'FROST_BITE', kills: 7, earnings: 76.5 },
-      { name: 'THUNDER_STRIKE', kills: 6, earnings: 65.2 },
-      { name: 'STEEL_HEART', kills: 4, earnings: 48.3 },
+      { name: 'BLAZE_RUNNER', kills: 9, carryOut: 98.0 },
+      { name: 'FROST_BITE', kills: 7, carryOut: 76.5 },
+      { name: 'THUNDER_STRIKE', kills: 6, carryOut: 65.2 },
+      { name: 'STEEL_HEART', kills: 4, carryOut: 48.3 },
     ]
   },
   {
@@ -66,7 +66,7 @@ const roundHistoryData = [
     prizePool: 356,
     txHash: '0x5a6b7c...d8e9f0',
     survivorList: [
-      { name: 'PHANTOM_SLAYER', kills: 22, earnings: 312.5 },
+      { name: 'PHANTOM_SLAYER', kills: 22, carryOut: 312.5 },
     ]
   },
 ];
@@ -194,7 +194,7 @@ export function HistoryPage() {
                           </div>
                           <div className="flex items-center gap-6">
                             <span className="text-[11px] text-app-muted">{survivor.kills} kills</span>
-                            <span className="text-[13px] text-app-accent font-app-mono">+{survivor.earnings.toFixed(1)} MON Carry Out</span>
+                            <span className="text-[13px] text-app-accent font-app-mono">+{survivor.carryOut.toFixed(1)} MON Carry Out</span>
                           </div>
                         </div>
                       ))}

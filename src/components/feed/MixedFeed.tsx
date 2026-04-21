@@ -53,11 +53,14 @@ export function MixedFeed() {
   const handleSendMessage = () => {
     if (!message.trim()) return;
     
-    const phase = useGameStore.getState().phase;
+    const state = useGameStore.getState();
+    const phase = state.phase;
+    const currentTime = state.timeRemaining;
+    
     const currentTimestamp = phase === 'live' 
-      ? (600 - timeRemaining) 
+      ? (600 - currentTime) 
       : phase === 'entry_open' 
-        ? (300 - timeRemaining) 
+        ? (300 - currentTime) 
         : 600;
 
     addFeedEvent({
