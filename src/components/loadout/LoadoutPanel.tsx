@@ -41,13 +41,17 @@ export function LoadoutPanel({ roundNumber, readOnly, onClose, onConfirm }: { ro
 
       {/* 移动端布局：上下结构 */}
       <div className="flex-1 flex flex-col md:hidden overflow-hidden">
+        {/* 顶部固定：Queued Rounds */}
+        <div className="shrink-0 bg-[#0a0a0a] border-b border-app-border p-4">
+          <RoundsSelector rounds={loadout.rounds} setRounds={loadout.setRounds} readOnly={readOnly} />
+        </div>
+        
         {/* Content - 可滚动区域 */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 pb-[180px]">
             <StrategyCards selected={loadout.strategy} onSelect={loadout.setStrategy} readOnly={readOnly} />
             <SkillCards selected={loadout.skill} onSelect={loadout.setSkill} readOnly={readOnly} />
             <ItemCards selected={loadout.item} onSelect={loadout.setItem} readOnly={readOnly} />
-            <RoundsSelector rounds={loadout.rounds} setRounds={loadout.setRounds} readOnly={readOnly} />
           </div>
         </div>
         
@@ -74,11 +78,15 @@ export function LoadoutPanel({ roundNumber, readOnly, onClose, onConfirm }: { ro
       <div className="hidden md:flex flex-1 overflow-hidden">
         {/* 左侧：配置区域 */}
         <div className="flex-1 overflow-y-auto">
+          {/* 顶部固定：Queued Rounds */}
+          <div className="sticky top-0 bg-[#0a0a0a] border-b border-app-border p-6 z-10">
+            <RoundsSelector rounds={loadout.rounds} setRounds={loadout.setRounds} readOnly={readOnly} />
+          </div>
+          
           <div className="p-6 pb-8">
             <StrategyCards selected={loadout.strategy} onSelect={loadout.setStrategy} readOnly={readOnly} />
             <SkillCards selected={loadout.skill} onSelect={loadout.setSkill} readOnly={readOnly} />
             <ItemCards selected={loadout.item} onSelect={loadout.setItem} readOnly={readOnly} />
-            <RoundsSelector rounds={loadout.rounds} setRounds={loadout.setRounds} readOnly={readOnly} />
           </div>
         </div>
         

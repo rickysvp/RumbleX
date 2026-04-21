@@ -1,10 +1,18 @@
 {
-  "version": "0.1.7",
+  "version": "0.1.8",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.8": {
+      "date": "2026-04-20",
+      "changes": [
+        "Move RoundsSelector to fixed top position in LoadoutPanel",
+        "Mobile: Queued Rounds fixed at top of loadout modal",
+        "Desktop: Queued Rounds sticky at top of left panel"
+      ]
+    },
     "0.1.7": {
       "date": "2026-04-20",
       "changes": [
