@@ -134,17 +134,13 @@ export function SeasonInfo() {
                     Prize Pool Info
                   </div>
                   
-                  <div className="text-[9px] text-app-muted leading-relaxed space-y-1.5">
+                  <div className="text-[9px] text-app-muted leading-relaxed space-y-2">
                     <p>
-                      Accumulates from 10% of all entry fees. Qualified players share the pool at season end.
+                      由本赛季每笔参赛报名费的10%累计构成，赛季结束后空投给所有符合条件的玩家。
                     </p>
-                    <div className="flex justify-between border-t border-[#222] pt-1.5">
-                      <span>Platform Fee</span>
-                      <span className="text-app-accent">10%</span>
-                    </div>
-                    <div className="flex justify-between border-t border-[#222] pt-1.5">
-                      <span>Qualification</span>
-                      <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ Kills</span>
+                    <div className="flex justify-between border-t border-[#222] pt-2">
+                      <span>资格要求</span>
+                      <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ 击杀</span>
                     </div>
                   </div>
                 </div>
