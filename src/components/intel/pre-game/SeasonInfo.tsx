@@ -171,10 +171,6 @@ export function SeasonInfo() {
         </div>
       </div>
 
-      {/* 资格说明 */}
-      <div className="text-[8px] text-app-muted font-app-bold uppercase tracking-wider border-t border-[#1a1a1a] pt-3 leading-relaxed text-center">
-        {SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ KILLS TO QUALIFY
-      </div>
     </div>
   );
 }
