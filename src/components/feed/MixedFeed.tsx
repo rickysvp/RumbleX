@@ -30,12 +30,13 @@ export function MixedFeed() {
     overscan: 10,
   });
 
-  // Auto-scroll logic
-  // Auto-scroll logic
+  // Auto-scroll logic - only scroll when new events are added
+  const prevLengthRef = useRef(filteredEvents.length);
   useEffect(() => {
-    if (filteredEvents.length > 0) {
-      virtualizer.scrollToIndex(filteredEvents.length - 1, { align: 'end', behavior: 'smooth' });
+    if (filteredEvents.length > prevLengthRef.current) {
+      virtualizer.scrollToIndex(filteredEvents.length - 1, { align: 'end' });
     }
+    prevLengthRef.current = filteredEvents.length;
   }, [filteredEvents.length, virtualizer]);
 
   const [message, setMessage] = useState('');
