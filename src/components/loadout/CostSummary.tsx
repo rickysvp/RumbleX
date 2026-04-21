@@ -103,67 +103,49 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
   const btn = getButtonContent();
 
   return (
-    <div className="bg-[#0a0a0a] border-t border-app-border p-4 md:p-6 flex flex-col gap-4 z-10 w-full">
-      {/* 移动端简化版 */}
-      <div className="md:hidden">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-[10px] text-app-muted uppercase font-app-bold">Total</span>
-          <span className="text-[20px] font-app-bold text-app-accent">
-            {totalCost.toFixed(1)} <span className="text-[11px]">MON</span>
-          </span>
-        </div>
-        
+    <div className="bg-[#0a0a0a] p-4 md:p-6 flex flex-col gap-4 z-10 w-full h-full">
+      {/* 标题 */}
+      <div className="text-[10px] text-app-muted uppercase font-app-bold mb-1 tracking-wide border-b border-[#222] pb-2 flex justify-between items-center">
+        <span>Cost Breakdown</span>
         {isConnected && (
-          <div className="flex justify-between text-[9px] text-app-muted mb-3">
-            <span>Wallet: {monBalance.toFixed(1)} MON</span>
-            <span>{rounds} Round{rounds > 1 ? 's' : ''}</span>
-          </div>
+          <span className={`text-[9px] ${canAfford ? 'text-green-500' : 'text-red-500'}`}>
+             Balance: {monBalance.toFixed(1)} MON
+          </span>
         )}
       </div>
-
-      {/* 桌面版详细版 */}
-      <div className="hidden md:block">
-        <div className="text-[10px] text-app-muted uppercase font-app-bold mb-3 tracking-wide border-b border-[#222] pb-2 flex justify-between items-center">
-          <span>Cost Breakdown</span>
-          {isConnected && (
-            <span className={`text-[9px] ${canAfford ? 'text-green-500' : 'text-red-500'}`}>
-               Balance: {monBalance.toFixed(1)} MON
-            </span>
-          )}
+      
+      {/* 成本明细 */}
+      <div className="space-y-1 text-[12px]">
+        <div className="flex justify-between text-app-muted">
+          <span>Entry Fee x{rounds}</span>
+          <span className="text-white">{(entryFeePerRound * rounds).toFixed(2)}</span>
         </div>
-        
-        <div className="space-y-1 text-[12px] mb-4">
+        {skillPrice > 0 && (
           <div className="flex justify-between text-app-muted">
-            <span>Entry Fee x{rounds}</span>
-            <span className="text-white">{(entryFeePerRound * rounds).toFixed(2)}</span>
+            <span>Skills</span>
+            <span className="text-white">{(skillPrice * rounds).toFixed(2)}</span>
           </div>
-          {skillPrice > 0 && (
-            <div className="flex justify-between text-app-muted">
-              <span>Skills</span>
-              <span className="text-white">{(skillPrice * rounds).toFixed(2)}</span>
-            </div>
-          )}
-          {itemPrice > 0 && (
-            <div className="flex justify-between text-app-muted">
-              <span>Items</span>
-              <span className="text-white">{(itemPrice * rounds).toFixed(2)}</span>
-            </div>
-          )}
-          <div className="flex justify-between pt-2 border-t border-[#333]">
-            <span className="font-app-bold text-white">Total</span>
-            <span className="text-[20px] font-app-bold text-app-accent">
-              {totalCost.toFixed(2)} <span className="text-[11px]">MON</span>
-            </span>
+        )}
+        {itemPrice > 0 && (
+          <div className="flex justify-between text-app-muted">
+            <span>Items</span>
+            <span className="text-white">{(itemPrice * rounds).toFixed(2)}</span>
           </div>
-        </div>
-
-        <div className="text-[9px] text-app-muted mb-4">
-          Start with {startingMON.toFixed(2)} MON · Platform 10% · Season 10%
+        )}
+        <div className="flex justify-between pt-2 border-t border-[#333]">
+          <span className="font-app-bold text-white">Total</span>
+          <span className="text-[20px] font-app-bold text-app-accent">
+            {totalCost.toFixed(2)} <span className="text-[11px]">MON</span>
+          </span>
         </div>
       </div>
+
+      <div className="text-[9px] text-app-muted">
+        Start with {startingMON.toFixed(2)} MON · Platform 10% · Season 10%
+      </div>
       
-      {/* 按钮 - 固定在底部 */}
-      <div className="w-full sticky bottom-0">
+      {/* 按钮 */}
+      <div className="mt-auto pt-4">
          {readOnly ? (
            <div className="w-full py-4 border border-[#222] bg-[#111] flex flex-col items-center justify-center gap-1 opacity-80">
               <div className="text-app-muted text-[11px] uppercase tracking-wide">
