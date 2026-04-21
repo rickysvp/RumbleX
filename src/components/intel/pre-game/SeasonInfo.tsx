@@ -3,7 +3,7 @@ import { useGameStore } from '../../../store/gameStore';
 import { SEASON_CONFIG } from '../../../lib/seasonConfig';
 
 // 翻牌数字组件
-function FlipDigit({ value }: { value: string }) {
+function FlipDigit({ value, key }: { value: string; key?: number }) {
   return (
     <div className="relative w-[22px] h-[32px] bg-[#111] border border-[#333] rounded overflow-hidden">
       {/* 上半部分 */}
@@ -136,14 +136,10 @@ export function SeasonInfo() {
                   
                   <div className="text-[9px] text-app-muted leading-relaxed space-y-1.5">
                     <p>
-                      Accumulates from all entry fees. Qualified players share the pool at season end.
+                      Accumulates from 10% of all entry fees. Qualified players share the pool at season end.
                     </p>
                     <div className="flex justify-between border-t border-[#222] pt-1.5">
                       <span>Platform Fee</span>
-                      <span className="text-app-accent">10%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Season Pool</span>
                       <span className="text-app-accent">10%</span>
                     </div>
                     <div className="flex justify-between border-t border-[#222] pt-1.5">
