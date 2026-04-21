@@ -6,20 +6,6 @@ interface FeedRowProps {
 }
 
 export const FeedRow = React.memo(({ event }: FeedRowProps) => {
-  let typeTag = 'SYSTEM';
-  let tagClass = 'text-cyan-500';
-
-  if (event.type === 'elim') {
-    typeTag = 'ELIM';
-    tagClass = 'text-app-danger';
-  } else if (event.type === 'loot') {
-    typeTag = 'LOOT';
-    tagClass = 'text-app-accent';
-  } else if (event.type === 'ability') {
-    typeTag = 'ABILITY';
-    tagClass = 'text-[#B088FF]';
-  }
-
   const renderNarrative = (text: string) => {
     if (!text) return null;
     
@@ -62,7 +48,6 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
           : 'hover:bg-[#111]'
     }`}>
       <div className="shrink-0 text-[#666] w-[60px]">{timeString}</div>
-      <div className={`shrink-0 w-[60px] font-bold ${tagClass}`}>{typeTag}</div>
       <div className="text-white flex-1">{renderNarrative(event.text)}</div>
     </div>
   );
