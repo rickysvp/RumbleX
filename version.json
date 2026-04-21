@@ -1,10 +1,21 @@
 {
-  "version": "0.1.35",
+  "version": "0.1.36",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-21",
   "changelog": {
+    "0.1.36": {
+      "date": "2026-04-21",
+      "changes": [
+        "Redesign ConcludedStage - remove NEXT ROUND section",
+        "Add 30-second auto-return countdown to lobby",
+        "Optimize ConcludedStage layout - reduce padding and spacing",
+        "Further optimize EntryOpenStage layout - reduce whitespace",
+        "Increase EntryOpenStage max-width from max-w-4xl to max-w-3xl",
+        "Enlarge EntryOpenStage countdown timer font size"
+      ]
+    },
     "0.1.35": {
       "date": "2026-04-21",
       "changes": [

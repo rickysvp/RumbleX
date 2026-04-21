@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useWalletStore } from '../../store/walletStore';
 import { mockTransaction, TxState } from '../../lib/mockTransaction';
 import { mockWallet } from '../../lib/mockWallet';
-import { CheckCircle2, Wallet } from 'lucide-react';
+import { mockPass } from '../../lib/mockPass';
+import { CheckCircle2, Wallet, Loader2 } from 'lucide-react';
 
 interface Props {
   rounds: number;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, totalCost, startingMON, onConfirm, config, readOnly }: Props) {
-  const { status: walletStatus, monBalance } = useWalletStore();
+  const { status: walletStatus, monBalance, hasRumbleXPass, passStatus, isMintingPass } = useWalletStore();
   const [tx, setTx] = useState<TxState>({ status: "idle", txHash: null, error: null });
 
   const canAfford = monBalance >= totalCost;
@@ -26,6 +27,11 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
   const handleAction = () => {
     if (!isConnected) {
       mockWallet.connect();
+      return;
+    }
+
+    if (!hasRumbleXPass) {
+      mockPass.mintRumbleXPass();
       return;
     }
 
@@ -40,15 +46,49 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
   };
 
   const getButtonContent = () => {
+    // 1. Wallet Disconnected
     if (!isConnected) {
       return {
         label: "Connect Wallet",
         sub: "Tap to connect",
         style: "bg-[#111] border border-[#333] text-app-muted hover:text-white",
-        disabled: false
+        disabled: false,
+        icon: <Wallet size={16} />
       };
     }
 
+    // 2. Pass Status Unknown/Checking
+    if (passStatus === "unknown" || passStatus === "checking") {
+      return {
+        label: "Checking RumbleX Pass...",
+        sub: "Verifying access",
+        style: "bg-[#111] border border-[#333] text-app-muted",
+        disabled: true,
+        icon: <Loader2 size={16} className="animate-spin" />
+      };
+    }
+
+    // 3 & 4. Missing Pass / Minting Pass
+    if (!hasRumbleXPass) {
+      if (isMintingPass) {
+        return {
+          label: "Minting...",
+          sub: "Confirm in wallet",
+          style: "bg-app-accent/20 border border-app-accent/40 text-app-accent",
+          disabled: true,
+          icon: <Loader2 size={16} className="animate-spin" />
+        };
+      }
+      return {
+        label: "Mint RumbleX Pass",
+        sub: "1 MON temporary price",
+        style: "bg-app-accent text-black hover:bg-white",
+        disabled: false,
+        icon: <PlusCircleIcon /> // Using a fallback for PlusCircle as it might not be imported yet
+      };
+    }
+
+    // 5. Insufficient Balance for Round
     if (!canAfford) {
       return {
         label: "Insufficient Balance",
@@ -58,6 +98,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
       };
     }
 
+    // 6. Normal Transaction Flow
     switch (tx.status) {
       case "awaiting_signature":
         return {
@@ -65,7 +106,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
           sub: "Sign to confirm",
           style: "bg-app-accent/20 border border-app-accent/40 text-app-accent animate-pulse",
           disabled: true,
-          showSpinner: true
+          icon: <Loader2 size={16} className="animate-spin" />
         };
       case "pending":
         return {
@@ -73,7 +114,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
           sub: `TX: ${tx.txHash?.substring(0, 8)}...`,
           style: "bg-[#111] border border-app-accent/20 text-app-accent",
           disabled: true,
-          showSpinner: true
+          icon: <Loader2 size={16} className="animate-spin" />
         };
       case "confirmed":
         return {
@@ -81,7 +122,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
           sub: "Redirecting...",
           style: "bg-green-500/20 border border-green-500/40 text-green-500",
           disabled: true,
-          showCheck: true
+          icon: <CheckCircle2 size={16} />
         };
       case "failed":
         return {
@@ -99,6 +140,13 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
         };
     }
   };
+
+  // Helper for inner icon rendering
+  const PlusCircleIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+    </svg>
+  );
 
   const btn = getButtonContent();
 
@@ -154,23 +202,21 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
               <div className="text-app-accent/60 font-app-bold text-[9px] uppercase tracking-[2px]">LOCKED</div>
            </div>
          ) : (
-           <button 
-             onClick={handleAction}
-             disabled={btn.disabled}
-             className={`w-full font-app-bold text-[14px] md:text-[15px] py-4 px-4 uppercase tracking-[2px] transition-all flex flex-col items-center justify-center gap-1 ${btn.style} ${!btn.disabled && 'hover:scale-[1.01] active:scale-[0.99]'}`}
-           >
-             <div className="flex items-center gap-2">
-               {btn.showSpinner && <span className="animate-pulse">●</span>}
-               {btn.showCheck && <CheckCircle2 size={16} />}
-               {!isConnected && <Wallet size={16} />}
-               <span>{btn.label}</span>
-             </div>
-             {btn.sub && (
-               <span className="text-[9px] opacity-70 tracking-wide">
-                 {btn.sub}
-               </span>
-             )}
-           </button>
+            <button 
+              onClick={handleAction}
+              disabled={btn.disabled}
+              className={`w-full font-app-bold text-[14px] md:text-[15px] py-4 px-4 uppercase tracking-[2px] transition-all flex flex-col items-center justify-center gap-1 ${btn.style} ${!btn.disabled && 'hover:scale-[1.01] active:scale-[0.99]'}`}
+            >
+              <div className="flex items-center gap-2">
+                {btn.icon}
+                <span>{btn.label}</span>
+              </div>
+              {btn.sub && (
+                <span className="text-[9px] opacity-70 tracking-wide">
+                  {btn.sub}
+                </span>
+              )}
+            </button>
          )}
       </div>
     </div>

@@ -20,7 +20,7 @@ export const mockWallet = {
         "0x7a...9fE2",
         "0x7a3F6B4C2d8A1E9fE2",
         12.4, // Initial mock balance
-        true  // Mock Alpha Pass
+        false  // Initial state: no RumbleX Pass (test eligibility gate)
       );
     } else {
       const errorType = Math.random() < 0.5 ? "USER_REJECTED" : "TIMEOUT";

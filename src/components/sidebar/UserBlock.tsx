@@ -4,7 +4,7 @@ import { mockWallet } from '../../lib/mockWallet';
 import { RefreshCcw, Copy, Check, LogOut } from 'lucide-react';
 
 export function UserBlock() {
-  const { status, address, monBalance, hasAlphaPass, error, isRefreshing, addressFull } = useWalletStore();
+  const { status, address, monBalance, hasRumbleXPass, passStatus, error, isRefreshing, addressFull } = useWalletStore();
   const [copied, setCopied] = useState(false);
   const [displayBalance, setDisplayBalance] = useState(monBalance);
   const [loadingBlocks, setLoadingBlocks] = useState('░░░');
@@ -133,13 +133,17 @@ export function UserBlock() {
             </button>
          </div>
          <div className="flex items-center">
-            {hasAlphaPass ? (
+            {passStatus === "checking" ? (
+              <span className="text-app-accent/50 text-[9px] uppercase font-app-bold tracking-wider animate-pulse">
+                Checking Pass...
+              </span>
+            ) : hasRumbleXPass ? (
               <span className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2 py-0.5 tracking-wider shadow-[0_0_15px_rgba(217,255,0,0.15)]">
-                Alpha Pass
+                RumbleX Pass
               </span>
             ) : (
               <span className="text-[#444] text-[9px] uppercase font-app-bold tracking-wider">
-                No Pass
+                Pass Required
               </span>
             )}
          </div>

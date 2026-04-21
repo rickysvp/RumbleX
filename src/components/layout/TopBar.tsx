@@ -9,7 +9,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
-  const { address, addressFull, monBalance, isRefreshing, hasAlphaPass, status } = useWalletStore();
+  const { address, addressFull, monBalance, isRefreshing, hasRumbleXPass, status } = useWalletStore();
   const [showDropdown, setShowDropdown] = useState(false);
   const [copied, setCopied] = useState(false);
   const [displayBalance, setDisplayBalance] = useState(monBalance);
@@ -126,7 +126,7 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                 <span className="text-[13px] font-app-bold">{displayBalance.toFixed(1)}</span>
                 <span className="text-[10px] opacity-60">MON</span>
               </div>
-              {hasAlphaPass && (
+              {hasRumbleXPass && (
                 <span className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2 py-0.5 tracking-wider">
                   PASS
                 </span>
@@ -177,11 +177,11 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                   </div>
                 </div>
 
-                {/* Rumble Pass Status */}
+                {/* RumbleX Pass Status */}
                 <div className="p-4 border-b border-app-border">
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] text-app-muted uppercase tracking-widest">Rumble Pass</span>
-                    {hasAlphaPass ? (
+                    <span className="text-[9px] text-app-muted uppercase tracking-widest">RumbleX Pass</span>
+                    {hasRumbleXPass ? (
                       <span className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2 py-0.5 tracking-wider">
                         ACTIVE
                       </span>

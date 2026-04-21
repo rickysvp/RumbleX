@@ -3,12 +3,12 @@ import { useWalletStore } from '../../store/walletStore';
 import { mockWallet } from '../../lib/mockWallet';
 
 export function WalletControl() {
-  const { status, monBalance, hasAlphaPass, setBalance, setWallet, setStatus, setError } = useWalletStore();
+  const { status, monBalance, hasRumbleXPass, setBalance, setWallet, setPassOwned, setError } = useWalletStore();
   const [tempBalance, setTempBalance] = useState(monBalance.toString());
 
   const handleConnectInstant = () => {
-    // Skip mockWallet.connect() delay for instant dev usage
-    setWallet("0x7a...9fE2", "0x7a3F6B4C2d8A1E9fE2", 12.4, true);
+    // Instant connect for dev, default to NO pass per requirements
+    setWallet("0x7a...9fE2", "0x7a3F6B4C2d8A1E9fE2", 12.4, false);
   };
 
   const handleForceError = () => {
@@ -19,8 +19,8 @@ export function WalletControl() {
     setBalance(parseFloat(tempBalance));
   };
 
-  const toggleAlphaPass = () => {
-    useWalletStore.setState({ hasAlphaPass: !hasAlphaPass });
+  const toggleRumbleXPass = () => {
+    setPassOwned(!hasRumbleXPass);
   };
 
   if (process.env.NODE_ENV !== 'development') return null;
@@ -57,12 +57,12 @@ export function WalletControl() {
 
       <label className="flex items-center gap-2 cursor-pointer mt-1 group">
         <div 
-          onClick={toggleAlphaPass}
-          className={`w-10 h-5 border flex items-center px-1 transition-colors ${hasAlphaPass ? 'bg-app-accent border-app-accent' : 'bg-[#1a1a1a] border-[#333]'}`}
+          onClick={toggleRumbleXPass}
+          className={`w-10 h-5 border flex items-center px-1 transition-colors ${hasRumbleXPass ? 'bg-app-accent border-app-accent' : 'bg-[#1a1a1a] border-[#333]'}`}
         >
-          <div className={`w-3 h-3 transition-transform ${hasAlphaPass ? 'translate-x-5 bg-black' : 'translate-x-0 bg-[#666]'}`} />
+          <div className={`w-3 h-3 transition-transform ${hasRumbleXPass ? 'translate-x-5 bg-black' : 'translate-x-0 bg-[#666]'}`} />
         </div>
-        <span className="text-[10px] text-app-muted uppercase font-app-bold group-hover:text-white">Alpha Pass</span>
+        <span className="text-[10px] text-app-muted uppercase font-app-bold group-hover:text-white">RumbleX Pass</span>
       </label>
     </div>
   );
