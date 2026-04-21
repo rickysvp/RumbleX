@@ -16,13 +16,13 @@ export function ConcludedStage() {
   const openNextRound = useGameStore(state => state.openNextRound);
 
   // 获取本轮存活玩家，按收益排序
-  const survivors = players
+  const survivors = (players || [])
     .filter(p => p.status === 'alive' || p.status === 'eliminated')
     .sort((a, b) => b.mon - a.mon);
 
-  const aliveCount = players.filter(p => p.status === 'alive').length;
-  const totalParticipants = players.filter(p => p.status !== 'spectating').length;
-  const totalPrizePool = players.reduce((acc, p) => acc + p.mon, 0);
+  const aliveCount = (players || []).filter(p => p.status === 'alive').length;
+  const totalParticipants = (players || []).filter(p => p.status !== 'spectating').length;
+  const totalPrizePool = (players || []).reduce((acc, p) => acc + p.mon, 0);
 
   return (
     <div className="h-full w-full flex flex-col p-3 sm:p-4 md:p-8 overflow-hidden">
@@ -48,7 +48,7 @@ export function ConcludedStage() {
             </div>
             <div className="w-px h-8 sm:h-10 bg-white/20" />
             <div className="flex flex-col items-end">
-              <span className="text-[9px] sm:text-[10px] text-app-accent uppercase tracking-[2px] mb-0.5 sm:mb-1">PRIZE POOL</span>
+              <span className="text-[9px] sm:text-[10px] text-app-accent uppercase tracking-[2px] mb-0.5 sm:mb-1">STACK VOLUME</span>
               <span className="text-app-accent font-app-mono text-[16px] sm:text-[20px] md:text-[24px]">{totalPrizePool.toFixed(1)} <span className="text-[10px] md:text-[12px]">MON</span></span>
             </div>
           </div>
@@ -60,10 +60,10 @@ export function ConcludedStage() {
         <div className="flex items-center justify-between mb-2 sm:mb-3">
           <div className="text-[10px] sm:text-[12px] text-app-muted uppercase font-app-bold tracking-[2px] sm:tracking-[4px] flex items-center gap-2">
             <Swords size={10} className="sm:w-3 sm:h-3" />
-            FINAL STANDINGS
+            ROUND SURVIVORS
           </div>
           <div className="text-[9px] sm:text-[10px] text-app-muted">
-            {aliveCount} SURVIVORS
+            {aliveCount} STILL STANDING
           </div>
         </div>
 
@@ -73,16 +73,16 @@ export function ConcludedStage() {
               <div
                 key={player.id}
                 className={`flex items-center justify-between p-2 sm:p-4 ${
-                  index === 0 
+                  player.status === 'alive'
                     ? 'bg-app-accent/10 border-2 border-app-accent/40' 
-                    : 'bg-white/[0.03] border border-white/10'
+                    : 'bg-white/[0.03] border border-white/10 opacity-60'
                 }`}
               >
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                   <span className={`text-[13px] sm:text-[16px] font-app-mono w-6 sm:w-8 shrink-0 ${
-                    index === 0 ? 'text-app-accent' : 'text-app-muted'
+                    player.status === 'alive' ? 'text-app-accent' : 'text-app-muted'
                   }`}>
-                    #{index + 1}
+                    {player.status === 'alive' ? 'LIVE' : 'ELIM'}
                   </span>
                   <span className={`text-[12px] sm:text-[15px] font-app-bold uppercase tracking-wide truncate ${
                     player.isUser ? 'text-app-accent' : 'text-white'
@@ -90,7 +90,7 @@ export function ConcludedStage() {
                     {player.handle}
                   </span>
                   {player.status === 'alive' && (
-                    <span className="hidden sm:inline text-[8px] sm:text-[9px] bg-green-500/20 text-green-400 px-1.5 sm:px-2 py-0.5 sm:py-1 uppercase tracking-wider shrink-0">SURVIVOR</span>
+                    <span className="hidden sm:inline text-[8px] sm:text-[9px] bg-green-500/20 text-green-400 px-1.5 sm:px-2 py-0.5 sm:py-1 uppercase tracking-wider shrink-0">SURVIVED</span>
                   )}
                   {player.isUser && (
                     <span className="text-[8px] sm:text-[9px] bg-app-accent/20 text-app-accent px-1.5 sm:px-2 py-0.5 sm:py-1 uppercase tracking-wider shrink-0">YOU</span>
@@ -102,9 +102,9 @@ export function ConcludedStage() {
                     <span className="text-[12px] sm:text-[14px] text-white font-app-mono">{player.kills}</span>
                   </div>
                   <div className="text-right min-w-[70px] sm:min-w-[100px]">
-                    <span className="text-[8px] sm:text-[10px] text-app-muted uppercase tracking-wider block mb-0.5 sm:mb-1">EARNED</span>
+                    <span className="text-[8px] sm:text-[10px] text-app-muted uppercase tracking-wider block mb-0.5 sm:mb-1">STACK</span>
                     <span className={`text-[14px] sm:text-[18px] font-app-mono ${
-                      index === 0 ? 'text-app-accent' : 'text-white'
+                      player.status === 'alive' ? 'text-app-accent' : 'text-white'
                     }`}>
                       {player.mon.toFixed(1)} <span className="text-[9px] sm:text-[11px]">MON</span>
                     </span>

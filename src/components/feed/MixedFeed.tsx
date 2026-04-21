@@ -17,7 +17,7 @@ export function MixedFeed() {
   const filteredEvents = useMemo(() => {
     return feedEvents.filter(ev => {
       if (activeTab === 'ALL') return true;
-      if (activeTab === 'BATTLE') return ev.type === 'elim' || ev.type === 'loot' || ev.type === 'ability' || ev.type === 'system';
+      if (activeTab === 'BATTLE') return ev.type === 'elim' || ev.type === 'loot' || ev.type === 'ability';
       if (activeTab === 'CHAT') return ev.type === 'chat';
       return true;
     });
@@ -45,10 +45,17 @@ export function MixedFeed() {
   const handleSendMessage = () => {
     if (!message.trim()) return;
     
+    const phase = useGameStore.getState().phase;
+    const currentTimestamp = phase === 'live' 
+      ? (600 - timeRemaining) 
+      : phase === 'entry_open' 
+        ? (300 - timeRemaining) 
+        : 600;
+
     addFeedEvent({
-      timestamp: 600 - timeRemaining,
-      type: 'system',
-      text: `[PILOT_01]: ${message.trim()}`,
+      timestamp: currentTimestamp,
+      type: 'chat',
+      text: message.trim(),
       attacker: 'PILOT_01',
       target: null,
       monAmount: null,
@@ -135,7 +142,7 @@ export function MixedFeed() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full bg-[#111] border border-[#333] text-white py-3 pl-8 pr-4 font-app-mono text-[13px] focus:outline-none focus:border-app-accent placeholder:text-neutral-700"
+            className="w-full bg-[#111] border border-[#333] text-white py-3 pl-8 pr-4 text-[13px] focus:outline-none focus:border-app-accent placeholder:text-neutral-700"
           />
         </div>
       </div>

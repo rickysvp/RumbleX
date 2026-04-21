@@ -11,8 +11,8 @@ export function useRoundHero() {
   const userLoadout   = useGameStore(s => s.userLoadout);
   const players       = useGameStore(s => s.players);
 
-  const alivePlayers = players.filter(p => p.status === 'alive');
-  const totalInPlay  = players.reduce((acc, p) => acc + p.mon, 0);
+  const alivePlayers = (players || []).filter(p => p.status === 'alive');
+  const totalInPlay  = (players || []).reduce((acc, p) => acc + p.mon, 0);
   const killLeader   = alivePlayers.length > 0
     ? alivePlayers.reduce((prev, curr) =>
         prev.mon > curr.mon ? prev : curr)

@@ -79,7 +79,7 @@ export const simulationEngine = {
         miss_me:    `${attacker.handle} made the attacker miss completely. Nothing happened.`
       };
       addFeedEvent({
-        timestamp: 600 - state.timeRemaining,
+        timestamp: Date.now(),
         type: 'ability',
         text: defenseMessages[attacker.skill] || 
               `${attacker.handle} invoked defense and avoided conflict.`,
@@ -117,7 +117,7 @@ export const simulationEngine = {
         playerEliminated(killCreditId, target.id, target.mon * 0.9, skillToCredit, itemToCredit);
     } else {
         addFeedEvent({
-            timestamp: 600 - state.timeRemaining,
+            timestamp: Date.now(),
             type: 'ability',
             text: `${attacker.handle} targeted ${target.handle} but missed the opportunity.`,
             attacker: attacker.handle,
@@ -159,7 +159,7 @@ export const simulationEngine = {
       useGameStore.setState({ players: updatedPlayers });
 
       addFeedEvent({
-        timestamp: 0,
+        timestamp: Date.now(),
         type: 'system',
         text: `CHAOS: MON REDISTRIBUTION. ${victim.handle} lost ${amount.toFixed(2)} MON — split among ${recipients.length} survivors.`,
         attacker: null,
@@ -170,7 +170,7 @@ export const simulationEngine = {
       });
     } else {
       addFeedEvent({
-        timestamp: 0,
+        timestamp: Date.now(),
         type: 'system',
         text: `CHAOS: EXTRA LOOT DROP! Prize pool increased.`,
         attacker: null,

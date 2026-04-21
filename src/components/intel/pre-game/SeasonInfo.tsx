@@ -101,7 +101,6 @@ export function SeasonInfo() {
 
       {/* 翻牌倒计时 */}
       <div className="mb-4">
-        <div className="text-[9px] text-app-muted uppercase font-app-bold tracking-wide mb-3">Ends In</div>
         <div className="flex items-start justify-center gap-2">
           <FlipDays value={days} />
           <Separator />

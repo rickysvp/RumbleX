@@ -31,8 +31,8 @@ export default function App() {
   const players = useGameStore(state => state.players);
   const { address } = useWalletStore();
   
-  const aliveCount = players.filter(p => p.status === 'alive').length;
-  const totalInPlay = players.reduce((acc, p) => acc + p.mon, 0);
+  const aliveCount = (players || []).filter(p => p.status === 'alive').length;
+  const totalInPlay = (players || []).reduce((acc, p) => acc + p.mon, 0);
 
   // Responsive Detection
   useEffect(() => {

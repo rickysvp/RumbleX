@@ -24,16 +24,16 @@ export function LiveStage() {
     }
   }, [lastElim]);
 
-  const alivePlayers = players.filter(p => p.status === 'alive');
+  const alivePlayers = (players || []).filter(p => p.status === 'alive');
   const aliveCount = alivePlayers.length;
-  const totalInRound = players.filter(p => p.status !== 'spectating').length;
+  const totalInRound = (players || []).filter(p => p.status !== 'spectating').length;
   
   const killLeader = alivePlayers.length > 0 
     ? alivePlayers.reduce((prev, curr) => (prev.mon > curr.mon ? prev : curr))
     : null;
   
-  const totalInPlay = players.reduce((acc, p) => acc + p.mon, 0);
-  const user = players.find(p => p.isUser);
+  const totalInPlay = (players || []).reduce((acc, p) => acc + p.mon, 0);
+  const user = (players || []).find(p => p.isUser);
 
   return (
     <div className={`h-full w-full flex flex-col items-center justify-center p-2 sm:p-3 md:p-4 overflow-hidden relative transition-all duration-75 ${

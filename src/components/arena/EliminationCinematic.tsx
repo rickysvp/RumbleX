@@ -18,8 +18,8 @@ export function EliminationCinematic() {
 
   if (!active || !data) return null;
 
-  const isUserTarget = players.find(p => p.handle === data.target)?.isUser;
-  const isUserAttacker = players.find(p => p.handle === data.attacker)?.isUser;
+  const isUserTarget = (players || []).find(p => p.handle === data.target)?.isUser;
+  const isUserAttacker = (players || []).find(p => p.handle === data.attacker)?.isUser;
 
   return (
     <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center overflow-hidden">

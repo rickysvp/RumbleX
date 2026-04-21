@@ -33,7 +33,7 @@ export const INITIAL_MOCK_STATE: GameState = {
 
   feedEvents: [
     {
-      id: 'init_1', timestamp: 0, type: 'system', text: "ROUND #843 OPEN. ENTRY: 1 MON.",
+      id: 'init_1', timestamp: Date.now(), type: 'system', text: "ROUND #843 OPEN. ENTRY: 1 MON.",
       attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
     }
   ],
@@ -49,13 +49,14 @@ export const INITIAL_MOCK_STATE: GameState = {
 
   lastRoundResult: {
     roundNumber: 842,
-    champion: "CryptoKnight",
-    championMon: 3.2,
-    payouts: [
-      { place: 1, handle: "CryptoKnight", mon: 2.40, kills: 3 },
-      { place: 2, handle: "DegenBear25",  mon: 0.32, kills: 1 },
-      { place: 3, handle: "VoidWalker",   mon: 0.16, kills: 0 },
+    survivors: [
+      { handle: "CryptoKnight", mon: 2.40, kills: 3 },
+      { handle: "DegenBear25",  mon: 0.32, kills: 1 },
+      { handle: "VoidWalker",   mon: 0.16, kills: 0 },
     ],
+    topFrag: { handle: "CryptoKnight", kills: 3 },
+    biggestStack: { handle: "CryptoKnight", mon: 2.40 },
+    totalEliminations: 8,
     totalVolume: 43.2
   },
 

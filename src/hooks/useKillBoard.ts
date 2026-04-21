@@ -5,8 +5,8 @@ export function useKillBoard(players: Player[], events: FeedEvent[]) {
   // Sort alive players by MON descending
   // Then eliminated players by timestamp descending
   const sortedPlayers = useMemo(() => {
-    const alive = players.filter(p => p.status === 'alive').sort((a,b) => b.mon - a.mon);
-    const dead = players.filter(p => p.status === 'eliminated').sort((a,b) => (b.eliminatedAt || 0) - (a.eliminatedAt || 0));
+    const alive = (players || []).filter(p => p.status === 'alive').sort((a,b) => b.mon - a.mon);
+    const dead = (players || []).filter(p => p.status === 'eliminated').sort((a,b) => (b.eliminatedAt || 0) - (a.eliminatedAt || 0));
     return { alive, dead };
   }, [players]);
 

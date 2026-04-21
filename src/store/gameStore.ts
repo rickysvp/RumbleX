@@ -25,11 +25,62 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...INITIAL_MOCK_STATE,
 
   tickTimer: () => {
-    const { phase, players, timeRemaining, seasonEndsIn, startRound, concludeRound, openNextRound, concludeSeason } = get();
+    const { phase, players, timeRemaining, seasonEndsIn, startRound, concludeRound, openNextRound, concludeSeason, addFeedEvent, roundNumber } = get();
     
     // Check for season end
     if (seasonEndsIn <= 0) {
       concludeSeason();
+    }
+
+    // Phase-specific broadcasts
+    if (timeRemaining > 0) {
+      if (phase === 'entry_open') {
+        const checkpoints = [270, 240, 210, 180, 150, 120, 90, 60, 30, 10];
+        if (checkpoints.includes(timeRemaining)) {
+          addFeedEvent({
+            timestamp: Date.now(),
+            type: 'system',
+            text: narrativeEngine.generateSystem('entry_countdown', { time: timeRemaining, round: roundNumber }),
+            attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+          });
+        }
+      } else if (phase === 'live') {
+        // Every 60s, plus 30s and 10s warnings
+        if (timeRemaining % 60 === 0 || timeRemaining === 30 || timeRemaining === 10) {
+          const aliveCount = players.filter(p => p.status === 'alive').length;
+          addFeedEvent({
+            timestamp: Date.now(),
+            type: 'system',
+            text: narrativeEngine.generateSystem('live_status', { count: aliveCount, time: timeRemaining }),
+            attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+          });
+        }
+
+        // Every 120s: biggest stack or top frag update
+        if (timeRemaining > 0 && timeRemaining % 120 === 0) {
+          const alivePlayers = players.filter(p => p.status === 'alive');
+          if (alivePlayers.length > 0) {
+            const isTopFrag = Math.random() < 0.5;
+            if (isTopFrag) {
+              const topFrag = alivePlayers.reduce((prev, curr) => (prev.kills > curr.kills ? prev : curr));
+              addFeedEvent({
+                timestamp: Date.now(),
+                type: 'system',
+                text: narrativeEngine.generateSystem('top_frag', { handle: topFrag.handle, kills: topFrag.kills, round: roundNumber }),
+                attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+              });
+            } else {
+              const biggest = alivePlayers.reduce((prev, curr) => (prev.mon > curr.mon ? prev : curr));
+              addFeedEvent({
+                timestamp: Date.now(),
+                type: 'system',
+                text: narrativeEngine.generateSystem('biggest_stack', { handle: biggest.handle, mon: biggest.mon.toFixed(1) }),
+                attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+              });
+            }
+          }
+        }
+      }
     }
 
     // Auto-conclude if only 1 survivor left (and round is live)
@@ -61,7 +112,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       
       const newEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: 0,
+        timestamp: Date.now(),
         type: 'system' as const,
         text: narrativeEngine.generateSystem('round_live', { round: state.roundNumber, count: aliveCount }),
         attacker: null,
@@ -82,44 +133,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   concludeRound: () => {
     set((state) => {
-      const allParticipants = state.players.filter(p => p.status !== 'spectating');
-      const elimList = state.players
-        .filter(p => p.status === 'eliminated')
-        .sort((a, b) => (b.eliminatedAt || 0) - (a.eliminatedAt || 0));
-      
+      const participants = state.players.filter(p => p.status !== 'spectating');
+      const elimList = state.players.filter(p => p.status === 'eliminated');
       const alivePlayers = state.players.filter(p => p.status === 'alive');
-      const champion = alivePlayers.length > 0 
-        ? alivePlayers.reduce((prev, curr) => (prev.mon > curr.mon ? prev : curr))
-        : elimList[0];
-
-      if (!champion) return state; // Safety check
-
-      const totalRoundMON = state.players.reduce((acc, p) => acc + p.mon, 0);
-      const feeTotal = totalRoundMON * 0.1;
-      const prizePool = totalRoundMON - feeTotal; // 10% total cuts (5% platform, 5% season)
       
-      // Standings based on survival time and then mon
-      const standings = [
-        ...alivePlayers.sort((a, b) => b.mon - a.mon),
-        ...elimList
-      ];
+      if (participants.length === 0) return { ...state, phase: 'concluded' as const, timeRemaining: INTERMISSION_DURATION };
 
-      const roundSummary = {
+      const totalVolume = state.players.reduce((acc, p) => acc + p.mon, 0);
+      const feeTotal = totalVolume * 0.1; // Still take fee for vault/season from total activity? 
+      // Actually rules say "kept their stack". If we take fee, it's not "kept".
+      // Let's assume fee was already taken on entry or during combat.
+      // Rules: "Any player still alive at timeout keeps ALL MON currently on them."
+      
+      const survivors = alivePlayers
+        .map(p => ({ handle: p.handle, mon: p.mon, kills: p.kills, isUser: p.isUser }))
+        .sort((a, b) => b.mon - a.mon);
+
+      const topFragPlayer = participants.length > 0 
+        ? participants.reduce((prev, curr) => (prev.kills > curr.kills ? prev : curr))
+        : null;
+      
+      const biggestStackPlayer = survivors.length > 0 ? survivors[0] : null;
+
+      const roundResult = {
         roundNumber: state.roundNumber,
-        champion: champion.handle,
-        championMon: prizePool * 0.75, // 75% share
-        payouts: [
-          { place: 1, handle: champion.handle, mon: prizePool * 0.75, kills: champion.kills },
-          ...(standings[1] ? [{ place: 2, handle: standings[1].handle, mon: prizePool * 0.10, kills: standings[1].kills }] : []),
-          ...(standings[2] ? [{ place: 3, handle: standings[2].handle, mon: prizePool * 0.05, kills: standings[2].kills }] : [])
-        ],
-        totalVolume: totalRoundMON
+        survivors,
+        topFrag: topFragPlayer ? { handle: topFragPlayer.handle, kills: topFragPlayer.kills } : null,
+        biggestStack: biggestStackPlayer ? { handle: biggestStackPlayer.handle, mon: biggestStackPlayer.mon } : null,
+        totalEliminations: elimList.length,
+        totalVolume
       };
 
-      // Update user history if user was in round
+      // Update user history
       const user = state.players.find(p => p.isUser);
       let newUserHistory = state.userHistory;
       if (user && (user.status === 'alive' || user.status === 'eliminated')) {
+        const isQueued = state.userLoadout.queueRemaining > 0;
         newUserHistory = [
           {
             roundNumber: state.roundNumber,
@@ -133,21 +182,44 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ].slice(0, 20);
       }
 
-      const newEvent = {
+      // Narrative broadcasts
+      const endEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: ROUND_DURATION,
+        timestamp: Date.now(),
         type: 'system' as const,
-        text: narrativeEngine.generateSystem('round_concluded', { 
-            round: state.roundNumber, 
-            champion: champion.handle, 
-            mon: champion.mon.toFixed(1) 
-        }),
-        attacker: null,
-        target: null,
-        monAmount: null,
-        skillUsed: null,
-        itemUsed: null
+        text: narrativeEngine.generateSystem('round_timeout', { round: state.roundNumber }),
+        attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
       };
+
+      const summaryEvent = {
+        id: Math.random().toString(36).substr(2, 9),
+        timestamp: Date.now(),
+        type: 'system' as const,
+        text: narrativeEngine.generateSystem('survivor_summary', { 
+          list: survivors.map(s => `${s.handle} (${s.mon.toFixed(1)} MON)`).join(', ') || 'NONE'
+        }),
+        attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+      };
+
+      let extraEvents = [endEvent, summaryEvent];
+      if (topFragPlayer && topFragPlayer.kills > 0) {
+        extraEvents.push({
+          id: Math.random().toString(36).substr(2, 9),
+          timestamp: Date.now(),
+          type: 'system' as const,
+          text: narrativeEngine.generateSystem('top_frag', { handle: topFragPlayer.handle, kills: topFragPlayer.kills, round: state.roundNumber }),
+          attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+        });
+      }
+      if (biggestStackPlayer) {
+        extraEvents.push({
+          id: Math.random().toString(36).substr(2, 9),
+          timestamp: Date.now(),
+          type: 'system' as const,
+          text: narrativeEngine.generateSystem('biggest_stack', { handle: biggestStackPlayer.handle, mon: biggestStackPlayer.mon.toFixed(1) }),
+          attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
+        });
+      }
 
       // Handle queue remaining
       let newLoadout = { ...state.userLoadout };
@@ -158,7 +230,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       return {
         phase: 'concluded' as const,
-        lastRoundResult: roundSummary,
+        lastRoundResult: roundResult,
         userHistory: newUserHistory,
         userStats: {
             wins: newUserHistory.filter(h => h.result === 'win').length,
@@ -167,12 +239,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
         },
         timeRemaining: INTERMISSION_DURATION,
         userLoadout: newLoadout,
-        feedEvents: [...state.feedEvents, newEvent].slice(-200),
+        feedEvents: [...state.feedEvents, ...extraEvents].slice(-200),
         protocolVault: state.protocolVault + (feeTotal * 0.5),
         seasonPool: state.seasonPool + (feeTotal * 0.5),
-        recentChampions: [champion.handle, ...state.recentChampions].slice(0, 10),
+        recentChampions: survivors.length > 0 ? [survivors[0].handle, ...state.recentChampions].slice(0, 10) : state.recentChampions,
         totalRoundsPlayed: state.totalRoundsPlayed + 1,
-        totalVolume: state.totalVolume + totalRoundMON
+        totalVolume: state.totalVolume + totalVolume
       };
     });
   },
@@ -183,7 +255,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       
       const newEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: 0,
+        timestamp: Date.now(),
         type: 'system' as const,
         text: narrativeEngine.generateSystem('round_open', { round: nextRound, fee: state.entryFee }),
         attacker: null,
@@ -205,7 +277,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         extraEvents.push({
           id: Math.random().toString(36).substr(2, 9),
-          timestamp: 0,
+          timestamp: Date.now(),
           type: 'system' as const,
           text: `★ PILOT_01 auto-queued for ROUND #${nextRound}. ${newLoadout.queueRemaining} round(s) remaining.`,
           attacker: null, target: null, monAmount: null, 
@@ -288,7 +360,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       const newEvent: FeedEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: ROUND_DURATION - state.timeRemaining,
+        timestamp: Date.now(),
         type: 'elim',
         text: narrativeEngine.generateElim(attacker.handle, target.handle, monLooted),
         attacker: attacker.handle,
@@ -333,7 +405,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       const finishEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: 0,
+        timestamp: Date.now(),
         type: 'system' as const,
         text: `SEASON ${state.seasonNumber} CONCLUDED. ${qualifiedCount} PLAYERS QUALIFIED. ${state.seasonPool.toFixed(0)} MON AIRDROPPED.`,
         attacker: null, target: null, monAmount: null, skillUsed: null, itemUsed: null
@@ -380,7 +452,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const txSuffix = txHash ? ` TX: ${txHash.substring(0, 10)}...` : '';
       const newEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        timestamp: 0,
+        timestamp: Date.now(),
         type: 'system' as const,
         text: `★ PILOT_01 queued ${newLoadout.rounds} round(s) for ${totalCost.toFixed(1)} MON. Loadout locked.${txSuffix}`,
         attacker: null,

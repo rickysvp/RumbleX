@@ -44,11 +44,19 @@ export interface FeedEvent {
   itemUsed: ItemId | null;
 }
 
+export interface RoundSurvivor {
+  handle: string;
+  mon: number;
+  kills: number;
+  isUser?: boolean;
+}
+
 export interface RoundResult {
   roundNumber: number;
-  champion: string;
-  championMon: number;
-  payouts: { place: number; handle: string; mon: number; kills: number }[];
+  survivors: RoundSurvivor[];
+  topFrag: { handle: string; kills: number } | null;
+  biggestStack: { handle: string; mon: number } | null;
+  totalEliminations: number;
   totalVolume: number;
 }
 
