@@ -1,10 +1,18 @@
 {
-  "version": "0.1.29",
+  "version": "0.1.30",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.30": {
+      "date": "2026-04-20",
+      "changes": [
+        "Add Rules and History to Intel section",
+        "Rename How to Play view to guide",
+        "Remove disabled Round # nav item"
+      ]
+    },
     "0.1.29": {
       "date": "2026-04-20",
       "changes": [

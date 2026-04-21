@@ -5,6 +5,8 @@ import {
   Trophy, 
   ScrollText, 
   BarChart3,
+  BookOpen,
+  History,
   Settings, 
   HelpCircle 
 } from 'lucide-react';
@@ -60,17 +62,22 @@ export function ChannelNav({ onNavigate, currentView = 'arena' }: ChannelNavProp
         </div>
         <div className="flex flex-col gap-1 mb-6">
           <NavItem 
-            icon={<ScrollText size={16} />} 
-            label="How to Play" 
+            icon={<BookOpen size={16} />} 
+            label="Rules" 
             isActive={currentView === 'rules'}
             onClick={() => onNavigate?.('rules')}
           />
           <NavItem 
-            icon={<span className="text-[12px]">#</span>} 
-            label={`Round #${roundNumber}`}
-            isActive={currentView === 'round'}
-            onClick={() => onNavigate?.('round')}
-            disabled={!isLive && !isEntryOpen}
+            icon={<History size={16} />} 
+            label="History" 
+            isActive={currentView === 'history'}
+            onClick={() => onNavigate?.('history')}
+          />
+          <NavItem 
+            icon={<ScrollText size={16} />} 
+            label="How to Play" 
+            isActive={currentView === 'guide'}
+            onClick={() => onNavigate?.('guide')}
           />
         </div>
 
