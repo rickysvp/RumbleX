@@ -70,50 +70,6 @@ function SolidHelpIcon({ size = 14 }: { size?: number }) {
   );
 }
 
-// 气泡式奖池说明浮层
-function PrizePoolTooltip({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  if (!isOpen) return null;
-  
-  return (
-    <div 
-      className="fixed inset-0 z-[100]" 
-      onClick={onClose}
-    >
-      <div 
-        className="absolute top-[180px] right-[20px] w-[280px] bg-[#0a0a0a] border border-app-border p-4 shadow-2xl"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* 气泡箭头 */}
-        <div className="absolute -top-[6px] right-[24px] w-3 h-3 bg-[#0a0a0a] border-t border-l border-app-border rotate-45" />
-        
-        <div className="relative">
-          <div className="font-app-bold text-[12px] text-white uppercase tracking-wide mb-3">
-            Prize Pool Info
-          </div>
-          
-          <div className="text-[10px] text-app-muted leading-relaxed space-y-2">
-            <p>
-              Accumulates from all entry fees. Qualified players share the pool at season end.
-            </p>
-            <div className="flex justify-between border-t border-[#222] pt-2">
-              <span>Platform Fee</span>
-              <span className="text-app-accent">10%</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Season Pool</span>
-              <span className="text-app-accent">10%</span>
-            </div>
-            <div className="flex justify-between border-t border-[#222] pt-2">
-              <span>Qualification</span>
-              <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ Kills</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function SeasonInfo() {
   const seasonNumber = useGameStore(state => state.seasonNumber || 1);
   const seasonPool = useGameStore(state => state.seasonPool || 0);
@@ -121,6 +77,7 @@ export function SeasonInfo() {
   
   const [timeLeft, setTimeLeft] = useState(seasonEndsIn);
   const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     setTimeLeft(seasonEndsIn);
@@ -141,16 +98,64 @@ export function SeasonInfo() {
   return (
     <div className="p-5 border-b border-app-border">
       {/* 标题 */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 relative">
         <div className="font-app-bold text-[12px] uppercase tracking-wide text-white">
           Season {seasonNumber} Prize Pool
         </div>
-        <button 
-          onClick={() => setShowTooltip(true)}
-          className="text-app-muted hover:text-app-accent transition-colors"
-        >
-          <SolidHelpIcon size={14} />
-        </button>
+        
+        {/* 问号按钮和浮层容器 */}
+        <div className="relative" ref={tooltipRef}>
+          <button 
+            onClick={() => setShowTooltip(!showTooltip)}
+            className="text-app-muted hover:text-app-accent transition-colors"
+          >
+            <SolidHelpIcon size={14} />
+          </button>
+          
+          {/* 气泡式浮层 - 相对定位 */}
+          {showTooltip && (
+            <>
+              {/* 遮罩层 - 点击关闭 */}
+              <div 
+                className="fixed inset-0 z-[99]" 
+                onClick={() => setShowTooltip(false)}
+              />
+              
+              {/* 浮层内容 */}
+              <div 
+                className="absolute top-full right-0 mt-2 w-[240px] bg-[#0a0a0a] border border-app-border p-3 shadow-2xl z-[100]"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* 气泡箭头 */}
+                <div className="absolute -top-[6px] right-[4px] w-3 h-3 bg-[#0a0a0a] border-t border-l border-app-border rotate-45" />
+                
+                <div className="relative">
+                  <div className="font-app-bold text-[11px] text-white uppercase tracking-wide mb-2">
+                    Prize Pool Info
+                  </div>
+                  
+                  <div className="text-[9px] text-app-muted leading-relaxed space-y-1.5">
+                    <p>
+                      Accumulates from all entry fees. Qualified players share the pool at season end.
+                    </p>
+                    <div className="flex justify-between border-t border-[#222] pt-1.5">
+                      <span>Platform Fee</span>
+                      <span className="text-app-accent">10%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Season Pool</span>
+                      <span className="text-app-accent">10%</span>
+                    </div>
+                    <div className="flex justify-between border-t border-[#222] pt-1.5">
+                      <span>Qualification</span>
+                      <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ Kills</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* 奖池数字 - 超大显示 */}
@@ -178,9 +183,6 @@ export function SeasonInfo() {
       <div className="text-[8px] text-app-muted font-app-bold uppercase tracking-wider border-t border-[#1a1a1a] pt-3 leading-relaxed text-center">
         {SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ KILLS TO QUALIFY
       </div>
-
-      {/* 气泡式说明浮层 */}
-      <PrizePoolTooltip isOpen={showTooltip} onClose={() => setShowTooltip(false)} />
     </div>
   );
 }
