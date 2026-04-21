@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FeedEvent } from '../../store/types';
 
 interface FeedRowProps {
@@ -7,14 +7,17 @@ interface FeedRowProps {
   userHandle: string;
 }
 
+// Build regex patterns outside component to avoid recreating on every render
+const buildHandlePattern = (handles: string[]): string => {
+  if (handles.length === 0) return '';
+  return handles
+    .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+};
+
 export const FeedRow = React.memo(({ event, playerHandles, userHandle }: FeedRowProps) => {
-  // Build regex patterns once using useMemo
-  const handlePattern = useMemo(() => {
-    if (playerHandles.length === 0) return '';
-    return playerHandles
-      .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('|');
-  }, [playerHandles]);
+  // Build pattern once per render (handles are memoized by parent)
+  const handlePattern = buildHandlePattern(playerHandles);
 
   // Specialized renderer for System Logs (Dynamic, Less Aggressive)
   const renderSystemNarrative = (text: string) => {

@@ -13,8 +13,11 @@ export function MixedFeed() {
   const parentRef = useRef<HTMLDivElement>(null);
 
   // Get player handles and user handle once at the parent level
-  const playerHandles = useGameStore(state => state.players.map(p => p.handle));
+  const players = useGameStore(state => state.players);
   const userHandle = useGameStore(state => state.userHandle);
+  
+  // Memoize player handles to prevent unnecessary re-renders
+  const playerHandles = useMemo(() => players.map(p => p.handle), [players]);
 
   const tabs = ['ALL', 'BATTLE', 'CHAT'];
 
