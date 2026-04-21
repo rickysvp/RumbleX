@@ -42,6 +42,7 @@ export default function App() {
   // Selectors
   const phase = useGameStore(state => state.phase);
   const players = useGameStore(state => state.players);
+  const roundNumber = useGameStore(state => state.roundNumber);
   const { address } = useWalletStore();
   
   const aliveCount = (players || []).filter(p => p.status === 'alive').length;
@@ -210,7 +211,7 @@ export default function App() {
           <div className="flex items-center gap-3 sm:gap-6">
              <span>STATUS: {phase.replace('_', ' ')}</span>
              <span className="opacity-40">|</span>
-             <span>ROUND #{useGameStore.getState().roundNumber}</span>
+             <span>ROUND #{roundNumber}</span>
           </div>
           {phase === 'live' && (
             <div className="flex gap-4 sm:gap-8">
