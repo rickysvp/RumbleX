@@ -12,13 +12,13 @@ export function MixedFeed() {
   const feedEvents = useGameStore(state => state.feedEvents || []);
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const tabs = ['ALL', 'COMBAT', 'SYSTEM'];
+  const tabs = ['ALL', 'BATTLE', 'CHAT'];
 
   const filteredEvents = useMemo(() => {
     return feedEvents.filter(ev => {
       if (activeTab === 'ALL') return true;
-      if (activeTab === 'COMBAT') return ev.type === 'elim' || ev.type === 'loot' || ev.type === 'ability';
-      if (activeTab === 'SYSTEM') return ev.type === 'system';
+      if (activeTab === 'BATTLE') return ev.type === 'elim' || ev.type === 'loot' || ev.type === 'ability' || ev.type === 'system';
+      if (activeTab === 'CHAT') return ev.type === 'chat';
       return true;
     });
   }, [feedEvents, activeTab]);
