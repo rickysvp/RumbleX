@@ -84,45 +84,48 @@ export function EntryOpenStage() {
             <div className="flex flex-col gap-3">
               {userView === 'queued' ? (
                 <div className="flex flex-col gap-3">
-                  <div className="bg-app-accent text-black p-4 sm:p-5 flex items-center justify-center gap-2 sm:gap-3 shadow-[0_0_30px_rgba(235,255,0,0.2)]">
+                  <div className="bg-green-500/20 border border-green-500/40 text-green-400 p-4 sm:p-5 flex items-center justify-center gap-2 sm:gap-3">
                     <CheckCircle2 size={20} className="sm:w-6 sm:h-6" />
-                    <span className="font-app-bold text-[16px] sm:text-[20px] uppercase tracking-[4px] sm:tracking-[6px]">AUTH_OK</span>
+                    <span className="font-app-bold text-[16px] sm:text-[20px] uppercase tracking-[3px] sm:tracking-[4px]">Ready to Play</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-px bg-app-border border border-app-border">
                     <div className="bg-[#050505] p-3 flex flex-col items-center">
-                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">ROUNDS</span>
+                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">Rounds Queued</span>
                       <span className="text-[14px] text-white font-app-mono">{userLoadout.queueRemaining}</span>
                     </div>
                     <div className="bg-[#050505] p-3 flex flex-col items-center">
-                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">STRATEGY</span>
+                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">Strategy</span>
                       <span className="text-[12px] text-white font-app-mono truncate max-w-full">{userLoadout.strategy.replace(/_/g, ' ').toUpperCase()}</span>
                     </div>
                   </div>
 
                   <button 
                     onClick={() => openLoadout(true)}
-                    className="w-full bg-[#111] border border-app-border hover:border-white text-app-muted hover:text-white py-3 sm:py-4 text-[10px] sm:text-[11px] font-app-bold uppercase tracking-[4px] transition-all"
+                    className="w-full bg-[#111] border border-app-border hover:border-white hover:bg-[#1a1a1a] text-white py-3 sm:py-4 text-[12px] sm:text-[13px] font-app-bold uppercase tracking-[2px] transition-all"
                   >
-                    [ CONFIG_VIEW ]
+                    View Config
                   </button>
                 </div>
               ) : userView === 'connected' ? (
                 <button 
                   onClick={() => openLoadout(false)}
-                  className="group relative bg-app-accent text-black font-app-bold text-[16px] sm:text-[18px] py-5 sm:py-6 px-8 sm:px-12 uppercase tracking-[4px] sm:tracking-[6px] transition-all hover:bg-white overflow-hidden"
+                  className="group relative bg-app-accent text-black font-app-bold text-[18px] sm:text-[20px] py-5 sm:py-6 px-8 sm:px-12 uppercase tracking-[2px] sm:tracking-[3px] transition-all hover:bg-white hover:scale-[1.02] active:scale-[0.98] overflow-hidden shadow-[0_0_30px_rgba(235,255,0,0.3)]"
                 >
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-black" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-black" />
-                  <span className="relative z-10">PLAY_INITIATE</span>
-                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+                  <span className="relative z-10">Play to Win</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 </button>
               ) : (
                 <button 
                   onClick={mockWallet.connect}
-                  className="bg-[#111] border-2 border-app-accent/30 text-app-accent font-app-bold text-[14px] sm:text-[16px] py-5 sm:py-6 px-6 sm:px-8 uppercase tracking-[3px] hover:bg-app-accent hover:text-black transition-all"
+                  className="group relative bg-app-accent text-black font-app-bold text-[16px] sm:text-[18px] py-5 sm:py-6 px-6 sm:px-8 uppercase tracking-[2px] hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(235,255,0,0.3)]"
                 >
-                  CONNECT_IDENTITY_KEY
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Connect Wallet
+                  </span>
                 </button>
               )}
               
