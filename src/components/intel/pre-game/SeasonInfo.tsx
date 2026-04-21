@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useGameStore } from '../../../store/gameStore';
 import { SEASON_CONFIG } from '../../../lib/seasonConfig';
-import { HelpCircle, X } from 'lucide-react';
 
 // 翻牌数字组件
 function FlipDigit({ value }: { value: string }) {
@@ -62,38 +61,53 @@ function Separator() {
   );
 }
 
-// 奖池说明浮层
+// 实心问号图标
+function SolidHelpIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+    </svg>
+  );
+}
+
+// 气泡式奖池说明浮层
 function PrizePoolTooltip({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-[#0a0a0a] border border-app-border p-5 max-w-[320px] w-full mx-4 relative" onClick={e => e.stopPropagation()}>
-        <button 
-          onClick={onClose}
-          className="absolute top-3 right-3 text-app-muted hover:text-white transition-colors"
-        >
-          <X size={16} />
-        </button>
+    <div 
+      className="fixed inset-0 z-[100]" 
+      onClick={onClose}
+    >
+      <div 
+        className="absolute top-[180px] right-[20px] w-[280px] bg-[#0a0a0a] border border-app-border p-4 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* 气泡箭头 */}
+        <div className="absolute -top-[6px] right-[24px] w-3 h-3 bg-[#0a0a0a] border-t border-l border-app-border rotate-45" />
         
-        <div className="font-app-bold text-[14px] text-white uppercase tracking-wide mb-3">
-          Season Prize Pool
-        </div>
-        
-        <div className="text-[11px] text-app-muted leading-relaxed space-y-2">
-          <p>
-            The season prize pool accumulates from all entry fees across every round. 
-            At the end of the season, qualified players share the pool based on their performance.
-          </p>
-          <p>
-            <span className="text-app-accent">Platform Fee:</span> 10% of all entry fees go to platform operations.
-          </p>
-          <p>
-            <span className="text-app-accent">Season Pool:</span> 10% of all entry fees contribute to this season's prize pool.
-          </p>
-          <p>
-            <span className="text-white">Qualification:</span> Achieve {SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ kills during the season to be eligible for rewards.
-          </p>
+        <div className="relative">
+          <div className="font-app-bold text-[12px] text-white uppercase tracking-wide mb-3">
+            Prize Pool Info
+          </div>
+          
+          <div className="text-[10px] text-app-muted leading-relaxed space-y-2">
+            <p>
+              Accumulates from all entry fees. Qualified players share the pool at season end.
+            </p>
+            <div className="flex justify-between border-t border-[#222] pt-2">
+              <span>Platform Fee</span>
+              <span className="text-app-accent">10%</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Season Pool</span>
+              <span className="text-app-accent">10%</span>
+            </div>
+            <div className="flex justify-between border-t border-[#222] pt-2">
+              <span>Qualification</span>
+              <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ Kills</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -127,7 +141,7 @@ export function SeasonInfo() {
   return (
     <div className="p-5 border-b border-app-border">
       {/* 标题 */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center justify-between mb-4">
         <div className="font-app-bold text-[12px] uppercase tracking-wide text-white">
           Season {seasonNumber} Prize Pool
         </div>
@@ -135,7 +149,7 @@ export function SeasonInfo() {
           onClick={() => setShowTooltip(true)}
           className="text-app-muted hover:text-app-accent transition-colors"
         >
-          <HelpCircle size={14} />
+          <SolidHelpIcon size={14} />
         </button>
       </div>
 
@@ -165,7 +179,7 @@ export function SeasonInfo() {
         {SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ KILLS TO QUALIFY
       </div>
 
-      {/* 说明浮层 */}
+      {/* 气泡式说明浮层 */}
       <PrizePoolTooltip isOpen={showTooltip} onClose={() => setShowTooltip(false)} />
     </div>
   );
