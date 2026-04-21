@@ -118,9 +118,20 @@ export default function App() {
             <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0 pb-[64px]">
               {renderMobileContent()}
             </div>
-          ) : (
+          ) : viewMode === 'tablet' ? (
             <>
               <RoundStage />
+              <div className="h-px w-full bg-app-border shrink-0" />
+              <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                 <MixedFeed />
+              </div>
+            </>
+          ) : (
+            /* Desktop: Fixed height for Arena, remaining for Feed */
+            <>
+              <div className="shrink-0 h-[420px]">
+                <RoundStage />
+              </div>
               <div className="h-px w-full bg-app-border shrink-0" />
               <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                  <MixedFeed />

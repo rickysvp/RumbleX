@@ -1,10 +1,18 @@
 {
-  "version": "0.1.8",
+  "version": "0.1.9",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.9": {
+      "date": "2026-04-20",
+      "changes": [
+        "Fix desktop homepage layout - restore MixedFeed chat area",
+        "Add fixed height h-[420px] for RoundStage on desktop",
+        "Separate tablet and desktop layout logic"
+      ]
+    },
     "0.1.8": {
       "date": "2026-04-20",
       "changes": [
