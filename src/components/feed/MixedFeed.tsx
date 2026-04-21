@@ -12,6 +12,10 @@ export function MixedFeed() {
   const feedEvents = useGameStore(state => state.feedEvents || []);
   const parentRef = useRef<HTMLDivElement>(null);
 
+  // Get player handles and user handle once at the parent level
+  const playerHandles = useGameStore(state => state.players.map(p => p.handle));
+  const userHandle = useGameStore(state => state.userHandle);
+
   const tabs = ['ALL', 'BATTLE', 'CHAT'];
 
   const filteredEvents = useMemo(() => {
@@ -57,7 +61,7 @@ export function MixedFeed() {
       timestamp: currentTimestamp,
       type: 'chat',
       text: message.trim(),
-      attacker: 'PILOT_01',
+      attacker: userHandle,
       target: null,
       monAmount: null,
       skillUsed: null,
@@ -127,7 +131,11 @@ export function MixedFeed() {
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
               >
-                <FeedRow event={filteredEvents[virtualRow.index]} />
+                <FeedRow 
+                  event={filteredEvents[virtualRow.index]} 
+                  playerHandles={playerHandles}
+                  userHandle={userHandle}
+                />
               </div>
             ))}
           </div>

@@ -1,25 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FeedEvent } from '../../store/types';
-import { useGameStore } from '../../store/gameStore';
 
 interface FeedRowProps {
   event: FeedEvent;
+  playerHandles: string[];
+  userHandle: string;
 }
 
-export const FeedRow = React.memo(({ event }: FeedRowProps) => {
-  const userHandle = useGameStore(state => state.userHandle);
-
-  // Get all player handles from the game state for highlighting
-  const playerHandles = useGameStore(state => state.players.map(p => p.handle));
+export const FeedRow = React.memo(({ event, playerHandles, userHandle }: FeedRowProps) => {
+  // Build regex patterns once using useMemo
+  const handlePattern = useMemo(() => {
+    if (playerHandles.length === 0) return '';
+    return playerHandles
+      .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+  }, [playerHandles]);
 
   // Specialized renderer for System Logs (Dynamic, Less Aggressive)
   const renderSystemNarrative = (text: string) => {
-    if (!text) return null;
-
-    // Build a regex pattern that matches all player handles (escape special regex chars)
-    const handlePattern = playerHandles
-      .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('|');
+    if (!text || !handlePattern) return <span className="text-app-muted text-[11px] sm:text-[13px]">{text}</span>;
 
     // Split by: Round #IDs, Numbers with decimals, MON, or player handles
     const splitRegex = new RegExp(`(#\\d+|\\b\\d+\\.?\\d*(?:\\s?MON)?\\b|${handlePattern})`, 'g');
@@ -47,12 +46,7 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
   };
 
   const renderCombatNarrative = (text: string) => {
-    if (!text) return null;
-
-    // Build a regex pattern that matches all player handles
-    const handlePattern = playerHandles
-      .map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('|');
+    if (!text || !handlePattern) return <span className="text-white/90 text-[12px] sm:text-[13px]">{text}</span>;
 
     // Split by MON amounts or player handles
     const monRegex = /([\d.]+ MON)/g;
@@ -76,7 +70,7 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
             </span>
           );
         }
-        return hp;
+        return <span key={`h-${i}-${j}`} className="text-white/90">{hp}</span>;
       });
     });
   };
