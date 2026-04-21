@@ -358,8 +358,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
   queueUserLoadout: (loadout, txHash?: string) => {
     set((state) => {
       // Defensive check (UI also gates this)
-      const newLoadout = { ...state.userLoadout, ...loadout, queued: true };
-      const totalCost = (state.entryFee + (loadout.skill ? 1.5 : 0) + (loadout.item ? 1 : 0)) * (loadout.rounds || 1);
+      const rounds = loadout.rounds || 1;
+      const newLoadout = { 
+        ...state.userLoadout, 
+        ...loadout, 
+        queued: true, 
+        queueRemaining: rounds 
+      };
+      const totalCost = (state.entryFee + (loadout.skill ? 1.5 : 0) + (loadout.item ? 1 : 0)) * rounds;
       
       const newPlayers = state.players.map(p => 
         p.isUser ? { 
