@@ -62,14 +62,8 @@ export function ChannelNav({ onNavigate, currentView = 'arena' }: ChannelNavProp
         </div>
         <div className="flex flex-col gap-1 mb-6">
           <NavItem 
-            icon={<BookOpen size={16} />} 
-            label="Rules" 
-            isActive={currentView === 'rules'}
-            onClick={() => onNavigate?.('rules')}
-          />
-          <NavItem 
             icon={<History size={16} />} 
-            label="History" 
+            label="Round History" 
             isActive={currentView === 'history'}
             onClick={() => onNavigate?.('history')}
           />
@@ -81,19 +75,6 @@ export function ChannelNav({ onNavigate, currentView = 'arena' }: ChannelNavProp
           />
         </div>
 
-        {/* Current Status Summary */}
-        <div className="mx-3 p-3 bg-[#111] border border-[#222] rounded-sm">
-          <div className="text-[9px] text-app-muted uppercase tracking-wider mb-2">Current Status</div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-red-500 animate-pulse' : isEntryOpen ? 'bg-green-500' : 'bg-yellow-500'}`} />
-            <span className="text-[11px] text-white font-app-mono">
-              {isLive ? 'ROUND LIVE' : isEntryOpen ? 'ENTRY OPEN' : 'INTERMISSION'}
-            </span>
-          </div>
-          <div className="text-[10px] text-app-muted mt-2">
-            Season {seasonNumber} • Round {roundNumber}
-          </div>
-        </div>
       </div>
 
       {/* Bottom Actions */}

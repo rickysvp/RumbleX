@@ -16,7 +16,6 @@ import {
   ArenaPage, 
   RankPage, 
   StatsPage, 
-  RulesPage, 
   HistoryPage, 
   GuidePage, 
   SettingsPage, 
@@ -83,8 +82,6 @@ export default function App() {
         return <RankPage />;
       case 'stats':
         return <StatsPage />;
-      case 'rules':
-        return <RulesPage />;
       case 'history':
         return <HistoryPage />;
       case 'guide':

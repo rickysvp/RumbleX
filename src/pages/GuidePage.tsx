@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollText, Play, Shield, Zap, Target, Trophy, Clock, Skull } from 'lucide-react';
+import { ScrollText, Play, Shield, Zap, Target, Trophy, Clock, Skull, Scale, Ban, AlertTriangle } from 'lucide-react';
 
 export function GuidePage() {
   return (
@@ -56,11 +56,78 @@ export function GuidePage() {
             content="Eliminate opponents to earn MON. Every kill adds to your stack. If you survive until the timer ends or become the last survivor, you keep all the MON you've earned during the round. The longer you survive and the more you kill, the bigger your payout."
           />
 
+          {/* Prize Distribution */}
+          <div className="bg-[#111] border border-[#222] p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Scale size={18} className="text-app-accent" />
+              <h2 className="text-[14px] font-app-bold text-white uppercase">Prize Distribution</h2>
+            </div>
+            <p className="text-[13px] text-app-muted leading-relaxed mb-4">
+              Each round's prize pool is distributed among survivors based on their performance:
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
+                <span className="text-[12px] text-white">Base Pool (Entry Fees)</span>
+                <span className="text-[12px] text-app-accent font-app-mono">100% distributed</span>
+              </div>
+              <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
+                <span className="text-[12px] text-white">Kill Rewards</span>
+                <span className="text-[12px] text-app-accent font-app-mono">Per kill bonus</span>
+              </div>
+              <div className="flex items-center justify-between bg-black/40 p-3 border border-[#222]">
+                <span className="text-[12px] text-white">Survival Bonus</span>
+                <span className="text-[12px] text-app-accent font-app-mono">Extra for survivors</span>
+              </div>
+            </div>
+            <p className="text-[11px] text-app-muted mt-4 leading-relaxed">
+              All rewards are calculated transparently and distributed automatically via smart contracts. 
+              Transaction hashes are publicly available for verification.
+            </p>
+          </div>
+
           <GuideSection 
             icon={<Shield size={18} />}
             title="Loadout System"
             content="Before entering, configure your strategy, skill, and item. Your choices determine your combat effectiveness. Skills provide special abilities, items give equipment advantages, and strategy defines your AI behavior. Choose wisely based on your playstyle."
           />
+        </div>
+
+        {/* Anti-Cheat & Penalties */}
+        <div className="bg-red-500/10 border border-red-500/30 p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Ban size={18} className="text-red-400" />
+            <h2 className="text-[16px] font-app-bold text-white uppercase">Fair Play & Penalties</h2>
+          </div>
+          <p className="text-[13px] text-app-muted leading-relaxed mb-4">
+            RumbleX maintains a zero-tolerance policy for cheating. Our anti-cheat system monitors gameplay 
+            patterns and on-chain activities to ensure fair competition.
+          </p>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 bg-black/40 p-3 border border-red-500/20">
+              <AlertTriangle size={14} className="text-red-400 mt-0.5 shrink-0" />
+              <div>
+                <div className="text-[12px] text-white font-app-bold uppercase mb-1">Prohibited Actions</div>
+                <ul className="text-[11px] text-app-muted space-y-1">
+                  <li>• Using bots, scripts, or automation tools</li>
+                  <li>• Collusion with other players</li>
+                  <li>• Exploiting game mechanics or smart contract vulnerabilities</li>
+                  <li>• Multi-accounting to gain unfair advantages</li>
+                </ul>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-black/40 p-3 border border-red-500/20">
+              <Ban size={14} className="text-red-400 mt-0.5 shrink-0" />
+              <div>
+                <div className="text-[12px] text-white font-app-bold uppercase mb-1">Penalties</div>
+                <ul className="text-[11px] text-app-muted space-y-1">
+                  <li>• Confiscation of all earned MON in the round</li>
+                  <li>• Permanent wallet blacklist from future rounds</li>
+                  <li>• Forfeiture of season airdrop eligibility</li>
+                  <li>• Public reporting on-chain for transparency</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Season Rewards */}

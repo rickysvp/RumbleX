@@ -1,7 +1,6 @@
 export { ArenaPage } from './ArenaPage';
 export { RankPage } from './RankPage';
 export { StatsPage } from './StatsPage';
-export { RulesPage } from './RulesPage';
 export { HistoryPage } from './HistoryPage';
 export { GuidePage } from './GuidePage';
 export { SettingsPage } from './SettingsPage';

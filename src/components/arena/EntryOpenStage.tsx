@@ -58,8 +58,7 @@ export function EntryOpenStage() {
             backgroundSize: '80% 100%'
           }}
         />
-        {/* Black fill for right side */}
-        <div className="absolute inset-y-0 right-0 w-[30%] bg-black" />
+
 
         <div className="flex flex-col md:flex-row items-start md:items-start gap-4 md:gap-8 z-10 w-full max-w-3xl mx-auto relative">
 
