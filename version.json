@@ -1,10 +1,25 @@
 {
-  "version": "0.1.30",
+  "version": "0.1.31",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.31": {
+      "date": "2026-04-20",
+      "changes": [
+        "Create complete page system for all channels",
+        "Add RankPage with season leaderboard",
+        "Add StatsPage with personal statistics",
+        "Add RulesPage with game rules",
+        "Add HistoryPage with battle history",
+        "Add GuidePage with how to play",
+        "Add SettingsPage with preferences",
+        "Add SupportPage with FAQ",
+        "Implement page routing in App.tsx",
+        "Business logic now fully closed-loop"
+      ]
+    },
     "0.1.30": {
       "date": "2026-04-20",
       "changes": [

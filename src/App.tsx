@@ -13,6 +13,18 @@ import { Menu, X } from 'lucide-react';
 import { MobileNavBar, TabId } from './components/layout/MobileNavBar';
 import { HamburgerMenu } from './components/layout/HamburgerMenu';
 
+// Pages
+import { 
+  ArenaPage, 
+  RankPage, 
+  StatsPage, 
+  RulesPage, 
+  HistoryPage, 
+  GuidePage, 
+  SettingsPage, 
+  SupportPage 
+} from './pages';
+
 // Dev tools
 import { DebugPanel } from './components/dev/DebugPanel';
 import { DevBadge } from './components/dev/DevBadge';
@@ -21,6 +33,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('ARENA');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  const [currentView, setCurrentView] = useState('arena');
   
   // Initialize Heartbeat
   useGameTimer();
@@ -45,6 +58,66 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Render current page based on view
+  const renderMainContent = () => {
+    switch (currentView) {
+      case 'arena':
+        return viewMode === 'mobile' ? (
+          <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0 pb-[64px]">
+            <ArenaPage />
+          </div>
+        ) : viewMode === 'tablet' ? (
+          <>
+            <RoundStage />
+            <div className="h-px w-full bg-app-border shrink-0" />
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+               <MixedFeed />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="shrink-0 h-[420px]">
+              <RoundStage />
+            </div>
+            <div className="h-px w-full bg-app-border shrink-0" />
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+               <MixedFeed />
+            </div>
+          </>
+        );
+      case 'rank':
+        return <RankPage />;
+      case 'stats':
+        return <StatsPage />;
+      case 'rules':
+        return <RulesPage />;
+      case 'history':
+        return <HistoryPage />;
+      case 'guide':
+        return <GuidePage />;
+      case 'settings':
+        return <SettingsPage />;
+      case 'support':
+        return <SupportPage />;
+      default:
+        return viewMode === 'mobile' ? (
+          <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0 pb-[64px]">
+            <ArenaPage />
+          </div>
+        ) : (
+          <>
+            <div className="shrink-0 h-[420px]">
+              <RoundStage />
+            </div>
+            <div className="h-px w-full bg-app-border shrink-0" />
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+               <MixedFeed />
+            </div>
+          </>
+        );
+    }
+  };
 
   // Mobile Content Switcher
   const renderMobileContent = () => {
@@ -108,35 +181,18 @@ export default function App() {
         {/* Left Sidebar (Desktop Only) */}
         {viewMode === 'desktop' && (
           <section className="overflow-hidden flex flex-col bg-[#0a0a0a] border-r border-app-border">
-            <LeftSidebar />
+            <LeftSidebar onNavigate={setCurrentView} currentView={currentView} />
           </section>
         )}
 
-        {/* Main Center (Arena + Feed) */}
+        {/* Main Center (Dynamic Content) */}
         <section className={`bg-[#0D0D0D] flex flex-col overflow-hidden relative min-w-0 ${viewMode === 'desktop' ? 'border-r border-app-border' : ''}`}>
           {viewMode === 'mobile' ? (
             <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0 pb-[64px]">
               {renderMobileContent()}
             </div>
-          ) : viewMode === 'tablet' ? (
-            <>
-              <RoundStage />
-              <div className="h-px w-full bg-app-border shrink-0" />
-              <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                 <MixedFeed />
-              </div>
-            </>
           ) : (
-            /* Desktop: Fixed height for Arena, remaining for Feed */
-            <>
-              <div className="shrink-0 h-[420px]">
-                <RoundStage />
-              </div>
-              <div className="h-px w-full bg-app-border shrink-0" />
-              <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-                 <MixedFeed />
-              </div>
-            </>
+            renderMainContent()
           )}
         </section>
 
