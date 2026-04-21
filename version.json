@@ -1,10 +1,19 @@
 {
-  "version": "0.1.33",
+  "version": "0.1.34",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.34": {
+      "date": "2026-04-20",
+      "changes": [
+        "Enhance system message styling with semi-transparent background",
+        "Add bg-app-accent/5 background to system messages",
+        "Add spacing around highlighted numbers and names",
+        "Improve visual hierarchy with rounded backgrounds"
+      ]
+    },
     "0.1.33": {
       "date": "2026-04-20",
       "changes": [

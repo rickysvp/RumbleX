@@ -18,10 +18,13 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
       if (!part) return null;
 
       if (part.match(/^#\d+$/)) {
-        return <span key={i} className="text-white font-app-bold tracking-wider mx-0.5 bg-white/5 px-1 rounded-sm">{part}</span>;
+        return <span key={i} className="text-white font-app-bold tracking-wider mx-1 bg-white/10 px-1.5 py-0.5 rounded">{part}</span>;
       }
-      if (part.match(/^\d+\.?\d*(?:\s?MON)?$/)) {
-        return <span key={i} className="text-app-accent font-app-bold mx-0.5">{part}</span>;
+      if (part.match(/^\d+\.?\d*$/)) {
+        return <span key={i} className="text-app-accent font-app-bold mx-1 bg-app-accent/10 px-1.5 py-0.5 rounded">{part}</span>;
+      }
+      if (part.match(/MON/)) {
+        return <span key={i} className="text-app-accent font-app-bold mx-1">{part}</span>;
       }
       return <span key={i} className="text-app-muted">{part}</span>;
     });
@@ -35,7 +38,7 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
     
     return parts.flatMap((part, i) => {
       if (part.match(/[\d.]+ MON/)) {
-        return <span key={`mon-${i}`} className="text-app-accent font-bold">{part}</span>;
+        return <span key={`mon-${i}`} className="text-app-accent font-bold mx-1 bg-app-accent/10 px-1.5 py-0.5 rounded">{part}</span>;
       }
       
       // Look for specific handles (UPPER_CASE or CamelCase)
@@ -49,7 +52,7 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
         if (hp.match(/^\[?[A-Z][a-zA-Z0-9_]{3,}\]?$/) && !hp.includes('MON') && !isCommon) {
           const isUser = hp.includes('PILOT_01');
           return (
-            <span key={`h-${i}-${j}`} className={`${isUser ? 'text-app-accent font-app-bold' : 'text-cyan-400'} font-bold`}>
+            <span key={`h-${i}-${j}`} className={`${isUser ? 'text-app-accent font-app-bold' : 'text-cyan-400'} font-bold mx-1 bg-white/5 px-1.5 py-0.5 rounded`}>
               {hp}
             </span>
           );
@@ -87,7 +90,7 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
       <div className="px-5 py-2.5 text-[13px] md:text-[14px] leading-relaxed border-b border-white/[0.03] transition-colors flex gap-4 hover:bg-white/[0.02] animate-row-in items-center">
         <TimeColumn />
         <div className="flex-1 flex gap-2 overflow-hidden">
-          <span className={`${event.attacker === 'PILOT_01' ? 'text-app-accent' : 'text-cyan-400'} font-app-bold shrink-0`}>
+          <span className={`${event.attacker === 'PILOT_01' ? 'text-app-accent' : 'text-cyan-400'} font-app-bold shrink-0 bg-white/5 px-2 py-0.5 rounded`}>
             {event.attacker || 'ANON'}
           </span>
           <span className="text-white/80 truncate md:whitespace-normal">{event.text}</span>
@@ -99,9 +102,9 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
   // SYSTEM BRANCH
   if (event.type === 'system') {
     return (
-      <div className="px-5 py-3.5 text-[12px] md:text-[13px] leading-relaxed border-b border-white/[0.03] flex gap-4 bg-white/[0.01] relative group animate-row-in overflow-hidden items-center">
+      <div className="px-5 py-3.5 text-[12px] md:text-[13px] leading-relaxed border-b border-white/[0.03] flex gap-4 bg-app-accent/5 relative group animate-row-in overflow-hidden items-center">
         {/* Subtle Left Accent */}
-        <div className="absolute left-0 top-3 bottom-3 w-[2px] bg-app-accent/30 group-hover:bg-app-accent/60 transition-colors" />
+        <div className="absolute left-0 top-3 bottom-3 w-[2px] bg-app-accent/50 group-hover:bg-app-accent transition-colors" />
         
         <TimeColumn type="system" />
         
