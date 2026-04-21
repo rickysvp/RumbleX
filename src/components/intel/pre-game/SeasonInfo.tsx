@@ -136,11 +136,11 @@ export function SeasonInfo() {
                   
                   <div className="text-[9px] text-app-muted leading-relaxed space-y-2">
                     <p>
-                      由本赛季每笔参赛报名费的10%累计构成，赛季结束后空投给所有符合条件的玩家。
+                      Accumulates 10% from every round entry fee. Distributed to all qualified players at season end.
                     </p>
                     <div className="flex justify-between border-t border-[#222] pt-2">
-                      <span>资格要求</span>
-                      <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ 击杀</span>
+                      <span>Qualification</span>
+                      <span className="text-white">{SEASON_CONFIG.SEASON_KILL_THRESHOLD}+ Kills</span>
                     </div>
                   </div>
                 </div>

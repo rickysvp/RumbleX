@@ -67,16 +67,30 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
   });
   const timeDisplay = `[${timeString}]`;
 
+  // Standard Header for Time Metadata
+  const TimeColumn = ({ type }: { type?: string }) => (
+    <div className="shrink-0 w-[100px] flex flex-col justify-center relative z-10 font-app-mono">
+      {type === 'system' && (
+        <span className="text-app-accent/80 text-[7px] font-app-bold tracking-[0.2em] uppercase mb-0.5 leading-none">
+          SYSTEM_LOG
+        </span>
+      )}
+      <span className={`${type === 'system' ? 'text-[11px] text-[#555]' : 'text-[13px] text-[#444]'} leading-none`}>
+        {timeDisplay}
+      </span>
+    </div>
+  );
+
   // CHAT BRANCH
   if (event.type === 'chat') {
     return (
-      <div className="px-5 py-2 text-[13px] md:text-[14px] leading-relaxed border-b border-white/[0.03] transition-colors flex gap-4 hover:bg-white/[0.02] animate-row-in">
-        <div className="shrink-0 text-[#444] w-[100px] flex items-center">{timeDisplay}</div>
-        <div className="flex-1 flex gap-2">
+      <div className="px-5 py-2.5 text-[13px] md:text-[14px] leading-relaxed border-b border-white/[0.03] transition-colors flex gap-4 hover:bg-white/[0.02] animate-row-in items-center">
+        <TimeColumn />
+        <div className="flex-1 flex gap-2 overflow-hidden">
           <span className={`${event.attacker === 'PILOT_01' ? 'text-app-accent' : 'text-cyan-400'} font-app-bold shrink-0`}>
             {event.attacker || 'ANON'}
           </span>
-          <span className="text-white/80">{event.text}</span>
+          <span className="text-white/80 truncate md:whitespace-normal">{event.text}</span>
         </div>
       </div>
     );
@@ -85,14 +99,12 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
   // SYSTEM BRANCH
   if (event.type === 'system') {
     return (
-      <div className="px-5 py-3 text-[12px] md:text-[13px] leading-relaxed border-b border-white/[0.03] flex gap-4 bg-white/[0.015] relative group animate-row-in overflow-hidden">
-        {/* Simplified Left Accent */}
-        <div className="absolute left-0 top-2 bottom-2 w-[2px] bg-app-accent/20 group-hover:bg-app-accent/50 transition-colors" />
+      <div className="px-5 py-3.5 text-[12px] md:text-[13px] leading-relaxed border-b border-white/[0.03] flex gap-4 bg-white/[0.01] relative group animate-row-in overflow-hidden items-center">
+        {/* Subtle Left Accent */}
+        <div className="absolute left-0 top-3 bottom-3 w-[2px] bg-app-accent/30 group-hover:bg-app-accent/60 transition-colors" />
         
-        <div className="shrink-0 text-[#444] w-[100px] relative z-10 flex flex-col justify-center">
-           <span className="text-app-accent/60 text-[7px] font-app-bold tracking-widest uppercase mb-0.5">ARENA_LOG</span>
-           <span className="text-[11px] opacity-80">{timeDisplay}</span>
-        </div>
+        <TimeColumn type="system" />
+        
         <div className="flex-1 relative z-10 italic flex items-center pr-4">
           {renderSystemNarrative(event.text)}
         </div>
@@ -102,12 +114,12 @@ export const FeedRow = React.memo(({ event }: FeedRowProps) => {
 
   // COMBAT BRANCH (ELIM, LOOT, ABILITY)
   return (
-    <div className={`px-5 py-2 text-[13px] md:text-[14px] leading-relaxed border-b border-white/[0.03] transition-colors flex gap-4 animate-row-in ${
+    <div className={`px-5 py-2.5 text-[13px] md:text-[14px] leading-relaxed border-b border-white/[0.03] transition-colors flex gap-4 animate-row-in items-center ${
       event.type === 'elim' 
         ? 'animate-flash-danger bg-red-500/5' 
         : 'hover:bg-white/[0.02]'
     }`}>
-      <div className="shrink-0 text-[#444] w-[100px] flex items-center">{timeDisplay}</div>
+      <TimeColumn />
       <div className="text-white/90 flex-1">{renderCombatNarrative(event.text)}</div>
     </div>
   );
