@@ -67,13 +67,13 @@ export function EntryOpenStage() {
                <div className="grid grid-cols-2 gap-4 sm:gap-8 relative z-10">
                   <div className="flex flex-col">
                     <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 sm:mb-2 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-app-accent" /> ENTRY_FEE
+                      <span className="w-1.5 h-1.5 bg-app-accent" /> Entry Fee
                     </span>
                     <span className="text-[22px] sm:text-[28px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[12px] sm:text-[14px] text-app-muted ml-1">MON</span></span>
                   </div>
                   <div className="flex flex-col border-l border-app-border pl-4 sm:pl-8">
                     <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 sm:mb-2 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-app-accent" /> PRIZE_POOL
+                      <span className="w-1.5 h-1.5 bg-app-accent" /> Prize Pool
                     </span>
                     <span className="text-[22px] sm:text-[28px] font-app-bold text-white leading-none whitespace-nowrap">{prizePool.toFixed(0)}<span className="text-[12px] sm:text-[14px] text-app-muted ml-1">MON</span></span>
                   </div>
