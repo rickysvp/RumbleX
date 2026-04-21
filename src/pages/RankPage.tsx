@@ -3,12 +3,12 @@ import { useGameStore } from '../store/gameStore';
 import { Trophy, Crown, Medal } from 'lucide-react';
 
 export function RankPage() {
-  const seasonLeaderboard = useGameStore(state => state.seasonLeaderboard || []);
+  const leaderboard = useGameStore(state => state.leaderboard);
   const seasonPool = useGameStore(state => state.seasonPool || 0);
   const seasonNumber = useGameStore(state => state.seasonNumber || 1);
   const threshold = 100; // SEASON_CONFIG.SEASON_KILL_THRESHOLD
 
-  const top10 = seasonLeaderboard.slice(0, 10);
+  const top10 = leaderboard.slice(0, 10);
 
   const getRankIcon = (index: number) => {
     if (index === 0) return <Crown size={16} className="text-yellow-400" />;

@@ -6,11 +6,11 @@ import { BarChart3, Target, Skull, Trophy, TrendingUp } from 'lucide-react';
 export function StatsPage() {
   const userLoadout = useGameStore(state => state.userLoadout);
   const players = useGameStore(state => state.players || []);
-  const seasonLeaderboard = useGameStore(state => state.seasonLeaderboard || []);
+  const leaderboard = useGameStore(state => state.leaderboard);
   const { address } = useWalletStore();
   
   // Find user in leaderboard
-  const userEntry = seasonLeaderboard.find(p => p.handle === 'PILOT_01');
+  const userEntry = leaderboard.find(p => p.handle === 'PILOT_01');
   const userPlayer = players.find(p => p.handle === 'PILOT_01');
   
   // Calculate stats

@@ -44,7 +44,7 @@ export function UserBlock() {
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [monBalance, displayBalance]);
+  }, [monBalance]);
 
   const handleCopy = () => {
     if (addressFull) {

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { LoadoutPanel } from '../loadout/LoadoutPanel';
 import { useGameStore } from '../../store/gameStore';
 import { useWalletStore } from '../../store/walletStore';
 import { mockWallet } from '../../lib/mockWallet';
-import { CheckCircle2, Layout, PlusCircle } from 'lucide-react';
+import { mockPass } from '../../lib/mockPass';
+import { CheckCircle2, Layout, PlusCircle, ShieldAlert, Loader2 } from 'lucide-react';
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -17,16 +18,28 @@ export function EntryOpenStage() {
   const [isReadOnly, setIsReadOnly] = useState(false);
   
   const { roundNumber, timeRemaining, entryFee, prizePool, queueUserLoadout, userLoadout } = useGameStore();
-  const { status: walletStatus } = useWalletStore();
+  const { status: walletStatus, hasRumbleXPass, passStatus, isMintingPass } = useWalletStore();
 
   const isConnected = walletStatus === "connected";
   const isQueued = userLoadout.queued && userLoadout.queueRemaining > 0;
 
-  let userView: 'queued' | 'connected' | 'disconnected' = 'disconnected';
+  // Auto-check pass eligibility on connect
+  useEffect(() => {
+    if (isConnected && passStatus === "unknown") {
+      mockPass.checkRumbleXPass();
+    }
+  }, [isConnected, passStatus]);
+
+  let userView: 'queued' | 'disconnected' | 'checking_pass' | 'missing_pass' | 'eligible' = 'disconnected';
   if (isQueued) userView = 'queued';
-  else if (isConnected) userView = 'connected';
+  else if (!isConnected) userView = 'disconnected';
+  else if (passStatus === 'unknown' || passStatus === 'checking') userView = 'checking_pass';
+  else if (!hasRumbleXPass) userView = 'missing_pass';
+  else userView = 'eligible';
 
   const openLoadout = (readonly: boolean) => {
+    // Only allow if eligible or queued
+    if (userView !== 'eligible' && userView !== 'queued' && !readonly) return;
     setIsReadOnly(readonly);
     setIsLoadoutOpen(true);
   };
@@ -35,18 +48,18 @@ export function EntryOpenStage() {
 
   return (
     <>
-      <div className="h-full w-full flex flex-col justify-center p-4 sm:p-6 md:p-12 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
+      <div className="h-full w-full flex flex-col justify-center p-3 sm:p-4 md:p-6 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards]">
 
-        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-16 z-10 w-full max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center md:items-center gap-4 md:gap-8 z-10 w-full max-w-5xl mx-auto">
 
           {/* LEFT COLUMN: HERO TIMER */}
           <div className="flex flex-col justify-center items-center md:items-start flex-1 text-center md:text-left">
-            <div className="text-white font-app-bold text-[12px] sm:text-[14px] uppercase tracking-[4px] sm:tracking-[6px] mb-3 sm:mb-5">
+            <div className="text-white font-app-bold text-[11px] sm:text-[12px] uppercase tracking-[3px] sm:tracking-[4px] mb-2 sm:mb-3">
               ROUND #{roundNumber}
             </div>
-            
-            <div 
-              className={`font-app-bold text-[48px] sm:text-[60px] md:text-[100px] leading-[0.85] tracking-[-0.05em] mb-4 sm:mb-6 drop-shadow-[0_0_30px_rgba(235,255,0,0.15)] ${
+
+            <div
+              className={`font-app-bold text-[40px] sm:text-[52px] md:text-[72px] leading-[0.9] tracking-[-0.05em] mb-2 sm:mb-3 drop-shadow-[0_0_20px_rgba(235,255,0,0.15)] ${
                 timeRemaining <= 10 ? 'text-app-danger animate-pulse-urgent' : 'text-app-accent'
               }`}
               style={{ fontVariantNumeric: 'tabular-nums' }}
@@ -57,24 +70,24 @@ export function EntryOpenStage() {
           </div>
 
           {/* RIGHT COLUMN: ACTION ZONE */}
-          <div className="flex flex-col justify-center w-full md:w-[400px] shrink-0">
+          <div className="flex flex-col justify-center w-full md:w-[340px] shrink-0">
             
             {/* STATS HUD BOX */}
-            <div className="bg-[#050505] border-2 border-app-border p-4 sm:p-6 mb-4 sm:mb-6 relative overflow-hidden">
+            <div className="bg-[#050505] border-2 border-app-border p-3 sm:p-4 mb-3 sm:mb-4 relative overflow-hidden">
                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-app-accent/5 to-transparent pointer-events-none" />
-               
-               <div className="grid grid-cols-2 gap-4 sm:gap-8 relative z-10">
+
+               <div className="grid grid-cols-2 gap-3 sm:gap-6 relative z-10">
                   <div className="flex flex-col">
-                    <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 sm:mb-2 flex items-center gap-1">
+                    <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-app-accent" /> Entry Fee
                     </span>
-                    <span className="text-[22px] sm:text-[28px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[12px] sm:text-[14px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[20px] sm:text-[24px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[11px] sm:text-[12px] text-app-muted ml-1">MON</span></span>
                   </div>
-                  <div className="flex flex-col border-l border-app-border pl-4 sm:pl-8">
-                    <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 sm:mb-2 flex items-center gap-1">
+                  <div className="flex flex-col border-l border-app-border pl-3 sm:pl-6">
+                    <span className="text-[8px] sm:text-[9px] text-app-accent uppercase font-app-bold tracking-[2px] sm:tracking-[3px] mb-1 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-app-accent" /> Prize Pool
                     </span>
-                    <span className="text-[22px] sm:text-[28px] font-app-bold text-white leading-none whitespace-nowrap">{prizePool.toFixed(0)}<span className="text-[12px] sm:text-[14px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[20px] sm:text-[24px] font-app-bold text-white leading-none whitespace-nowrap">{prizePool.toFixed(0)}<span className="text-[11px] sm:text-[12px] text-app-muted ml-1">MON</span></span>
                   </div>
                </div>
             </div>
@@ -82,49 +95,91 @@ export function EntryOpenStage() {
             {/* ACTION BUTTON */}
             <div className="flex flex-col gap-3">
               {userView === 'queued' ? (
-                <div className="flex flex-col gap-3">
-                  <div className="bg-green-500/20 border border-green-500/40 text-green-400 p-4 sm:p-5 flex items-center justify-center gap-2 sm:gap-3">
-                    <CheckCircle2 size={20} className="sm:w-6 sm:h-6" />
-                    <span className="font-app-bold text-[16px] sm:text-[20px] uppercase tracking-[3px] sm:tracking-[4px]">Ready to Play</span>
+                <div className="flex flex-col gap-2">
+                  <div className="bg-green-500/20 border border-green-500/40 text-green-400 p-3 sm:p-4 flex items-center justify-center gap-2">
+                    <CheckCircle2 size={18} className="sm:w-5 sm:h-5" />
+                    <span className="font-app-bold text-[14px] sm:text-[16px] uppercase tracking-[2px] sm:tracking-[3px]">Ready to Play</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-px bg-app-border border border-app-border">
-                    <div className="bg-[#050505] p-3 flex flex-col items-center">
+                    <div className="bg-[#050505] p-2.5 flex flex-col items-center">
                       <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">Rounds Queued</span>
-                      <span className="text-[14px] text-white font-app-mono">{userLoadout.queueRemaining}</span>
+                      <span className="text-[13px] text-white font-app-mono">{userLoadout.queueRemaining}</span>
                     </div>
-                    <div className="bg-[#050505] p-3 flex flex-col items-center">
+                    <div className="bg-[#050505] p-2.5 flex flex-col items-center">
                       <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">Strategy</span>
-                      <span className="text-[12px] text-white font-app-mono truncate max-w-full">{userLoadout.strategy.replace(/_/g, ' ').toUpperCase()}</span>
+                      <span className="text-[11px] text-white font-app-mono truncate max-w-full">{userLoadout.strategy.replace(/_/g, ' ').toUpperCase()}</span>
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => openLoadout(true)}
-                    className="w-full bg-[#111] border border-app-border hover:border-white hover:bg-[#1a1a1a] text-white py-3 sm:py-4 text-[12px] sm:text-[13px] font-app-bold uppercase tracking-[2px] transition-all"
+                    className="w-full bg-[#111] border border-app-border hover:border-white hover:bg-[#1a1a1a] text-white py-2.5 sm:py-3 text-[11px] sm:text-[12px] font-app-bold uppercase tracking-[2px] transition-all"
                   >
                     View Config
                   </button>
                 </div>
-              ) : userView === 'connected' ? (
-                <button 
+              ) : userView === 'disconnected' ? (
+                <button
+                  onClick={mockWallet.connect}
+                  className="group relative bg-app-accent text-black font-app-bold text-[14px] sm:text-[16px] py-4 sm:py-5 px-5 sm:px-6 uppercase tracking-[2px] hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(235,255,0,0.3)]"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <WalletIcon />
+                    Connect Wallet
+                  </span>
+                </button>
+              ) : userView === 'checking_pass' ? (
+                <button
+                  disabled
+                  className="w-full bg-[#111] border border-app-border text-app-muted py-4 sm:py-5 text-[14px] sm:text-[16px] font-app-bold uppercase tracking-[2px] cursor-not-allowed flex flex-col items-center gap-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" size={18} />
+                    Checking RumbleX Pass...
+                  </div>
+                  <span className="text-[9px] font-app-bold opacity-60 tracking-widest text-app-accent">Wallet connected. Verifying access.</span>
+                </button>
+              ) : userView === 'missing_pass' ? (
+                <div className="flex flex-col">
+                  {/* Requirement Info Panel */}
+                  <div className="bg-app-accent/5 border border-app-accent/20 p-3 mb-3 animate-fadeIn">
+                    <div className="text-app-accent font-app-bold text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      <ShieldAlert size={12} /> RumbleX Pass Required
+                    </div>
+                    <p className="text-app-muted text-[10px] sm:text-[11px] leading-relaxed mb-2">
+                      You need a RumbleX Pass NFT to register for a round.
+                    </p>
+                    <div className="flex flex-col gap-1 text-[9px] text-white/60 font-app-bold uppercase">
+                      <div>• Temporary mint price: 1 MON</div>
+                      <div>• Mint once to unlock entry.</div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => mockPass.mintRumbleXPass()}
+                    disabled={isMintingPass}
+                    className="group relative bg-app-accent text-black font-app-bold text-[16px] sm:text-[18px] py-4 sm:py-5 px-6 sm:px-8 uppercase tracking-[2px] sm:tracking-[3px] transition-all hover:bg-white hover:scale-[1.02] active:scale-[0.98] overflow-hidden shadow-[0_0_20px_rgba(235,255,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {isMintingPass ? (
+                        <>
+                          <Loader2 className="animate-spin" size={20} />
+                          Minting...
+                        </>
+                      ) : (
+                        'Mint RumbleX Pass'
+                      )}
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                <button
                   onClick={() => openLoadout(false)}
-                  className="group relative bg-app-accent text-black font-app-bold text-[18px] sm:text-[20px] py-5 sm:py-6 px-8 sm:px-12 uppercase tracking-[2px] sm:tracking-[3px] transition-all hover:bg-white hover:scale-[1.02] active:scale-[0.98] overflow-hidden shadow-[0_0_30px_rgba(235,255,0,0.3)]"
+                  className="group relative bg-app-accent text-black font-app-bold text-[16px] sm:text-[18px] py-4 sm:py-5 px-6 sm:px-8 uppercase tracking-[2px] sm:tracking-[3px] transition-all hover:bg-white hover:scale-[1.02] active:scale-[0.98] overflow-hidden shadow-[0_0_20px_rgba(235,255,0,0.3)]"
                 >
                   <span className="relative z-10">Play to Win</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </button>
-              ) : (
-                <button 
-                  onClick={mockWallet.connect}
-                  className="group relative bg-app-accent text-black font-app-bold text-[16px] sm:text-[18px] py-5 sm:py-6 px-6 sm:px-8 uppercase tracking-[2px] hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(235,255,0,0.3)]"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    Connect Wallet
-                  </span>
                 </button>
               )}
               
@@ -133,6 +188,7 @@ export function EntryOpenStage() {
         </div>
 
       </div>
+
 
       {isLoadoutOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md animate-[fadeIn_0.15s_ease-in-out_forwards] p-4">

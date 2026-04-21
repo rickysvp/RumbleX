@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LeftSidebar } from './components/sidebar/LeftSidebar';
 import { RoundStage } from './components/arena/RoundStage';
 import { MixedFeed } from './components/feed/MixedFeed';
@@ -6,12 +6,10 @@ import { IntelTower } from './components/intel/IntelTower';
 import { useGameTimer } from './hooks/useGameTimer';
 import { useSimulation } from './hooks/useSimulation';
 import { useGameStore } from './store/gameStore';
-import { useWalletStore } from './store/walletStore';
-import { Menu, X } from 'lucide-react';
-
 // Layout Components
 import { MobileNavBar, TabId } from './components/layout/MobileNavBar';
 import { HamburgerMenu } from './components/layout/HamburgerMenu';
+import { TopBar } from './components/layout/TopBar';
 
 // Pages
 import { 
@@ -40,13 +38,7 @@ export default function App() {
   useSimulation();
 
   // Selectors
-  const phase = useGameStore(state => state.phase);
   const players = useGameStore(state => state.players);
-  const roundNumber = useGameStore(state => state.roundNumber);
-  const { address } = useWalletStore();
-  
-  const aliveCount = (players || []).filter(p => p.status === 'alive').length;
-  const totalInPlay = (players || []).reduce((acc, p) => acc + p.mon, 0);
 
   // Responsive Detection
   useEffect(() => {
@@ -78,7 +70,7 @@ export default function App() {
           </>
         ) : (
           <>
-            <div className="shrink-0 h-[420px]">
+            <div className="shrink-0 h-[360px]">
               <RoundStage />
             </div>
             <div className="h-px w-full bg-app-border shrink-0" />
@@ -108,7 +100,7 @@ export default function App() {
           </div>
         ) : (
           <>
-            <div className="shrink-0 h-[420px]">
+            <div className="shrink-0 h-[360px]">
               <RoundStage />
             </div>
             <div className="h-px w-full bg-app-border shrink-0" />
@@ -155,21 +147,8 @@ export default function App() {
   return (
     <div className="h-screen w-full bg-app-bg text-app-text font-sans flex flex-col overflow-hidden selection:bg-app-accent selection:text-black">
       
-      {/* Tablet/Mobile Header */}
-      {viewMode !== 'desktop' && (
-        <header className="h-[50px] sm:h-[60px] border-b border-app-border bg-[#0a0a0a] flex items-center justify-between px-4 sm:px-6 shrink-0 z-50">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button onClick={() => setIsMenuOpen(true)} className="p-2 -ml-2 text-app-muted hover:text-white transition-colors">
-              <Menu size={18} className="sm:w-5 sm:h-5" />
-            </button>
-            <img src="/rumblex.png" alt="RumbleX" className="h-5 sm:h-6 object-contain" />
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-             <div className="font-app-mono text-[9px] sm:text-[11px] text-app-muted truncate max-w-[100px] sm:max-w-none">{address || '0x...'}</div>
-             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-          </div>
-        </header>
-      )}
+      {/* TopBar - All Views */}
+      <TopBar onMenuOpen={() => setIsMenuOpen(true)} showMenu={viewMode !== 'desktop'} />
 
       <main className={`flex-grow grid gap-0 overflow-hidden ${
         viewMode === 'desktop' 
@@ -203,23 +182,9 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer (Desktop/Tablet) or Nav (Mobile) */}
-      {viewMode === 'mobile' ? (
+      {/* Mobile Nav Bar */}
+      {viewMode === 'mobile' && (
         <MobileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
-      ) : (
-        <footer className="h-[40px] sm:h-[48px] bg-app-accent text-app-bg flex items-center px-4 sm:px-8 font-app-bold uppercase text-[10px] sm:text-[12px] justify-between shrink-0 z-10">
-          <div className="flex items-center gap-3 sm:gap-6">
-             <span>STATUS: {phase.replace('_', ' ')}</span>
-             <span className="opacity-40">|</span>
-             <span>ROUND #{roundNumber}</span>
-          </div>
-          {phase === 'live' && (
-            <div className="flex gap-4 sm:gap-8">
-              <span>ALIVE: {aliveCount}</span>
-              <span>POOL: {totalInPlay.toFixed(1)} MON</span>
-            </div>
-          )}
-        </footer>
       )}
 
       {/* Overlay Components */}
