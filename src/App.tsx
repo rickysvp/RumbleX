@@ -88,7 +88,7 @@ export default function App() {
             <button onClick={() => setIsMenuOpen(true)} className="p-2 -ml-2 text-app-muted hover:text-white transition-colors">
               <Menu size={18} className="sm:w-5 sm:h-5" />
             </button>
-            <span className="font-app-bold text-app-accent tracking-[2px] sm:tracking-[4px] text-[12px] sm:text-[14px]">RUMBLEX</span>
+            <img src="/rumblex.png" alt="RumbleX" className="h-5 sm:h-6 object-contain" />
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
              <div className="font-app-mono text-[9px] sm:text-[11px] text-app-muted truncate max-w-[100px] sm:max-w-none">{address || '0x...'}</div>
