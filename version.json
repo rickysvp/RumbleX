@@ -1,10 +1,16 @@
 {
-  "version": "0.1.26",
+  "version": "0.1.27",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-20",
   "changelog": {
+    "0.1.27": {
+      "date": "2026-04-20",
+      "changes": [
+        "Increase EntryOpenStage ROUND title size"
+      ]
+    },
     "0.1.26": {
       "date": "2026-04-20",
       "changes": [

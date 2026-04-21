@@ -41,8 +41,8 @@ export function EntryOpenStage() {
 
           {/* LEFT COLUMN: HERO TIMER */}
           <div className="flex flex-col justify-center items-center md:items-start flex-1 text-center md:text-left">
-            <div className="text-white font-app-bold text-[10px] sm:text-[11px] uppercase tracking-[4px] sm:tracking-[6px] mb-2 sm:mb-4 flex items-center gap-2 sm:gap-3">
-              <span className="w-3 sm:w-4 h-[1px] bg-white" />
+            <div className="text-white font-app-bold text-[12px] sm:text-[14px] uppercase tracking-[4px] sm:tracking-[6px] mb-3 sm:mb-5 flex items-center gap-2 sm:gap-3">
+              <span className="w-4 sm:w-5 h-[1px] bg-white" />
               ROUND #{roundNumber}
             </div>
             
