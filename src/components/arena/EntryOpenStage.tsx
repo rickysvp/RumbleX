@@ -153,12 +153,16 @@ export function EntryOpenStage() {
                 <div className="flex flex-col gap-2">
                   {/* Requirement Info Panel */}
                   <div className="bg-app-accent/5 border border-app-accent/20 p-2 sm:p-2.5 animate-fadeIn">
-                    <div className="text-app-accent font-app-bold text-[10px] uppercase tracking-wider mb-0.5 flex items-center gap-1">
+                    <div className="text-app-accent font-app-bold text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                       <ShieldAlert size={10} /> RumbleX Pass Required
                     </div>
-                    <p className="text-app-muted text-[9px] sm:text-[10px] leading-relaxed">
-                      You need a RumbleX Pass NFT to register.
+                    <p className="text-app-muted text-[9px] sm:text-[10px] leading-relaxed mb-1.5">
+                      You need a RumbleX Pass NFT to register for a round.
                     </p>
+                    <div className="flex flex-col gap-0.5 border-t border-app-accent/10 pt-1.5">
+                      <span className="text-[9px] text-app-accent font-app-bold uppercase tracking-[1px]">Temporary mint price: 1 MON</span>
+                      <span className="text-[9px] text-app-muted">Mint once to unlock entry.</span>
+                    </div>
                   </div>
 
                   <button

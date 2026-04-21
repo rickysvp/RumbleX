@@ -1,10 +1,19 @@
 {
-  "version": "0.1.38",
+  "version": "0.1.39",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-21",
   "changelog": {
+    "0.1.39": {
+      "date": "2026-04-21",
+      "changes": [
+        "Fix EntryOpenStage layout and responsive design",
+        "Update FeedRow with mobile-friendly font sizes",
+        "Optimize MixedFeed input positioning and scroll behavior",
+        "Refine game store system message logic for live status"
+      ]
+    },
     "0.1.38": {
       "date": "2026-04-21",
       "changes": [
