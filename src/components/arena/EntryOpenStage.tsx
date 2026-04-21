@@ -17,7 +17,7 @@ export function EntryOpenStage() {
   const [isLoadoutOpen, setIsLoadoutOpen] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
   
-  const { roundNumber, timeRemaining, entryFee, prizePool, queueUserLoadout, userLoadout } = useGameStore();
+  const { roundNumber, timeRemaining, entryFee, prizePool, userLoadout } = useGameStore();
   const { status: walletStatus, hasRumbleXPass, passStatus, isMintingPass } = useWalletStore();
 
   const isConnected = walletStatus === "connected";
@@ -43,8 +43,6 @@ export function EntryOpenStage() {
     setIsReadOnly(readonly);
     setIsLoadoutOpen(true);
   };
-
-  const totalCost = (entryFee + (userLoadout.skill ? 1.5 : 0) + (userLoadout.item ? 1 : 0)) * (userLoadout.rounds || 1);
 
   return (
     <>
@@ -206,10 +204,7 @@ export function EntryOpenStage() {
               roundNumber={roundNumber}
               readOnly={isReadOnly}
               onClose={() => setIsLoadoutOpen(false)}
-              onConfirm={(config) => {
-                setIsLoadoutOpen(false);
-                queueUserLoadout(config);
-              }}
+              onConfirm={() => setIsLoadoutOpen(false)}
             />
           </div>
         </div>,

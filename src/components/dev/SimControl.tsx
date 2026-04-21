@@ -13,9 +13,11 @@ export function SimControl() {
 
   const handleElimRandom = () => {
     const alive = useGameStore.getState().players.filter(p => p.status === 'alive');
-    if (alive.length < 1) return;
+    if (alive.length < 2) return;
     const victim = alive[Math.floor(Math.random() * alive.length)];
-    useGameStore.getState().playerEliminated("DEBUG_KILL", victim.id, 0);
+    const attackers = alive.filter(p => p.id !== victim.id);
+    const attacker = attackers[Math.floor(Math.random() * attackers.length)];
+    useGameStore.getState().playerEliminated(attacker.id, victim.id, 0);
   };
 
   const handleForceLeader = () => {
@@ -26,7 +28,7 @@ export function SimControl() {
     const others = alive.filter(p => p.id !== leader.id);
     
     others.forEach(v => {
-      useGameStore.getState().playerEliminated("DEBUG_LEADER", v.id, 0);
+      useGameStore.getState().playerEliminated(leader.id, v.id, 0);
     });
   };
 

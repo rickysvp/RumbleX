@@ -53,6 +53,7 @@ export const INITIAL_MOCK_STATE: GameState = {
 
   lastRoundResult: {
     roundNumber: 842,
+    totalParticipants: 11,
     survivors: [
       { handle: "CryptoKnight", mon: 2.40, kills: 3 },
       { handle: "DegenBear25",  mon: 0.32, kills: 1 },
@@ -65,11 +66,11 @@ export const INITIAL_MOCK_STATE: GameState = {
   },
 
   userHistory: [
-    { roundNumber: 843, result: "queued", monDelta: 0, skill: null },
-    { roundNumber: 842, result: "win",    monDelta: 2.4, skill: "one_tap" },
-    { roundNumber: 841, result: "elim",   monDelta: -1.0, skill: "smoke_out" },
-    { roundNumber: 840, result: "win",    monDelta: 1.8, skill: "bounty_rush" },
-    { roundNumber: 839, result: "elim",   monDelta: -1.0, skill: null },
+    { roundNumber: 843, result: "queued", monDelta: 0, skill: null, kills: 0 },
+    { roundNumber: 842, result: "win",    monDelta: 2.4, skill: "one_tap", kills: 3 },
+    { roundNumber: 841, result: "elim",   monDelta: -1.0, skill: "smoke_out", kills: 1 },
+    { roundNumber: 840, result: "win",    monDelta: 1.8, skill: "bounty_rush", kills: 2 },
+    { roundNumber: 839, result: "elim",   monDelta: -1.0, skill: null, kills: 0 },
   ],
 
   protocolVault: 1240,

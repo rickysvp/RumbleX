@@ -48,15 +48,15 @@ export function SupportPage() {
             />
             <FAQItem 
               question="What happens if I'm eliminated?"
-              answer="You lose your entry fee for that round. Your kills still count toward your season ranking."
+              answer="You lose the MON you are carrying in that round. Your accumulated kills still count toward season ranking."
             />
             <FAQItem 
               question="How are prizes distributed?"
-              answer="The winner takes 80% of the round pool. 10% goes to platform fees and 10% to the season prize pool."
+              answer="RumbleX uses a keep-what-you-carry loop for survivors, and a configured cut of entries is routed to the season prize pool."
             />
             <FAQItem 
               question="When does the season end?"
-              answer="Seasons run for 30 days. Check the countdown in the sidebar for exact time remaining."
+              answer="Seasons run for 14 days. Check the countdown panel for exact time remaining."
             />
           </div>
         </div>

@@ -35,7 +35,7 @@ export const mockTransaction = {
       walletStore.setBalance(walletStore.monBalance - totalCost);
 
       // Trigger Game Store Queue
-      gameStore.queueUserLoadout(loadoutConfig);
+      gameStore.queueUserLoadout(loadoutConfig, mockHash);
 
       // Inject extra system feed event for TX confirmation
       gameStore.addFeedEvent({

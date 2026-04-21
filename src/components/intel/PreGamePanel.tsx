@@ -2,7 +2,6 @@ import React from 'react';
 import { SeasonInfo } from './pre-game/SeasonInfo';
 import { SeasonLeaderboard } from './pre-game/SeasonLeaderboard';
 import { LastRoundResults } from './pre-game/LastRoundResults';
-import { MyHistory } from './pre-game/MyHistory';
 
 export function PreGamePanel() {
   return (
@@ -10,7 +9,6 @@ export function PreGamePanel() {
       <SeasonInfo />
       <SeasonLeaderboard />
       <LastRoundResults />
-      <MyHistory />
     </div>
   );
 }

@@ -53,6 +53,7 @@ export interface RoundSurvivor {
 
 export interface RoundResult {
   roundNumber: number;
+  totalParticipants: number;
   survivors: RoundSurvivor[];
   topFrag: { handle: string; kills: number } | null;
   biggestStack: { handle: string; mon: number } | null;
@@ -82,6 +83,7 @@ export interface UserHistoryEntry {
   result: "win" | "elim" | "queued";
   monDelta: number;
   skill: SkillId | null;
+  kills: number;
 }
 
 export interface UserStats {

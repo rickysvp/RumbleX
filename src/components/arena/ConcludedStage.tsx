@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { Swords, Clock } from 'lucide-react';
 
@@ -11,23 +11,7 @@ const formatTime = (seconds: number) => {
 export function ConcludedStage() {
   const roundNumber = useGameStore(state => state.roundNumber);
   const players = useGameStore(state => state.players);
-  const openNextRound = useGameStore(state => state.openNextRound);
-  
-  // 30秒倒计时，结束后自动进入下一轮
-  const [countdown, setCountdown] = useState(30);
-
-  useEffect(() => {
-    if (countdown <= 0) {
-      openNextRound();
-      return;
-    }
-    
-    const timer = setInterval(() => {
-      setCountdown(prev => prev - 1);
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [countdown, openNextRound]);
+  const timeRemaining = useGameStore(state => state.timeRemaining);
 
   // 获取本轮存活玩家，按收益排序
   const survivors = (players || [])
@@ -135,7 +119,7 @@ export function ConcludedStage() {
         <div className="bg-[#0a0a0a] border border-app-border p-2 sm:p-3 flex items-center justify-center gap-2 sm:gap-3">
           <Clock size={14} className="text-app-accent sm:w-4 sm:h-4" />
           <span className="text-[10px] sm:text-[11px] text-app-muted uppercase tracking-[2px]">Returning to lobby in</span>
-          <span className="text-app-accent font-app-mono text-[16px] sm:text-[20px] tracking-wider">{formatTime(countdown)}</span>
+          <span className="text-app-accent font-app-mono text-[16px] sm:text-[20px] tracking-wider">{formatTime(timeRemaining)}</span>
         </div>
       </div>
     </div>

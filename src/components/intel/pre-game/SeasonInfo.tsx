@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useGameStore } from '../../../store/gameStore';
 import { SEASON_CONFIG } from '../../../lib/seasonConfig';
 
@@ -74,26 +74,13 @@ export function SeasonInfo() {
   const seasonNumber = useGameStore(state => state.seasonNumber || 1);
   const seasonPool = useGameStore(state => state.seasonPool || 0);
   const seasonEndsIn = useGameStore(state => state.seasonEndsIn || 0);
-  
-  const [timeLeft, setTimeLeft] = useState(seasonEndsIn);
   const [showTooltip, setShowTooltip] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    setTimeLeft(seasonEndsIn);
-  }, [seasonEndsIn]);
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
-  const days = Math.floor(timeLeft / (24 * 3600));
-  const hours = Math.floor((timeLeft % (24 * 3600)) / 3600);
-  const mins = Math.floor((timeLeft % 3600) / 60);
-  const secs = timeLeft % 60;
+  const days = Math.floor(seasonEndsIn / (24 * 3600));
+  const hours = Math.floor((seasonEndsIn % (24 * 3600)) / 3600);
+  const mins = Math.floor((seasonEndsIn % 3600) / 60);
+  const secs = seasonEndsIn % 60;
 
   return (
     <div className="p-5 border-b border-app-border">
@@ -169,6 +156,11 @@ export function SeasonInfo() {
           <Separator />
           <FlipTimeUnit value={secs} label="SEC" />
         </div>
+      </div>
+
+      {/* 赛季空投资格说明 */}
+      <div className="text-[9px] text-app-muted text-center uppercase tracking-wide">
+        100+ Kills Required for Season Airdrop Eligibility
       </div>
 
     </div>

@@ -1,17 +1,17 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { useWalletStore } from '../store/walletStore';
-import { BarChart3, Target, Skull, Trophy, TrendingUp } from 'lucide-react';
+import { BarChart3, Target, Skull, Trophy, TrendingUp, History } from 'lucide-react';
 
 export function StatsPage() {
   const userLoadout = useGameStore(state => state.userLoadout);
-  const players = useGameStore(state => state.players || []);
   const leaderboard = useGameStore(state => state.leaderboard);
+  const userHistory = useGameStore(state => state.userHistory || []);
+  const currentRound = useGameStore(state => state.roundNumber);
   const { address } = useWalletStore();
   
   // Find user in leaderboard
-  const userEntry = leaderboard.find(p => p.handle === 'PILOT_01');
-  const userPlayer = players.find(p => p.handle === 'PILOT_01');
+  const userEntry = leaderboard.find(p => p.isUser);
   
   const userStats = useGameStore(state => state.userStats);
   
@@ -92,6 +92,42 @@ export function StatsPage() {
                   <div className="text-[11px] text-app-muted uppercase mb-1">Total Wins</div>
                   <div className="text-[24px] font-app-mono text-white">{wins}</div>
                 </div>
+              </div>
+            </div>
+
+            {/* Round History */}
+            <div className="bg-[#111] border border-[#222] p-6 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <History size={18} className="text-app-accent" />
+                <h2 className="text-[14px] font-app-bold text-white uppercase">Round History</h2>
+              </div>
+              
+              <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                {/* Queued Rounds */}
+                {queueRemaining > 0 && Array.from({ length: Math.min(queueRemaining, 3) }).map((_, i) => (
+                  <div key={`queued-${i}`} className="flex items-center justify-between py-2 px-3 bg-[#0a0a0a] border border-[#222] opacity-50">
+                    <div className="text-[11px] font-app-bold text-app-muted">#{currentRound + i + 1}</div>
+                    <div className="text-[9px] font-app-bold tracking-wider text-[#666] uppercase">Queued</div>
+                    <div className="text-[11px] font-app-bold text-right text-[#666]">---</div>
+                  </div>
+                ))}
+                
+                {/* History Records */}
+                {userHistory.slice(0, 10).map((h) => (
+                  <div key={h.roundNumber} className="flex items-center justify-between py-2 px-3 bg-[#0a0a0a] border border-[#222]">
+                    <div className="text-[11px] font-app-bold text-app-muted">#{h.roundNumber}</div>
+                    <div className="text-[10px] font-app-bold text-white">
+                      {h.kills} Kills
+                    </div>
+                    <div className={`text-[11px] font-app-bold text-right ${h.monDelta >= 0 ? 'text-app-accent' : 'text-red-500'}`}>
+                      {h.monDelta > 0 ? '+' : ''}{h.monDelta.toFixed(1)} MON
+                    </div>
+                  </div>
+                ))}
+
+                {userHistory.length === 0 && queueRemaining === 0 && (
+                  <div className="text-[11px] font-app-bold text-app-muted italic py-4 text-center">No recent activity.</div>
+                )}
               </div>
             </div>
 

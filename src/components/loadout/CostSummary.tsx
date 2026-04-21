@@ -192,7 +192,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
         {!hasRumbleXPass ? (
           <span className="text-app-accent font-bold">Pass required before queueing.</span>
         ) : (
-          <span>Start with {startingMON.toFixed(2)} MON · Platform 10% · Season 10%</span>
+          <span>Start with {startingMON.toFixed(2)} MON · Season pool contribution applies per entry.</span>
         )}
       </div>
       

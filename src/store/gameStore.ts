@@ -27,9 +27,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   tickTimer: () => {
     const { phase, players, timeRemaining, seasonEndsIn, startRound, concludeRound, openNextRound, concludeSeason, addFeedEvent, roundNumber } = get();
-    
+
+    // Season clock ticks once per second alongside round clock
+    let updatedSeasonEndsIn = seasonEndsIn;
+    if (seasonEndsIn > 0) {
+      updatedSeasonEndsIn = seasonEndsIn - 1;
+      set({ seasonEndsIn: updatedSeasonEndsIn });
+    }
+
     // Check for season end
-    if (seasonEndsIn <= 0) {
+    if (updatedSeasonEndsIn <= 0) {
       concludeSeason();
     }
 
@@ -154,6 +161,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       const roundResult = {
         roundNumber: state.roundNumber,
+        totalParticipants: participants.length,
         survivors,
         topFrag: topFragPlayer ? { handle: topFragPlayer.handle, kills: topFragPlayer.kills } : null,
         biggestStack: biggestStackPlayer ? { handle: biggestStackPlayer.handle, mon: biggestStackPlayer.mon } : null,
@@ -173,7 +181,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             monDelta: user.status === 'alive'
               ? parseFloat((user.mon - roundCost).toFixed(2))
               : parseFloat((-roundCost).toFixed(2)),
-            skill: user.skill
+            skill: user.skill,
+            kills: user.kills || 0
           },
           ...state.userHistory
         ].slice(0, 20);
@@ -266,7 +275,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       let extraEvents: any[] = [];
 
       if (newLoadout.queueRemaining > 0) {
-        newLoadout.queueRemaining -= 1;
         newLoadout.queued = true;
         userInNextRound = true;
 
@@ -433,6 +441,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
         queueRemaining: rounds 
       };
       const totalCost = (state.entryFee + (loadout.skill ? 1.5 : 0) + (loadout.item ? 1 : 0)) * rounds;
+      const seasonCut = parseFloat((totalCost * SEASON_CONFIG.SEASON_POOL_CUT).toFixed(2));
+      const roundContribution = parseFloat((totalCost - seasonCut).toFixed(2));
+      const nextSeasonPool = parseFloat((state.seasonPool + seasonCut).toFixed(2));
+
+      const { updatedLeaderboard, totalQualifiedKills } = computeSeasonPayouts(
+        state.leaderboard,
+        nextSeasonPool,
+        SEASON_CONFIG.SEASON_KILL_THRESHOLD
+      );
       
       const newPlayers = state.players.map(p => 
         p.isUser ? { 
@@ -460,7 +477,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return {
         userLoadout: newLoadout,
         players: newPlayers,
-        prizePool: state.prizePool + totalCost,
+        prizePool: parseFloat((state.prizePool + roundContribution).toFixed(2)),
+        seasonPool: nextSeasonPool,
+        leaderboard: updatedLeaderboard,
+        totalQualifiedKills,
         feedEvents: [...state.feedEvents, newEvent].slice(-200)
       };
     });
