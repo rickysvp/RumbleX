@@ -112,14 +112,19 @@ export default function App() {
   // Mobile Content Switcher
   const renderMobileContent = () => {
     switch (activeTab) {
-      case 'ARENA': 
+      case 'ARENA':
         return (
-          <div className="flex flex-col h-full overflow-hidden">
-            <div className="shrink-0 h-[40vh] min-h-[280px] max-h-[380px]">
+          <div className="flex flex-col h-full w-full overflow-hidden bg-[#0D0D0D]">
+            {/* Arena Stage - Fixed Height */}
+            <div className="shrink-0 h-[320px] sm:h-[380px] w-full overflow-hidden">
               <RoundStage />
             </div>
+            
+            {/* Divider */}
             <div className="h-px w-full bg-app-border shrink-0" />
-            <div className="flex-1 min-h-0 overflow-hidden">
+            
+            {/* Feed - Flexible Height */}
+            <div className="flex-1 min-h-0 w-full overflow-hidden">
               <MixedFeed />
             </div>
           </div>
@@ -128,12 +133,17 @@ export default function App() {
       case 'PROFILE': return <LeftSidebar />;
       case 'FEED': return <MixedFeed />;
       default: return (
-        <div className="flex flex-col h-full overflow-hidden">
-          <div className="shrink-0 h-[40vh] min-h-[280px] max-h-[380px]">
+        <div className="flex flex-col h-full w-full overflow-hidden bg-[#0D0D0D]">
+          {/* Arena Stage - Fixed Height */}
+          <div className="shrink-0 h-[320px] sm:h-[380px] w-full overflow-hidden">
             <RoundStage />
           </div>
+          
+          {/* Divider */}
           <div className="h-px w-full bg-app-border shrink-0" />
-          <div className="flex-1 min-h-0 overflow-hidden">
+          
+          {/* Feed - Flexible Height */}
+          <div className="flex-1 min-h-0 w-full overflow-hidden">
             <MixedFeed />
           </div>
         </div>
@@ -165,7 +175,7 @@ export default function App() {
         {/* Main Center (Dynamic Content) */}
         <section className={`bg-[#0D0D0D] flex flex-col overflow-hidden relative min-w-0 ${viewMode === 'desktop' ? 'border-r border-app-border' : ''}`}>
           {viewMode === 'mobile' ? (
-            <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0 pb-[64px]">
+            <div className="flex-1 flex flex-col overflow-hidden relative h-full min-w-0">
               {renderMobileContent()}
             </div>
           ) : (

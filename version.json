@@ -1,10 +1,24 @@
 {
-  "version": "0.1.46",
+  "version": "0.1.47",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
-  "releaseDate": "2026-04-21",
+  "releaseDate": "2026-04-22",
   "changelog": {
+    "0.1.47": {
+      "date": "2026-04-22",
+      "changes": [
+        "Fix mobile home page layout - Arena fixed height 320px/380px",
+        "Remove pb-[64px] from mobile container",
+        "Add fee breakdown note to EntryOpenStage (10% Protocol Fee • 10% to Season Pool)",
+        "Redesign RoundsSelector with increment/decrement buttons",
+        "Add Spec documentation for on-chain settlement rules",
+        "Add Protocol Bot Pool spec for liquidity provision",
+        "Define Pass lifecycle (SBT, 50 MON mainnet / 1 MON testnet)",
+        "Define payout algorithm (game holdings × 80%)",
+        "Define EmergencyExit rules (no refund, funds to protocol)"
+      ]
+    },
     "0.1.46": {
       "date": "2026-04-21",
       "changes": [

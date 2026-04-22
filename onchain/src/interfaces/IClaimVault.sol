@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+interface IClaimVault {
+    function recordFallbackRoundPayout(address player, uint256 roundId, uint256 amount)
+        external
+        payable
+        returns (bytes32);
+}

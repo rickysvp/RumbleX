@@ -82,7 +82,7 @@ export function EntryOpenStage() {
             </div>
 
             {/* STATS HUD BOX */}
-            <div className="bg-[#0a0a0a] border border-app-border p-4 mb-3">
+            <div className="bg-[#0a0a0a] border border-app-border p-4 mb-2">
                <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
                     <span className="text-[9px] text-app-muted uppercase font-app-bold tracking-[2px] mb-1">
@@ -97,6 +97,11 @@ export function EntryOpenStage() {
                     <span className="text-[24px] font-app-bold text-app-accent leading-none">{prizePool.toFixed(0)}<span className="text-[11px] opacity-60 ml-1">MON</span></span>
                   </div>
                </div>
+            </div>
+            
+            {/* Fee Breakdown Note */}
+            <div className="text-[8px] text-app-muted/60 text-center uppercase tracking-wide mb-3">
+              10% Protocol Fee • 10% to Season Pool
             </div>
 
             {/* ACTION BUTTON */}

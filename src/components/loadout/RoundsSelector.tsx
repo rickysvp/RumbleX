@@ -1,7 +1,12 @@
 import React from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export function RoundsSelector({ rounds, setRounds, readOnly }: { rounds: number, setRounds: (r: number) => void, readOnly?: boolean }) {
   const chips = [1, 3, 5, 10];
+  
+  const increment = () => setRounds(Math.min(rounds + 1, 50));
+  const decrement = () => setRounds(Math.max(rounds - 1, 1));
+  
   return (
     <div className="mb-0">
       <div className="text-[10px] text-app-muted uppercase font-app-bold mb-4 tracking-widest border-b border-[#222] pb-2">Queued Rounds</div>
@@ -13,7 +18,7 @@ export function RoundsSelector({ rounds, setRounds, readOnly }: { rounds: number
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="grid grid-cols-5 gap-2 mb-3">
             {chips.map(c => (
               <button 
                 key={c}
@@ -27,20 +32,30 @@ export function RoundsSelector({ rounds, setRounds, readOnly }: { rounds: number
                 {c}
               </button>
             ))}
-          </div>
-          
-          <div className="relative">
-            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <span className="text-[10px] text-app-muted uppercase font-app-bold">Custom:</span>
+            <div className="flex items-center bg-[#111] border border-[#222]">
+              <input 
+                type="number" 
+                value={rounds}
+                onChange={(e) => setRounds(parseInt(e.target.value) || 1)}
+                className="flex-1 bg-transparent px-2 py-3 font-app-mono text-[14px] text-white focus:outline-none text-center"
+                min={1}
+                max={50}
+              />
+              <div className="flex flex-col pr-1">
+                <button 
+                  onClick={increment}
+                  className="text-app-muted hover:text-white transition-colors p-0.5"
+                >
+                  <ChevronUp size={12} />
+                </button>
+                <button 
+                  onClick={decrement}
+                  className="text-app-muted hover:text-white transition-colors p-0.5"
+                >
+                  <ChevronDown size={12} />
+                </button>
+              </div>
             </div>
-            <input 
-              type="number" 
-              value={rounds}
-              onChange={(e) => setRounds(parseInt(e.target.value) || 1)}
-              className="w-full bg-[#111] border border-[#222] pl-[60px] pr-4 py-3 font-app-mono text-[14px] text-white focus:outline-none focus:border-app-accent"
-              min={1}
-              max={50}
-            />
           </div>
         </>
       )}
