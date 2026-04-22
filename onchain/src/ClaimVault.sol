@@ -24,6 +24,7 @@ contract ClaimVault is RumbleAccessControl, ReentrancyGuard {
 
     mapping(bytes32 claimKey => ClaimRecord) public claimRecords;
     mapping(address roundRoom => bool authorized) public authorizedRoundRooms;
+    mapping(address seasonVault => bool authorized) public authorizedSeasonVaults;
 
     mapping(address player => bytes32[] claimKeys) private _playerClaimKeys;
     mapping(bytes32 claimKey => bool tracked) private _claimKeyTracked;
@@ -46,6 +47,7 @@ contract ClaimVault is RumbleAccessControl, ReentrancyGuard {
     event ClaimAll(address indexed player, uint256 totalAmount, uint256 claimedCount);
 
     event RoundRoomAuthorizationUpdated(address indexed roundRoom, bool authorized);
+    event SeasonVaultAuthorizationUpdated(address indexed seasonVault, bool authorized);
 
     constructor(address owner_) RumbleAccessControl(owner_) {}
 
@@ -56,6 +58,11 @@ contract ClaimVault is RumbleAccessControl, ReentrancyGuard {
     function setAuthorizedRoundRoom(address roundRoom, bool authorized) external onlyRole(OWNER_ROLE) {
         authorizedRoundRooms[roundRoom] = authorized;
         emit RoundRoomAuthorizationUpdated(roundRoom, authorized);
+    }
+
+    function setAuthorizedSeasonVault(address seasonVault, bool authorized) external onlyRole(OWNER_ROLE) {
+        authorizedSeasonVaults[seasonVault] = authorized;
+        emit SeasonVaultAuthorizationUpdated(seasonVault, authorized);
     }
 
     function getPlayerClaimKeys(address player) external view returns (bytes32[] memory) {
@@ -94,6 +101,20 @@ contract ClaimVault is RumbleAccessControl, ReentrancyGuard {
         if (msg.value != amount || amount == 0) revert InvalidFundedAmount();
 
         return _recordClaim(player, ClaimType.FallbackRoundPayout, roundId, amount);
+    }
+
+    function recordSeasonReward(address player, uint256 seasonId, uint256 amount)
+        external
+        payable
+        whenNotPaused
+        returns (bytes32)
+    {
+        if (!authorizedSeasonVaults[msg.sender] && !hasRole(CLAIM_OPERATOR_ROLE, msg.sender)) {
+            revert UnauthorizedClaimRecorder();
+        }
+        if (msg.value != amount || amount == 0) revert InvalidFundedAmount();
+
+        return _recordClaim(player, ClaimType.SeasonReward, seasonId, amount);
     }
 
     function claim(bytes32[] calldata claimKeys) external nonReentrant whenNotPaused returns (uint256 totalPayout) {

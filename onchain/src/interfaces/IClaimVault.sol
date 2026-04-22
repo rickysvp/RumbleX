@@ -6,4 +6,9 @@ interface IClaimVault {
         external
         payable
         returns (bytes32);
+
+    function recordSeasonReward(address player, uint256 seasonId, uint256 amount)
+        external
+        payable
+        returns (bytes32);
 }

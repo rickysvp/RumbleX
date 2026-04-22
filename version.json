@@ -1,10 +1,21 @@
 {
-  "version": "0.1.47",
+  "version": "0.1.48",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-22",
   "changelog": {
+    "0.1.48": {
+      "date": "2026-04-22",
+      "changes": [
+        "Implement SeasonVault reward assignment (kills-based proportional distribution)",
+        "Add SeasonVault authorization to ClaimVault",
+        "Add recordSeasonReward function to ClaimVault",
+        "Implement qualification threshold for season rewards",
+        "Add season reward rollover when no qualified players",
+        "Add comprehensive tests for season reward flow"
+      ]
+    },
     "0.1.47": {
       "date": "2026-04-22",
       "changes": [
