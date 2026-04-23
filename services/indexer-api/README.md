@@ -24,29 +24,48 @@ This service provides a single-process MVP indexer and API over Monad testnet co
 
 ## Run
 
-### Option A: run from repository root
+### Env loading — how it works
 
-```bash
-# From the repo root (picks up .env.local automatically)
-export MONAD_RPC_URL="https://<your-monad-rpc>"
-export MONAD_CHAIN_ID="10143"
-# optional: export DEPLOYMENT_MANIFEST_PATH="/abs/path/to/onchain/deployments/monad-testnet.json"
-# optional: export INDEXER_DB_PATH="/abs/path/to/indexer-db.json"
-# optional: export INDEXER_API_PORT="8787"
-npm run indexer:api
-```
+The service calls `dotenv.config()` with no arguments, which reads **`.env` from the current working directory** at startup.  
+It does **not** read the repo-root `.env.local` used by the frontend and `validate-manifest.ts`.
 
-### Option B: run directly from `services/indexer-api`
+The canonical setup is a `services/indexer-api/.env` file.  
+A template is provided — create yours before first run:
 
 ```bash
 cd services/indexer-api
+cp .env.example .env
+# Open .env and set MONAD_RPC_URL and MONAD_CHAIN_ID
+```
+
+Alternatively, export the variables in your shell session before running any command.
+
+### Option A: run from repository root
+
+`npm run indexer:api` launches `tsx services/indexer-api/src/main.ts` from the repo root.  
+`dotenv.config()` then looks for `<repo-root>/.env` — **not** `.env.local`.  
+The simplest approach is to export the required vars in your shell:
+
+```bash
+# From repo root — shell exports take precedence over any .env file
 export MONAD_RPC_URL="https://<your-monad-rpc>"
 export MONAD_CHAIN_ID="10143"
-# optional: export DEPLOYMENT_MANIFEST_PATH="/abs/path/to/onchain/deployments/monad-testnet.json"
-# optional: export INDEXER_DB_PATH="/abs/path/to/services/indexer-api/data/indexer-db.json"
-# optional: export INDEXER_API_PORT="8787"
-npm run start   # no-watch
-# or: npm run dev
+npm run indexer:api
+# → http://localhost:8787
+```
+
+Or create `<repo-root>/.env` with those values if you prefer a file for this layout.
+
+### Option B: run directly from `services/indexer-api` (recommended)
+
+Running from inside the service directory means `dotenv.config()` finds `services/indexer-api/.env` automatically:
+
+```bash
+cd services/indexer-api
+# .env must exist (cp .env.example .env and fill values)
+npm run dev    # file-watch mode
+# or: npm run start   # single-run, no watch
+# → http://localhost:8787
 ```
 
 ## Required Env
@@ -56,26 +75,28 @@ npm run start   # no-watch
 
 ## Optional Env
 
-- `DEPLOYMENT_MANIFEST_PATH` (default `onchain/deployments/monad-testnet.json`)
-- `INDEXER_DB_PATH` (default `services/indexer-api/data/indexer-db.json`)
-- `INDEXER_START_BLOCK` (override manifest startBlock)
-- `INDEXER_POLL_INTERVAL_MS` (default `12000`)
-- `INDEXER_CONFIRMATION_BLOCKS` (default `3`)
-- `INDEXER_STALE_AFTER_MS` (default `120000`)
-- `INDEXER_API_PORT` (default `8787`)
-- `INDEXER_API_BASE_URL` (used by smoke script, default `http://localhost:8787`)
-- `SMOKE_ADDRESS` (used by smoke script)
+- `DEPLOYMENT_MANIFEST_PATH` — default: `<repo-root>/onchain/deployments/monad-testnet.json`  
+  (resolved relative to the repo root regardless of CWD; override only needed in Docker or CI with a non-standard layout)
+- `INDEXER_DB_PATH` — default: `<repo-root>/services/indexer-api/data/indexer-db.json`
+- `INDEXER_START_BLOCK` — override the first block to poll (default: taken from manifest `startBlock`)
+- `INDEXER_POLL_INTERVAL_MS` — default: `12000`
+- `INDEXER_CONFIRMATION_BLOCKS` — default: `3`
+- `INDEXER_STALE_AFTER_MS` — default: `120000`
+- `INDEXER_API_PORT` — default: `8787`
+- `INDEXER_API_BASE_URL` — used by smoke script only, default: `http://localhost:8787`
+- `SMOKE_ADDRESS` — used by smoke script only
 
 ## Quick Validation
 
-With the API running:
+With the API running, from `services/indexer-api`:
 
 ```bash
 cd services/indexer-api
-export INDEXER_API_BASE_URL="http://localhost:8787"
-export SMOKE_ADDRESS="0xYourWalletAddress"
-npm run smoke
+# INDEXER_API_BASE_URL and SMOKE_ADDRESS can be set in .env or as shell exports
+SMOKE_ADDRESS="0xYourWalletAddress" npm run smoke
 ```
+
+Or set them in `services/indexer-api/.env` and just run `npm run smoke`.
 
 The smoke script verifies:
 - `/mesummary` and `/meclaims` do not leak raw ethers decode errors

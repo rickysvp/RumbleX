@@ -8,8 +8,9 @@
 ## Environment Setup
 
 - [ ] Copy `.env.example` → `.env.local` at repo root
-- [ ] Fill in `MONAD_RPC_URL` (private or Alchemy/Infura endpoint — do **not** use public RPC for production)
-- [ ] Set `MONAD_CHAIN_ID=10143` (Monad testnet) or the target chain ID
+- [ ] Copy `services/indexer-api/.env.example` → `services/indexer-api/.env`
+- [ ] Fill in `MONAD_RPC_URL` in **both** files (private or Alchemy/Infura endpoint — do **not** use public RPC for production)
+- [ ] Set `MONAD_CHAIN_ID=10143` (Monad testnet) or the target chain ID in **both** files
 - [ ] Set `DEPLOYER_PRIVATE_KEY` for the deploy wallet (export only for the session — never store in a file)
 - [ ] Confirm the deploy wallet has enough native token for gas
 

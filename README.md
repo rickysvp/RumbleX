@@ -30,6 +30,14 @@ RumbleX/
 | `hybrid` | Wallet summary / pass / claim use the indexer API; other views stay mock |
 | `live` | Same as `hybrid` for the current MVP |
 
+### Env-file ownership
+
+| Layer | Reads |
+|---|---|
+| **Frontend** (`vite`) | `<repo-root>/.env.local` |
+| **`validate-manifest.ts`** | `<repo-root>/.env.local` (hand-rolled parser) |
+| **Indexer API** (`dotenv.config()`) | `services/indexer-api/.env` when run from that directory; `<repo-root>/.env` when run from repo root via `npm run indexer:api` — **not** `.env.local` |
+
 ---
 
 ## Prerequisites
@@ -132,7 +140,8 @@ After deployment, `onchain/deployments/monad-testnet.json` is written automatica
 Before starting the indexer, confirm the manifest is coherent:
 
 ```bash
-# Requires MONAD_RPC_URL + MONAD_CHAIN_ID in environment or .env.local
+# validate-manifest.ts reads <repo-root>/.env.local automatically.
+# The indexer does not — see "Env-file ownership" table above.
 npx tsx scripts/validate-manifest.ts
 ```
 
