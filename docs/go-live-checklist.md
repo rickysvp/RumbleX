@@ -77,13 +77,12 @@ Expected output: `✅ All checks passed — manifest is valid.`
 
 ## Step 5 — Run Indexer API
 
-```bash
-# Ensure services/indexer-api/.env exists (copy from .env.example on first run)
-cd services/indexer-api && cp .env.example .env   # fill MONAD_RPC_URL + MONAD_CHAIN_ID
-cd ../..   # back to repo root
+The recommended way to run the indexer is from its own directory so it automatically picks up `services/indexer-api/.env`:
 
-# Run from repo root
-npm run indexer:api
+```bash
+cd services/indexer-api
+# Ensure .env exists (copied from .env.example in Environment Setup)
+npm run start
 ```
 
 - [ ] Service starts on port `8787` (or `INDEXER_API_PORT`)
