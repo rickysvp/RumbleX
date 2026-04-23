@@ -24,48 +24,44 @@ This service provides a single-process MVP indexer and API over Monad testnet co
 
 ## Run
 
-### Env loading — how it works
+### Standard Setup (Recommended)
 
-The service calls `dotenv.config()` with no arguments, which reads **`.env` from the current working directory** at startup.  
-It does **not** read the repo-root `.env.local` used by the frontend and `validate-manifest.ts`.
+The indexer reads its environment from a local `.env` file via `dotenv.config()`.  
+It does **not** read the repo-root `.env.local` used by the frontend.
 
-The canonical setup is a `services/indexer-api/.env` file.  
-A template is provided — create yours before first run:
-
+**1. Create your env file**
 ```bash
 cd services/indexer-api
 cp .env.example .env
-# Open .env and set MONAD_RPC_URL and MONAD_CHAIN_ID
 ```
 
-Alternatively, export the variables in your shell session before running any command.
+**2. Configure required variables**
+Open `services/indexer-api/.env` and set:
+- `MONAD_RPC_URL` (your Monad testnet RPC)
+- `MONAD_CHAIN_ID=10143`
 
-### Option A: run from repository root
+**3. Start the service**
+```bash
+# From within services/indexer-api/
+npm run dev      # file-watch mode
+# or: npm run start     # single-run, no watch
+# → http://localhost:8787
+```
 
-`npm run indexer:api` launches `tsx services/indexer-api/src/main.ts` from the repo root.  
-`dotenv.config()` then looks for `<repo-root>/.env` — **not** `.env.local`.  
-The simplest approach is to export the required vars in your shell:
+### Advanced / Overrides
+
+If you prefer not to use a `.env` file, you can export the variables in your shell session. Shell exports take precedence over the `.env` file.
+
+**Running from repository root**
+You can launch the indexer from the repo root using `npm run indexer:api`. 
+However, because `dotenv.config()` looks for `.env` in the current working directory, it will look for `<repo-root>/.env` (not `.env.local`). 
+Therefore, if you run from the root, you must either export the variables in your shell or create a `<repo-root>/.env` file.
 
 ```bash
-# From repo root — shell exports take precedence over any .env file
+# From repo root
 export MONAD_RPC_URL="https://<your-monad-rpc>"
 export MONAD_CHAIN_ID="10143"
 npm run indexer:api
-# → http://localhost:8787
-```
-
-Or create `<repo-root>/.env` with those values if you prefer a file for this layout.
-
-### Option B: run directly from `services/indexer-api` (recommended)
-
-Running from inside the service directory means `dotenv.config()` finds `services/indexer-api/.env` automatically:
-
-```bash
-cd services/indexer-api
-# .env must exist (cp .env.example .env and fill values)
-npm run dev    # file-watch mode
-# or: npm run start   # single-run, no watch
-# → http://localhost:8787
 ```
 
 ## Required Env
