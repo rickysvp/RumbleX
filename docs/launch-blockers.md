@@ -63,7 +63,8 @@
 **File**: `.env.example` and `docs/go-live-checklist.md`  
 **Problem**: `DEPLOYER_PRIVATE_KEY` is required by the Forge deploy scripts but is not mentioned in root `.env.example`. The checklist says "export only for the session" which is the right advice, but a new operator has no template variable to remind them.  
 **Impact**: Operator runs `forge script` without the key, gets a Foundry error, must read `onchain/deployments/README.md` to find the full env list.  
-**Fix**: Add a commented-out `# DEPLOYER_PRIVATE_KEY=` entry to root `.env.example` with a note that it must be exported as a shell var, never stored in a file. **Not fixed in this pass — kept out of scope to avoid mixing concerns.**
+**Fix**: Added a commented-out `# export DEPLOYER_PRIVATE_KEY=` entry to root `.env.example` under a new Deployment section, along with a loud warning that it must be exported in the shell for the session only and never committed to version control.  
+**Status**: ✅ Fixed in this pass.
 
 ---
 
@@ -95,6 +96,6 @@
 | B2 | Go-live checklist missing indexer `.env` setup step | P0 | ✅ Fixed |
 | B3 | `npm run indexer:api` from root has no file-based env path | P1 | ✅ Fixed |
 | B4 | CI smoke silently skips when secret unset | P1 | ✅ Fixed |
-| B5 | `DEPLOYER_PRIVATE_KEY` not in `.env.example` | P1 | ⬜ Open |
+| B5 | `DEPLOYER_PRIVATE_KEY` not in `.env.example` | P1 | ✅ Fixed |
 | B6 | `data/` dir not auto-created on first run | P2 | ⬜ Open |
 | B7 | `onchain/README.md` is Foundry boilerplate | P2 | ⬜ Open |
