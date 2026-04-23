@@ -65,15 +65,22 @@ Start services **in this order**:
 
 ### Step 1 — Indexer API
 
-```bash
-# From repo root — uses root .env.local automatically
-npm run indexer:api
+The indexer loads its own `services/indexer-api/.env` (via `dotenv.config()`).  
+Create it from the provided template before first run:
 
-# Or run standalone from its own directory
+```bash
 cd services/indexer-api
 cp .env.example .env          # fill MONAD_RPC_URL + MONAD_CHAIN_ID
 npm install
-npm run dev
+npm run dev                   # or: npm run start (no file-watch)
+# → http://localhost:8787
+```
+
+Alternatively, run from repo root once the `.env` is in place:
+
+```bash
+# services/indexer-api/.env must exist with MONAD_RPC_URL set
+npm run indexer:api
 # → http://localhost:8787
 ```
 

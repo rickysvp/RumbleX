@@ -6,4 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+!services/indexer-api/.env.example
 services/indexer-api/data/

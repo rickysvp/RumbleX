@@ -77,7 +77,11 @@ Expected output: `✅ All checks passed — manifest is valid.`
 ## Step 5 — Run Indexer API
 
 ```bash
-# From repo root (picks up .env.local automatically)
+# Ensure services/indexer-api/.env exists (copy from .env.example on first run)
+cd services/indexer-api && cp .env.example .env   # fill MONAD_RPC_URL + MONAD_CHAIN_ID
+cd ../..   # back to repo root
+
+# Run from repo root
 npm run indexer:api
 ```
 

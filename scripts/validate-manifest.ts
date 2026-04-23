@@ -100,11 +100,12 @@ if (manifest.chainId !== expectedChainId) {
 ok(`chainId ${manifest.chainId} matches MONAD_CHAIN_ID`);
 
 // ── Check 2: required startBlock values ───────────────────────────────────────
-// ProtocolTreasury is an EOA/multisig — no startBlock required.
-const START_BLOCK_EXEMPT = new Set(["ProtocolTreasury"]);
+// EOA entries (e.g. ProtocolTreasury) are multisigs / deployer wallets — they
+// have no bytecode and no startBlock, and that is expected.
+const EOA_ENTRIES = new Set(["ProtocolTreasury"]);
 
 for (const [name, entry] of Object.entries(manifest.contracts)) {
-  if (START_BLOCK_EXEMPT.has(name)) continue;
+  if (EOA_ENTRIES.has(name)) continue;
   if (entry.startBlock == null || entry.startBlock < 0) {
     fail(`contracts.${name} is missing a valid startBlock in the manifest.`);
   }
@@ -112,10 +113,14 @@ for (const [name, entry] of Object.entries(manifest.contracts)) {
 ok("All contracts have required startBlock values");
 
 // ── Check 3: bytecode presence ────────────────────────────────────────────────
+// EOA entries are skipped — they are wallets, not deployed contracts.
+const contractEntries = Object.entries(manifest.contracts).filter(
+  ([name]) => !EOA_ENTRIES.has(name)
+);
 console.log(`[validate-manifest] Connecting to RPC: ${rpcUrl}`);
-console.log(`[validate-manifest] Checking ${Object.keys(manifest.contracts).length} contract(s)…\n`);
+console.log(`[validate-manifest] Checking ${contractEntries.length} contract(s) (skipping ${Object.keys(manifest.contracts).length - contractEntries.length} EOA entries)…\n`);
 
-for (const [name, entry] of Object.entries(manifest.contracts)) {
+for (const [name, entry] of contractEntries) {
   let code: string;
   try {
     code = (await rpcCall(rpcUrl, "eth_getCode", [entry.address, "latest"])) as string;

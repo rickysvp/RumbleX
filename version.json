@@ -1,10 +1,20 @@
 {
-  "version": "0.1.50",
+  "version": "0.1.51",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-22",
   "changelog": {
+    "0.1.51": {
+      "date": "2026-04-22",
+      "changes": [
+        "Update CI/CD workflow for indexer-api deployment",
+        "Refine README documentation and setup instructions",
+        "Update go-live checklist with deployment steps",
+        "Improve manifest validation script error handling",
+        "Add services/indexer-api/.env.example configuration"
+      ]
+    },
     "0.1.50": {
       "date": "2026-04-22",
       "changes": [
