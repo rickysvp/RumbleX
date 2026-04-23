@@ -1,73 +1,32 @@
-## Foundry
+# RumbleX Onchain Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This package contains the core smart contracts for the RumbleX arena, built and tested with [Foundry](https://getfoundry.sh/).
 
-Foundry consists of:
+## Core Contracts
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- **`RumbleXPass`**: NFT pass required for players to enter the arena.
+- **`RoundFactory`**: Factory contract responsible for deploying new, isolated `RoundRoom` instances.
+- **`RoundRoom`**: The deterministic battleground contract handling participant registration, loadouts, and the final round simulation logic.
+- **`SeasonVault`**: The protocol vault holding fees and liquidity accumulated over the course of a season.
+- **`ClaimVault`**: The payout vault where survivors and winners claim their earned $MON rewards.
 
-## Documentation
+## Where to deploy / operate
 
-https://book.getfoundry.sh/
+For the complete step-by-step guide on how to deploy these contracts to the Monad testnet, generate the manifest, and run smoke tests, see:
 
-## Usage
+👉 **[deployments/README.md](deployments/README.md)**
 
-### Build
+---
 
-```shell
-$ forge build
-```
+### Standard Development Commands
 
-### Test
+```bash
+# Build contracts
+forge build
 
-```shell
-$ forge test
-```
+# Run tests
+forge test
 
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy (RumbleX MVP)
-
-```shell
-$ forge script script/DeployCore.s.sol:DeployCoreScript --rpc-url $MONAD_RPC_URL --broadcast
-$ forge script script/CreateInitialRound.s.sol:CreateInitialRoundScript --rpc-url $MONAD_RPC_URL --broadcast
-```
-
-Full env vars + smoke flow docs:
-
-```shell
-$ cat deployments/README.md
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+# Format code
+forge fmt
 ```

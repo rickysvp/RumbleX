@@ -85,7 +85,8 @@
 **File**: `onchain/README.md`  
 **Problem**: The onchain README is the generic Foundry init template with a small RumbleX-specific section appended. It does not name the contracts, explain their roles, or link prominently to `deployments/README.md` which has the actual deploy instructions.  
 **Impact**: A contributor looking at `onchain/` has no immediate path to deployment instructions.  
-**Fix**: Replace with a RumbleX-specific README naming the contracts and linking to `deployments/README.md`. **Not fixed in this pass — low urgency, deployments/README.md is comprehensive.**
+**Fix**: Replaced the boilerplate with a concise RumbleX-specific README that introduces the 5 core contracts and links prominently to `deployments/README.md` for operational instructions.  
+**Status**: ✅ Fixed in this pass.
 
 ---
 
@@ -99,4 +100,4 @@
 | B4 | CI smoke silently skips when secret unset | P1 | ✅ Fixed |
 | B5 | `DEPLOYER_PRIVATE_KEY` not in `.env.example` | P1 | ✅ Fixed |
 | B6 | `data/` dir not auto-created on first run | P2 | ✅ Fixed |
-| B7 | `onchain/README.md` is Foundry boilerplate | P2 | ⬜ Open |
+| B7 | `onchain/README.md` is Foundry boilerplate | P2 | ✅ Fixed |
