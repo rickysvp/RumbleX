@@ -1,10 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useWalletStore } from '../../store/walletStore';
 import { mockWallet } from '../../lib/mockWallet';
+import { claimAll } from '../../lib/claimActions';
 import { RefreshCcw, Copy, Check, LogOut } from 'lucide-react';
 
 export function UserBlock() {
-  const { status, address, monBalance, hasRumbleXPass, passStatus, error, isRefreshing, addressFull } = useWalletStore();
+  const {
+    status,
+    address,
+    monBalance,
+    hasRumbleXPass,
+    passStatus,
+    error,
+    isRefreshing,
+    addressFull,
+    claimableMon,
+    isClaimingAll,
+    dataError,
+    isStale,
+    dataSource,
+  } = useWalletStore();
   const [copied, setCopied] = useState(false);
   const [displayBalance, setDisplayBalance] = useState(monBalance);
   const [loadingBlocks, setLoadingBlocks] = useState('░░░');
@@ -110,7 +125,12 @@ export function UserBlock() {
       {/* Row 2: Balance */}
       <div className="mb-4 bg-[#0a0a0a] border border-[#1a1a1a] p-3 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
         <div className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1 flex justify-between items-center">
-          <span>MON Balance</span>
+          <div className="flex items-center gap-2">
+            <span>MON Balance</span>
+            {(isStale || dataSource === "chain") && (
+              <span className="text-[8px] text-yellow-400 border border-yellow-500/30 px-1 py-0.5">STALE</span>
+            )}
+          </div>
           <button 
             onClick={mockWallet.refreshBalance}
             className={`transition-all ${isRefreshing ? 'animate-spin text-app-accent' : 'hover:text-white'}`}
@@ -121,6 +141,25 @@ export function UserBlock() {
         <div className="text-[20px] font-app-bold text-app-accent leading-none flex items-baseline gap-1">
           <span className="animate-val-update">{displayBalance.toFixed(1)}</span>
           <span className="text-[12px] opacity-60">MON</span>
+        </div>
+      </div>
+
+      {/* Row 2.5: Claimable */}
+      <div className="mb-4 bg-[#0a0a0a] border border-[#1a1a1a] p-3 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+        <div className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1">
+          Claimable MON
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-[16px] font-app-bold text-app-accent leading-none">
+            {claimableMon}
+          </div>
+          <button
+            onClick={() => claimAll().catch(() => undefined)}
+            disabled={isClaimingAll || Number(claimableMon) <= 0}
+            className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2.5 py-1 tracking-wider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors"
+          >
+            {isClaimingAll ? "Claiming..." : "Claim All"}
+          </button>
         </div>
       </div>
 
@@ -156,6 +195,11 @@ export function UserBlock() {
       >
         <LogOut size={10} className="group-hover:translate-x-0.5 transition-transform" /> Disconnect Wallet
       </button>
+      {dataError && (
+        <div className="mt-2 text-[9px] font-app-mono text-app-danger uppercase tracking-wide">
+          {dataError}
+        </div>
+      )}
     </div>
   );
 }

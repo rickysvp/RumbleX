@@ -5,6 +5,8 @@ import { MixedFeed } from './components/feed/MixedFeed';
 import { IntelTower } from './components/intel/IntelTower';
 import { useGameTimer } from './hooks/useGameTimer';
 import { useSimulation } from './hooks/useSimulation';
+import { useWalletApiSync } from './hooks/useWalletApiSync';
+import { useRoundApiSync } from './hooks/useRoundApiSync';
 import { useGameStore } from './store/gameStore';
 // Layout Components
 import { MobileNavBar, TabId } from './components/layout/MobileNavBar';
@@ -35,6 +37,8 @@ export default function App() {
   // Initialize Heartbeat
   useGameTimer();
   useSimulation();
+  useWalletApiSync();
+  useRoundApiSync();
 
   // Selectors
   const players = useGameStore(state => state.players);

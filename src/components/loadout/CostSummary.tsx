@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useWalletStore } from '../../store/walletStore';
+import { hasJoinedRoundLocally, selectCurrentLiveRound, useRoundStore } from '../../store/roundStore';
 import { mockTransaction, TxState } from '../../lib/mockTransaction';
 import { mockWallet } from '../../lib/mockWallet';
 import { mockPass } from '../../lib/mockPass';
+import { joinRound } from '../../lib/roundActions';
+import { isLiveSummaryMode } from '../../config/dataMode';
 import { CheckCircle2, Wallet, Loader2 } from 'lucide-react';
 
 interface Props {
@@ -18,13 +21,27 @@ interface Props {
 }
 
 export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, totalCost, startingMON, onConfirm, config, readOnly }: Props) {
-  const { status: walletStatus, monBalance, hasRumbleXPass, passStatus, isMintingPass } = useWalletStore();
+  const { status: walletStatus, monBalance, hasRumbleXPass, passStatus, isMintingPass, activeRoundId } = useWalletStore();
+  const currentLiveRound = useRoundStore(selectCurrentLiveRound);
+  const joinTxStatus = useRoundStore((state) => state.joinTxStatus);
+  const joiningRoundId = useRoundStore((state) => state.joiningRoundId);
+  const joinError = useRoundStore((state) => state.joinError);
+  const joinErrorCode = useRoundStore((state) => state.joinErrorCode);
+  const localJoin = useRoundStore((state) => hasJoinedRoundLocally(state, currentLiveRound?.roundId));
   const [tx, setTx] = useState<TxState>({ status: "idle", txHash: null, error: null });
 
-  const canAfford = monBalance >= totalCost;
+  const liveMode = isLiveSummaryMode();
+  const liveRoundFee = currentLiveRound?.entryFeeMon ?? 0;
+  const requiredCost = liveMode ? liveRoundFee : totalCost;
+  const canAfford = monBalance >= requiredCost;
   const isConnected = walletStatus === "connected";
+  const alreadyJoined = Boolean(currentLiveRound && (activeRoundId === currentLiveRound.roundId || localJoin));
+  const roundJoinable = Boolean(currentLiveRound?.isJoinable);
+  const isJoiningCurrentRound =
+    Boolean(currentLiveRound) && joiningRoundId === currentLiveRound.roundId &&
+    (joinTxStatus === "awaiting_signature" || joinTxStatus === "pending");
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (!isConnected) {
       mockWallet.connect();
       return;
@@ -32,6 +49,17 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
 
     if (!hasRumbleXPass) {
       mockPass.mintRumbleXPass();
+      return;
+    }
+
+    if (liveMode) {
+      if (!currentLiveRound?.roundId) return;
+      try {
+        await joinRound(currentLiveRound.roundId);
+        onConfirm();
+      } catch {
+        // join error is already mapped into roundStore for UI feedback.
+      }
       return;
     }
 
@@ -88,7 +116,63 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
       };
     }
 
-    // 5. Insufficient Balance for Round
+    if (liveMode) {
+      if (!currentLiveRound) {
+        return {
+          label: "No Live Round",
+          sub: "Try refresh shortly",
+          style: "bg-[#111] border border-[#333] text-app-muted",
+          disabled: true
+        };
+      }
+
+      if (alreadyJoined) {
+        return {
+          label: "Already Joined",
+          sub: `Round #${currentLiveRound.roundId}`,
+          style: "bg-green-500/20 border border-green-500/40 text-green-500",
+          disabled: true,
+          icon: <CheckCircle2 size={16} />
+        };
+      }
+
+      if (!roundJoinable) {
+        return {
+          label: "Round Not Joinable",
+          sub: currentLiveRound.isFull ? "Room is full" : `State: ${currentLiveRound.state}`,
+          style: "bg-red-500/10 border border-red-500/30 text-red-500",
+          disabled: true
+        };
+      }
+
+      if (isJoiningCurrentRound) {
+        return {
+          label: joinTxStatus === "awaiting_signature" ? "Check Wallet..." : "Joining...",
+          sub: joinTxStatus === "awaiting_signature" ? "Sign to confirm" : `Round #${currentLiveRound.roundId}`,
+          style: "bg-app-accent/20 border border-app-accent/40 text-app-accent animate-pulse",
+          disabled: true,
+          icon: <Loader2 size={16} className="animate-spin" />
+        };
+      }
+
+      if (!canAfford) {
+        return {
+          label: "Insufficient Balance",
+          sub: `Need ${requiredCost.toFixed(2)} MON`,
+          style: "bg-red-500/10 border border-red-500/30 text-red-500",
+          disabled: true
+        };
+      }
+
+      return {
+        label: `Join Round #${currentLiveRound.roundId}`,
+        sub: `Pay ${requiredCost.toFixed(2)} MON`,
+        style: "bg-app-accent text-black hover:bg-white",
+        disabled: false
+      };
+    }
+
+    // 5. Insufficient Balance for mock round queue
     if (!canAfford) {
       return {
         label: "Insufficient Balance",
@@ -133,7 +217,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
         };
       default:
         return {
-          label: `Pay ${totalCost.toFixed(1)} MON`,
+          label: `Pay ${requiredCost.toFixed(1)} MON`,
           sub: `Queue ${rounds} Round${rounds > 1 ? 's' : ''}`,
           style: "bg-app-accent text-black hover:bg-white",
           disabled: false
@@ -165,16 +249,16 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
       {/* 成本明细 */}
       <div className="space-y-1 text-[12px]">
         <div className="flex justify-between text-app-muted">
-          <span>Entry Fee x{rounds}</span>
-          <span className="text-white">{(entryFeePerRound * rounds).toFixed(2)}</span>
+          <span>{liveMode ? 'Entry Fee' : `Entry Fee x${rounds}`}</span>
+          <span className="text-white">{(liveMode ? liveRoundFee : (entryFeePerRound * rounds)).toFixed(2)}</span>
         </div>
-        {skillPrice > 0 && (
+        {!liveMode && skillPrice > 0 && (
           <div className="flex justify-between text-app-muted">
             <span>Skills</span>
             <span className="text-white">{(skillPrice * rounds).toFixed(2)}</span>
           </div>
         )}
-        {itemPrice > 0 && (
+        {!liveMode && itemPrice > 0 && (
           <div className="flex justify-between text-app-muted">
             <span>Items</span>
             <span className="text-white">{(itemPrice * rounds).toFixed(2)}</span>
@@ -183,7 +267,7 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
         <div className="flex justify-between pt-2 border-t border-[#333]">
           <span className="font-app-bold text-white">Total</span>
           <span className="text-[20px] font-app-bold text-app-accent">
-            {totalCost.toFixed(2)} <span className="text-[11px]">MON</span>
+            {requiredCost.toFixed(2)} <span className="text-[11px]">MON</span>
           </span>
         </div>
       </div>
@@ -191,10 +275,18 @@ export function CostSummary({ rounds, entryFeePerRound, skillPrice, itemPrice, t
       <div className="text-[9px] text-app-muted">
         {!hasRumbleXPass ? (
           <span className="text-app-accent font-bold">Pass required before queueing.</span>
+        ) : liveMode ? (
+          <span>Join checks are validated by API + on-chain state. Feed/history remain mock in hybrid mode.</span>
         ) : (
           <span>Start with {startingMON.toFixed(2)} MON · Season pool contribution applies per entry.</span>
         )}
       </div>
+
+      {liveMode && joinError && (
+        <div className="text-[9px] text-app-danger uppercase tracking-wide">
+          {joinErrorCode ? `${joinErrorCode}: ` : ""}{joinError}
+        </div>
+      )}
       
       {/* 按钮 */}
       <div className="mt-auto pt-4">

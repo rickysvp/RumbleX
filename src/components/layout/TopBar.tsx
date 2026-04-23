@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWalletStore } from '../../store/walletStore';
 import { mockWallet } from '../../lib/mockWallet';
+import { claimAll } from '../../lib/claimActions';
 import { Wallet, Menu, Copy, Check, LogOut, RefreshCcw, ChevronDown } from 'lucide-react';
 
 interface TopBarProps {
@@ -9,7 +10,18 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
-  const { address, addressFull, monBalance, isRefreshing, hasRumbleXPass, status } = useWalletStore();
+  const {
+    address,
+    addressFull,
+    monBalance,
+    isRefreshing,
+    hasRumbleXPass,
+    status,
+    claimableMon,
+    isClaimingAll,
+    isStale,
+    dataSource,
+  } = useWalletStore();
   const [showDropdown, setShowDropdown] = useState(false);
   const [copied, setCopied] = useState(false);
   const [displayBalance, setDisplayBalance] = useState(monBalance);
@@ -126,6 +138,13 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                 <span className="text-[9px] text-app-muted uppercase tracking-wider">BALANCE</span>
                 <span className="text-[15px] font-app-bold text-app-accent">{displayBalance.toFixed(1)}</span>
                 <span className="text-[11px] text-app-accent opacity-60">MON</span>
+                {(isStale || dataSource === "chain") && (
+                  <span className="text-[8px] text-yellow-400 border border-yellow-500/30 px-1 py-0.5">STALE</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 bg-[#111] border border-app-border px-3 py-1.5">
+                <span className="text-[9px] text-app-muted uppercase tracking-wider">CLAIMABLE</span>
+                <span className="text-[14px] font-app-bold text-app-accent">{claimableMon}</span>
               </div>
               {hasRumbleXPass && (
                 <span className="bg-app-accent text-black text-[10px] uppercase font-app-bold px-2.5 py-1 tracking-wider">
@@ -191,6 +210,21 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                         INACTIVE
                       </span>
                     )}
+                  </div>
+                </div>
+
+                {/* Claim */}
+                <div className="p-4 border-b border-app-border">
+                  <div className="text-[9px] text-app-muted uppercase tracking-widest mb-2">Claimable MON</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[18px] font-app-bold text-app-accent">{claimableMon}</span>
+                    <button
+                      onClick={() => claimAll().catch(() => undefined)}
+                      disabled={isClaimingAll || Number(claimableMon) <= 0}
+                      className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2 py-1 tracking-wider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors"
+                    >
+                      {isClaimingAll ? "Claiming..." : "Claim All"}
+                    </button>
                   </div>
                 </div>
 

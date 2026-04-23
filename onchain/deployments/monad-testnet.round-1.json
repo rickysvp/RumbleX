@@ -1,0 +1,9 @@
+{
+  "chainId": 10143,
+  "entryFee": 10000000000000000,
+  "maxPlayers": 333,
+  "network": "monad-testnet",
+  "roomAddress": "0xa17ccf144F40C7861DAbF1dfe05438fc20484ffF",
+  "roundId": 1,
+  "seasonId": 1
+}

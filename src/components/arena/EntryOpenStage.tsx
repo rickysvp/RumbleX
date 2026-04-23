@@ -3,8 +3,10 @@ import { createPortal } from 'react-dom';
 import { LoadoutPanel } from '../loadout/LoadoutPanel';
 import { useGameStore } from '../../store/gameStore';
 import { useWalletStore } from '../../store/walletStore';
+import { hasJoinedRoundLocally, selectCurrentLiveRound, useRoundStore } from '../../store/roundStore';
 import { mockWallet } from '../../lib/mockWallet';
 import { mockPass } from '../../lib/mockPass';
+import { isLiveSummaryMode } from '../../config/dataMode';
 import { CheckCircle2, Layout, PlusCircle, ShieldAlert, Loader2, Wallet } from 'lucide-react';
 
 const formatTime = (seconds: number) => {
@@ -18,10 +20,28 @@ export function EntryOpenStage() {
   const [isReadOnly, setIsReadOnly] = useState(false);
   
   const { roundNumber, timeRemaining, entryFee, prizePool, userLoadout } = useGameStore();
-  const { status: walletStatus, hasRumbleXPass, passStatus, isMintingPass } = useWalletStore();
+  const { status: walletStatus, hasRumbleXPass, passStatus, isMintingPass, activeRoundId } = useWalletStore();
+  const liveRounds = useRoundStore((state) => state.liveRounds);
+  const selectedRoundId = useRoundStore((state) => state.selectedRoundId);
+  const setSelectedRoundId = useRoundStore((state) => state.setSelectedRoundId);
+  const roundDataError = useRoundStore((state) => state.dataError);
+  const roundDataSource = useRoundStore((state) => state.dataSource);
+  const roundIsStale = useRoundStore((state) => state.isStale);
+  const currentLiveRound = useRoundStore(selectCurrentLiveRound);
+  const locallyJoined = useRoundStore((state) => hasJoinedRoundLocally(state, currentLiveRound?.roundId));
 
   const isConnected = walletStatus === "connected";
-  const isQueued = userLoadout.queued && userLoadout.queueRemaining > 0;
+  const liveMode = isLiveSummaryMode();
+  const liveJoined = Boolean(
+    liveMode &&
+    currentLiveRound &&
+    (activeRoundId === currentLiveRound.roundId || locallyJoined)
+  );
+  const isQueued = (userLoadout.queued && userLoadout.queueRemaining > 0) || liveJoined;
+
+  const displayRoundNumber = liveMode && currentLiveRound ? currentLiveRound.roundId : roundNumber;
+  const displayEntryFee = liveMode && currentLiveRound ? currentLiveRound.entryFeeMon : entryFee;
+  const displayPrizePool = liveMode && currentLiveRound ? currentLiveRound.volumeMon : prizePool;
 
   // Auto-check pass eligibility on connect
   useEffect(() => {
@@ -30,11 +50,12 @@ export function EntryOpenStage() {
     }
   }, [isConnected, passStatus]);
 
-  let userView: 'queued' | 'disconnected' | 'checking_pass' | 'missing_pass' | 'eligible' = 'disconnected';
+  let userView: 'queued' | 'disconnected' | 'checking_pass' | 'missing_pass' | 'not_joinable' | 'eligible' = 'disconnected';
   if (isQueued) userView = 'queued';
   else if (!isConnected) userView = 'disconnected';
   else if (passStatus === 'unknown' || passStatus === 'checking') userView = 'checking_pass';
   else if (!hasRumbleXPass) userView = 'missing_pass';
+  else if (liveMode && (!currentLiveRound || !currentLiveRound.isJoinable)) userView = 'not_joinable';
   else userView = 'eligible';
 
   const openLoadout = (readonly: boolean) => {
@@ -69,7 +90,7 @@ export function EntryOpenStage() {
             {/* ROUND & TIMER */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left mb-4">
               <div className="text-white font-app-bold text-[18px] sm:text-[20px] uppercase tracking-[3px] mb-2">
-                ROUND #{roundNumber}
+                ROUND #{displayRoundNumber}
               </div>
               <div
                 className={`font-app-bold text-[56px] sm:text-[64px] md:text-[72px] leading-[0.85] tracking-[-0.04em] ${
@@ -88,16 +109,56 @@ export function EntryOpenStage() {
                     <span className="text-[9px] text-app-muted uppercase font-app-bold tracking-[2px] mb-1">
                       Entry Fee
                     </span>
-                    <span className="text-[24px] font-app-bold text-white leading-none">{entryFee.toFixed(0)}<span className="text-[11px] text-app-muted ml-1">MON</span></span>
+                    <span className="text-[24px] font-app-bold text-white leading-none">{displayEntryFee.toFixed(2)}<span className="text-[11px] text-app-muted ml-1">MON</span></span>
                   </div>
                   <div className="flex flex-col border-l border-app-border pl-4">
                     <span className="text-[9px] text-app-muted uppercase font-app-bold tracking-[2px] mb-1">
                       Prize Pool
                     </span>
-                    <span className="text-[24px] font-app-bold text-app-accent leading-none">{prizePool.toFixed(0)}<span className="text-[11px] opacity-60 ml-1">MON</span></span>
+                    <span className="text-[24px] font-app-bold text-app-accent leading-none">{displayPrizePool.toFixed(2)}<span className="text-[11px] opacity-60 ml-1">MON</span></span>
                   </div>
                </div>
             </div>
+
+            {liveMode && (
+              <div className="bg-[#0a0a0a] border border-app-border p-2 mb-2">
+                <div className="text-[8px] text-app-muted uppercase tracking-[2px] mb-1.5 flex items-center justify-between">
+                  <span>Live Rounds</span>
+                  {(roundIsStale || roundDataSource === "chain") && (
+                    <span className="text-yellow-400">stale/degraded</span>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  {liveRounds.slice(0, 3).map((row) => (
+                    <button
+                      key={row.roundId}
+                      onClick={() => setSelectedRoundId(row.roundId)}
+                      className={`w-full text-left px-2 py-1.5 border transition-colors ${
+                        selectedRoundId === row.roundId
+                          ? 'border-app-accent bg-app-accent/10 text-app-accent'
+                          : 'border-[#222] bg-[#050505] text-white hover:border-[#444]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-app-bold">#{row.roundId}</span>
+                        <span className={`text-[8px] uppercase ${row.isJoinable ? 'text-green-400' : 'text-app-muted'}`}>
+                          {row.isJoinable ? 'joinable' : row.state}
+                        </span>
+                      </div>
+                      <div className="text-[8px] text-app-muted mt-0.5">
+                        {row.joinedCount}/{row.maxPlayers} • Fee {row.entryFeeMon.toFixed(2)} MON
+                      </div>
+                    </button>
+                  ))}
+                  {liveRounds.length === 0 && (
+                    <div className="text-[9px] text-app-muted py-2 text-center">No live rounds from API.</div>
+                  )}
+                  {roundDataError && (
+                    <div className="text-[8px] text-app-danger uppercase tracking-wide pt-1">{roundDataError}</div>
+                  )}
+                </div>
+              </div>
+            )}
             
             {/* Fee Breakdown Note */}
             <div className="text-[8px] text-app-muted/60 text-center uppercase tracking-wide mb-3">
@@ -110,17 +171,17 @@ export function EntryOpenStage() {
                 <div className="flex flex-col gap-1.5">
                   <div className="bg-green-500/20 border border-green-500/40 text-green-400 p-2.5 sm:p-3 flex items-center justify-center gap-2">
                     <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                    <span className="font-app-bold text-[13px] sm:text-[14px] uppercase tracking-[2px]">Ready to Play</span>
+                    <span className="font-app-bold text-[13px] sm:text-[14px] uppercase tracking-[2px]">{liveJoined ? 'Joined On-Chain' : 'Ready to Play'}</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-px bg-app-border border border-app-border">
                     <div className="bg-[#050505] p-2 flex flex-col items-center">
-                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">Rounds Queued</span>
-                      <span className="text-[12px] text-white font-app-mono">{userLoadout.queueRemaining}</span>
+                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">{liveJoined ? 'Round' : 'Rounds Queued'}</span>
+                      <span className="text-[12px] text-white font-app-mono">{liveJoined ? `#${currentLiveRound?.roundId ?? "-"}` : userLoadout.queueRemaining}</span>
                     </div>
                     <div className="bg-[#050505] p-2 flex flex-col items-center">
-                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">Strategy</span>
-                      <span className="text-[10px] text-white font-app-mono truncate max-w-full">{userLoadout.strategy.replace(/_/g, ' ').toUpperCase()}</span>
+                      <span className="text-[8px] text-app-muted uppercase font-bold tracking-[2px]">{liveJoined ? 'State' : 'Strategy'}</span>
+                      <span className="text-[10px] text-white font-app-mono truncate max-w-full">{liveJoined ? (currentLiveRound?.state ?? 'Pending') : userLoadout.strategy.replace(/_/g, ' ').toUpperCase()}</span>
                     </div>
                   </div>
 
@@ -185,6 +246,13 @@ export function EntryOpenStage() {
                     </span>
                   </button>
                 </div>
+              ) : userView === 'not_joinable' ? (
+                <button
+                  disabled
+                  className="w-full bg-[#111] border border-app-border text-app-muted py-3 sm:py-4 text-[13px] sm:text-[14px] font-app-bold uppercase tracking-[2px] cursor-not-allowed"
+                >
+                  Round Not Joinable
+                </button>
               ) : (
                 <button
                   onClick={() => openLoadout(false)}
@@ -206,7 +274,7 @@ export function EntryOpenStage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md animate-[fadeIn_0.15s_ease-in-out_forwards] p-4">
           <div className="w-full max-w-6xl max-h-[90vh] bg-app-bg border border-app-border shadow-2xl overflow-hidden flex flex-col rounded-lg">
             <LoadoutPanel 
-              roundNumber={roundNumber}
+              roundNumber={displayRoundNumber}
               readOnly={isReadOnly}
               onClose={() => setIsLoadoutOpen(false)}
               onConfirm={() => setIsLoadoutOpen(false)}

@@ -1,10 +1,25 @@
 {
-  "version": "0.1.48",
+  "version": "0.1.49",
   "name": "RumbleX",
   "description": "RumbleX - AI-powered battle royale text game engine",
   "channel": "alpha",
   "releaseDate": "2026-04-22",
   "changelog": {
+    "0.1.49": {
+      "date": "2026-04-22",
+      "changes": [
+        "Integrate API sync for wallet state (claimableMon, hasPass, balances)",
+        "Add Claim All functionality to CostSummary and TopBar",
+        "Implement Join Round with real on-chain transaction support",
+        "Add useWalletApiSync and useRoundApiSync hooks",
+        "Create API client layer (src/api/) for indexer integration",
+        "Add deployment scripts for Monad testnet",
+        "Update walletStore with API-first architecture",
+        "Add React Query for server state management",
+        "Implement claimActions and roundActions libraries",
+        "Add configuration layer for data mode switching"
+      ]
+    },
     "0.1.48": {
       "date": "2026-04-22",
       "changes": [

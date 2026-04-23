@@ -1,0 +1,35 @@
+{
+  "network": "monad-testnet",
+  "chainId": 10143,
+  "deployer": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+  "owner": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+  "generatedAtBlock": 27251264,
+  "contracts": {
+    "RumbleXPass": {
+      "address": "0x3e3bd05fb5cdC8945D2e4C617008f0D3F70e22C5",
+      "startBlock": 27251264
+    },
+    "SeasonVault": {
+      "address": "0x28fDB261D5070B158A4a34f14adabe4b8F92C800",
+      "startBlock": 27251264
+    },
+    "ClaimVault": {
+      "address": "0x54774E26e2De466e740e55CCe4656010dAaf9791",
+      "startBlock": 27251264
+    },
+    "RoundFactory": {
+      "address": "0xb3B3096E364E7dc09bEC30141a4b730E99A36581",
+      "startBlock": 27251264
+    },
+    "ProtocolTreasury": {
+      "address": "0x2ada9f18330985935eB444833Ac6854eE91f58b1"
+    }
+  },
+  "roles": {
+    "owner": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "roundOperator": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "seasonOperator": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "claimOperator": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "passMinter": "0x2ada9f18330985935eB444833Ac6854eE91f58b1"
+  }
+}

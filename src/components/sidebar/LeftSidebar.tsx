@@ -11,7 +11,7 @@ interface LeftSidebarProps {
 }
 
 export function LeftSidebar({ onNavigate, currentView = 'arena' }: LeftSidebarProps) {
-  const { status: walletStatus, address, monBalance, hasRumbleXPass } = useWalletStore();
+  const { status: walletStatus, address, monBalance, hasRumbleXPass, claimableMon, isStale, dataSource } = useWalletStore();
   const { 
     userHandle, 
     seasonNumber, 
@@ -110,10 +110,20 @@ export function LeftSidebar({ onNavigate, currentView = 'arena' }: LeftSidebarPr
         {/* Balance */}
         {isConnected && (
           <div className="flex items-center justify-between py-2 px-3 bg-[#111] border border-[#222] mb-3">
-            <span className="text-[10px] text-app-muted uppercase">Balance</span>
-            <span className="text-[13px] font-app-bold text-app-accent">
-              {monBalance.toFixed(2)} MON
-            </span>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-app-muted uppercase">Balance</span>
+              {(isStale || dataSource === "chain") && (
+                <span className="text-[8px] text-yellow-400 uppercase">stale/degraded</span>
+              )}
+            </div>
+            <div className="text-right">
+              <span className="text-[13px] font-app-bold text-app-accent block">
+                {monBalance.toFixed(2)} MON
+              </span>
+              <span className="text-[10px] text-app-muted block">
+                Claimable: {claimableMon}
+              </span>
+            </div>
           </div>
         )}
 
