@@ -75,7 +75,8 @@
 **File**: `.gitignore` + `JsonStore` implementation  
 **Problem**: The indexer writes its database to `services/indexer-api/data/indexer-db.json`. The directory is gitignored. If it doesn't exist on a fresh clone, the indexer crashes with `ENOENT` on the first write.  
 **Impact**: First-run failure on clean environments without a clear error message.  
-**Fix**: Add `fs.mkdirSync(dir, { recursive: true })` before the first write in `JsonStore`, or add a `postinstall` script. **Not fixed in this pass.**
+**Fix**: Confirmed that `fs.mkdirSync(dir, { recursive: true })` is successfully implemented in `JsonStore.persist()` before the first write. On a fresh clone, the indexer automatically creates the missing directory.  
+**Status**: ✅ Fixed.
 
 ---
 
@@ -97,5 +98,5 @@
 | B3 | `npm run indexer:api` from root has no file-based env path | P1 | ✅ Fixed |
 | B4 | CI smoke silently skips when secret unset | P1 | ✅ Fixed |
 | B5 | `DEPLOYER_PRIVATE_KEY` not in `.env.example` | P1 | ✅ Fixed |
-| B6 | `data/` dir not auto-created on first run | P2 | ⬜ Open |
+| B6 | `data/` dir not auto-created on first run | P2 | ✅ Fixed |
 | B7 | `onchain/README.md` is Foundry boilerplate | P2 | ⬜ Open |
