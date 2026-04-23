@@ -54,13 +54,11 @@ If you prefer not to use a `.env` file, you can export the variables in your she
 
 **Running from repository root**
 You can launch the indexer from the repo root using `npm run indexer:api`. 
-However, because `dotenv.config()` looks for `.env` in the current working directory, it will look for `<repo-root>/.env` (not `.env.local`). 
-Therefore, if you run from the root, you must either export the variables in your shell or create a `<repo-root>/.env` file.
+By default, `dotenv.config()` looks for `.env` in the current working directory (`<repo-root>/.env`). 
+If it does not find `MONAD_RPC_URL` there, the indexer will automatically fall back to loading `services/indexer-api/.env`.
 
 ```bash
 # From repo root
-export MONAD_RPC_URL="https://<your-monad-rpc>"
-export MONAD_CHAIN_ID="10143"
 npm run indexer:api
 ```
 

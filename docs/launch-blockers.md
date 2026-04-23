@@ -43,7 +43,8 @@
 **File**: `services/indexer-api/src/main.ts` + root `package.json`  
 **Problem**: `npm run indexer:api` (root) launches tsx from CWD = repo root, so `dotenv.config()` looks for `<repo-root>/.env`. There is no `<repo-root>/.env` in the normal developer setup (gitignored, no template). The only working paths are: (a) `cd services/indexer-api && npm run dev`, or (b) export env vars in shell before running from root. This is fine for CI (env injected directly) but creates a second-class experience for the "run everything from root" developer.  
 **Impact**: Developer confusion; root README documents this correctly now, but the UX gap remains.  
-**Fix**: Either change `dotenv.config()` to also try `<repo-root>/.env.local` as a fallback, or pass `{ path: path.join(ROOT_DIR, '.env.local') }` when `MONAD_RPC_URL` is not already set. **Not fixed in this pass — code change required.**
+**Fix**: Added fallback loading logic to `main.ts` — if `dotenv.config()` does not load a `MONAD_RPC_URL` (because there is no root `.env` or exported variable), it explicitly checks for and loads `services/indexer-api/.env`.  
+**Status**: ✅ Fixed in this pass.
 
 ---
 
@@ -91,7 +92,7 @@
 |---|---|---|---|
 | B1 | Root `.env.example` misleads about indexer env loading | P0 | ✅ Fixed |
 | B2 | Go-live checklist missing indexer `.env` setup step | P0 | ✅ Fixed |
-| B3 | `npm run indexer:api` from root has no file-based env path | P1 | ⬜ Open |
+| B3 | `npm run indexer:api` from root has no file-based env path | P1 | ✅ Fixed |
 | B4 | CI smoke silently skips when secret unset | P1 | ⬜ Open |
 | B5 | `DEPLOYER_PRIVATE_KEY` not in `.env.example` | P1 | ⬜ Open |
 | B6 | `data/` dir not auto-created on first run | P2 | ⬜ Open |

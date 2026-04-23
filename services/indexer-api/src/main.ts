@@ -1,4 +1,7 @@
 import dotenv from "dotenv";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadConfig } from "./config";
 import { ChainContext } from "./contracts/chain";
 import { loadDeploymentsManifest } from "./contracts/manifest";
@@ -6,7 +9,18 @@ import { IndexerService } from "./indexer/indexer";
 import { JsonStore } from "./models/store";
 import { createApiServer } from "./api/server";
 
+// 1. Try loading from CWD (default)
 dotenv.config();
+
+// 2. If no RPC URL is found, we might be running from the repo root.
+// Fallback to explicitly loading `services/indexer-api/.env`.
+if (!process.env.MONAD_RPC_URL) {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const fallbackPath = path.resolve(__dirname, "..", ".env");
+  if (fs.existsSync(fallbackPath)) {
+    dotenv.config({ path: fallbackPath });
+  }
+}
 
 async function main() {
   const config = loadConfig();

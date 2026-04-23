@@ -77,12 +77,10 @@ Expected output: `✅ All checks passed — manifest is valid.`
 
 ## Step 5 — Run Indexer API
 
-The recommended way to run the indexer is from its own directory so it automatically picks up `services/indexer-api/.env`:
-
 ```bash
-cd services/indexer-api
-# Ensure .env exists (copied from .env.example in Environment Setup)
-npm run start
+# Ensure services/indexer-api/.env exists (copied from .env.example in Environment Setup)
+# Run from repo root
+npm run indexer:api
 ```
 
 - [ ] Service starts on port `8787` (or `INDEXER_API_PORT`)

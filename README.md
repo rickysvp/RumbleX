@@ -84,11 +84,10 @@ npm run dev                   # or: npm run start (no file-watch)
 # → http://localhost:8787
 ```
 
-Alternatively, to run from the repo root, you must provide the environment variables directly (or create a `<repo-root>/.env`), as the indexer will not automatically look inside the `services/indexer-api` directory:
+Alternatively, you can run the service directly from the repository root. It will automatically fall back to the `.env` file you created in `services/indexer-api/` if no root environment is found:
 
 ```bash
-export MONAD_RPC_URL="https://<your-monad-rpc>"
-export MONAD_CHAIN_ID="10143"
+# services/indexer-api/.env must exist with MONAD_RPC_URL set
 npm run indexer:api
 # → http://localhost:8787
 ```
