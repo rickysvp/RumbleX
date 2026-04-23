@@ -27,9 +27,9 @@ This service provides a single-process MVP indexer and API over Monad testnet co
 ### Option A: run from repository root
 
 ```bash
-cd /Users/ricky/AICode/RumbleX
+# From the repo root (picks up .env.local automatically)
 export MONAD_RPC_URL="https://<your-monad-rpc>"
-export MONAD_CHAIN_ID="<chain-id>"
+export MONAD_CHAIN_ID="10143"
 # optional: export DEPLOYMENT_MANIFEST_PATH="/abs/path/to/onchain/deployments/monad-testnet.json"
 # optional: export INDEXER_DB_PATH="/abs/path/to/indexer-db.json"
 # optional: export INDEXER_API_PORT="8787"
@@ -39,9 +39,9 @@ npm run indexer:api
 ### Option B: run directly from `services/indexer-api`
 
 ```bash
-cd /Users/ricky/AICode/RumbleX/services/indexer-api
+cd services/indexer-api
 export MONAD_RPC_URL="https://<your-monad-rpc>"
-export MONAD_CHAIN_ID="<chain-id>"
+export MONAD_CHAIN_ID="10143"
 # optional: export DEPLOYMENT_MANIFEST_PATH="/abs/path/to/onchain/deployments/monad-testnet.json"
 # optional: export INDEXER_DB_PATH="/abs/path/to/services/indexer-api/data/indexer-db.json"
 # optional: export INDEXER_API_PORT="8787"
@@ -71,7 +71,7 @@ npm run start   # no-watch
 With the API running:
 
 ```bash
-cd /Users/ricky/AICode/RumbleX/services/indexer-api
+cd services/indexer-api
 export INDEXER_API_BASE_URL="http://localhost:8787"
 export SMOKE_ADDRESS="0xYourWalletAddress"
 npm run smoke

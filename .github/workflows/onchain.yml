@@ -1,0 +1,34 @@
+name: Onchain — Forge Build
+
+on:
+  push:
+    paths:
+      - 'onchain/**'
+      - '.github/workflows/onchain.yml'
+  pull_request:
+    paths:
+      - 'onchain/**'
+      - '.github/workflows/onchain.yml'
+
+jobs:
+  forge-build:
+    name: Forge Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build contracts
+        working-directory: onchain
+        run: forge build --sizes
+
+      - name: Run Forge tests
+        working-directory: onchain
+        run: forge test -v

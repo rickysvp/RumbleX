@@ -1,0 +1,87 @@
+name: Indexer API — Lint, Build & Smoke
+
+on:
+  push:
+    paths:
+      - 'services/indexer-api/**'
+      - '.github/workflows/indexer-api.yml'
+  pull_request:
+    paths:
+      - 'services/indexer-api/**'
+      - '.github/workflows/indexer-api.yml'
+
+jobs:
+  lint-build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/indexer-api/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install indexer-api dependencies
+        working-directory: services/indexer-api
+        run: npm ci
+
+      - name: TypeScript type-check
+        working-directory: services/indexer-api
+        run: npm run lint
+
+      - name: TypeScript compile
+        working-directory: services/indexer-api
+        run: npm run build
+
+  smoke:
+    name: API Smoke Test
+    runs-on: ubuntu-latest
+    needs: lint-build
+    # Only run when real RPC secrets are available (skip on forks)
+    if: ${{ vars.MONAD_RPC_URL != '' || secrets.MONAD_RPC_URL != '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install indexer-api dependencies
+        working-directory: services/indexer-api
+        run: npm ci
+
+      - name: Start indexer API in background
+        env:
+          MONAD_RPC_URL: ${{ secrets.MONAD_RPC_URL || vars.MONAD_RPC_URL }}
+          MONAD_CHAIN_ID: ${{ vars.MONAD_CHAIN_ID || '10143' }}
+          INDEXER_API_PORT: '8787'
+          INDEXER_POLL_INTERVAL_MS: '60000'
+        run: |
+          npm run indexer:api &
+          echo "INDEXER_PID=$!" >> "$GITHUB_ENV"
+          # Wait for the HTTP server to accept connections
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:8787/health && break || sleep 2
+          done
+
+      - name: Run smoke tests
+        env:
+          INDEXER_API_BASE_URL: http://localhost:8787
+          SMOKE_ADDRESS: ${{ vars.SMOKE_ADDRESS || '0x0000000000000000000000000000000000000001' }}
+        working-directory: services/indexer-api
+        run: npm run smoke
+
+      - name: Stop indexer
+        if: always()
+        run: kill "$INDEXER_PID" || true
