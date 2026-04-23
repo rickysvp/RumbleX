@@ -36,7 +36,7 @@ RumbleX/
 |---|---|
 | **Frontend** (`vite`) | `<repo-root>/.env.local` |
 | **`validate-manifest.ts`** | `<repo-root>/.env.local` (hand-rolled parser) |
-| **Indexer API** (`dotenv.config()`) | `services/indexer-api/.env` when run from that directory; `<repo-root>/.env` when run from repo root via `npm run indexer:api` — **not** `.env.local` |
+| **Indexer API** | 1. `process.env` (shell exports) <br> 2. `<CWD>/.env` (`dotenv` default) <br> 3. Fallback to `services/indexer-api/.env` if `MONAD_RPC_URL` is still missing |
 
 ---
 
