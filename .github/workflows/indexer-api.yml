@@ -46,14 +46,30 @@ jobs:
     name: API Smoke Test
     runs-on: ubuntu-latest
     needs: lint-build
-    # Only run when a real RPC secret is configured (not available on fork PRs).
-    # Set MONAD_RPC_URL as a repository secret to enable this job.
-    if: ${{ secrets.MONAD_RPC_URL != '' }}
 
     steps:
+      - name: Check Secret Availability
+        id: prereq
+        env:
+          HAS_SECRET: ${{ secrets.MONAD_RPC_URL != '' }}
+          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          if [ "$HAS_SECRET" != "true" ]; then
+            if [ "$IS_FORK" == "true" ]; then
+              echo "::warning title=Smoke Test Skipped::MONAD_RPC_URL secret is missing on a fork PR. Skipping smoke test gracefully."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "::error title=Missing Required Secret::MONAD_RPC_URL is unset. Mainline workflows must fail to prevent false confidence."
+              exit 1
+            fi
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v4
+        if: steps.prereq.outputs.skip != 'true'
 
       - uses: actions/setup-node@v4
+        if: steps.prereq.outputs.skip != 'true'
         with:
           node-version: '20'
           cache: 'npm'
@@ -62,13 +78,16 @@ jobs:
             services/indexer-api/package-lock.json
 
       - name: Install root dependencies
+        if: steps.prereq.outputs.skip != 'true'
         run: npm ci
 
       - name: Install indexer-api dependencies
+        if: steps.prereq.outputs.skip != 'true'
         working-directory: services/indexer-api
         run: npm ci
 
       - name: Start indexer API in background
+        if: steps.prereq.outputs.skip != 'true'
         env:
           MONAD_RPC_URL: ${{ secrets.MONAD_RPC_URL }}
           MONAD_CHAIN_ID: ${{ vars.MONAD_CHAIN_ID || '10143' }}
@@ -84,6 +103,7 @@ jobs:
           done
 
       - name: Run smoke tests
+        if: steps.prereq.outputs.skip != 'true'
         env:
           INDEXER_API_BASE_URL: http://localhost:8787
           SMOKE_ADDRESS: ${{ vars.SMOKE_ADDRESS || '0x0000000000000000000000000000000000000001' }}
@@ -91,5 +111,5 @@ jobs:
         run: npm run smoke
 
       - name: Stop indexer
-        if: always()
+        if: always() && steps.prereq.outputs.skip != 'true'
         run: kill "$INDEXER_PID" || true

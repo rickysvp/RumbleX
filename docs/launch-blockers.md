@@ -53,7 +53,8 @@
 **File**: `.github/workflows/indexer-api.yml`  
 **Problem**: The smoke job's `if: ${{ secrets.MONAD_RPC_URL != '' }}` evaluates to `false` on forks and on repos where the secret is unset — the job is skipped with no warning, giving a false green. There is no required-status-check configured to catch this.  
 **Impact**: PRs that break the live API path can merge silently if the RPC secret is not set in the repo.  
-**Fix**: Add a required-check note in the repo settings documentation, or add a `lint-build-only` required status check and mark the smoke job as `continue-on-error: true` with an explicit skip annotation. **Not fixed in this pass.**
+**Fix**: Replaced the job-level `if` with an explicit prerequisite step. Mainline workflows (pushes, repo-native PRs) now `exit 1` with a clear error if the secret is missing. Fork PRs gracefully skip subsequent steps using GitHub Actions warnings, making the skipped status visible without breaking open-source contributions.  
+**Status**: ✅ Fixed in this pass.
 
 ---
 
@@ -93,7 +94,7 @@
 | B1 | Root `.env.example` misleads about indexer env loading | P0 | ✅ Fixed |
 | B2 | Go-live checklist missing indexer `.env` setup step | P0 | ✅ Fixed |
 | B3 | `npm run indexer:api` from root has no file-based env path | P1 | ✅ Fixed |
-| B4 | CI smoke silently skips when secret unset | P1 | ⬜ Open |
+| B4 | CI smoke silently skips when secret unset | P1 | ✅ Fixed |
 | B5 | `DEPLOYER_PRIVATE_KEY` not in `.env.example` | P1 | ⬜ Open |
 | B6 | `data/` dir not auto-created on first run | P2 | ⬜ Open |
 | B7 | `onchain/README.md` is Foundry boilerplate | P2 | ⬜ Open |
