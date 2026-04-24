@@ -3,7 +3,7 @@ export interface ApiMeta {
   isPending: boolean;
   isConfirmed: boolean;
   isStale: boolean;
-  lastSyncedAt: string;
+  lastSyncedAt: string | null;
   sourceBlockNumber: number | null;
 }
 
@@ -66,4 +66,61 @@ export interface LiveRoundData {
   maxPlayers: number;
   startTime: string | null;
   roomAddress: string;
+}
+
+export interface RecentRoundData {
+  roundId: number;
+  participants: number;
+  survivors: number;
+  volume: string;
+  settledAt: string | null;
+  resultHash: string;
+}
+
+export interface MeHistoryRowData {
+  roundId: number;
+  joinedAt: string | null;
+  kills: number;
+  survivalStatus: "survived" | "eliminated" | "unknown";
+  payoutAmount: string;
+  payoutStatus: "none" | "paid" | "claimable";
+  settledAt: string | null;
+}
+
+export interface MeStatsData {
+  totalRoundsPlayed: number;
+  totalSurvivedRounds: number;
+  totalKills: number;
+  totalPaidOut: string;
+  totalClaimed: string;
+  currentClaimable: string;
+  netMonDelta: string;
+}
+
+export interface SeasonCurrentData {
+  seasonId: number;
+  status: "Upcoming" | "Active" | "Ended" | "RewardsReady" | "Closed" | string;
+  endsAt: string | null;
+  prizePool: string;
+  qualificationKillThreshold: number;
+}
+
+export interface SeasonRankRowData {
+  playerAddress: string;
+  displayName: string | null;
+  totalKills: number;
+  qualified: boolean;
+  estimatedReward: string;
+}
+
+export interface RoundDetailParticipantData {
+  roundId: number;
+  playerAddress: string;
+  kills: number;
+  isSurvivor: boolean;
+  payoutAmount: string;
+}
+
+export interface RoundDetailData {
+  participants: RoundDetailParticipantData[];
 }

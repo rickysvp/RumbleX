@@ -845,6 +845,41 @@ async function buildChainSummary(chain: ChainContext, address: string): Promise<
     unavailableFields.push("activeRoundId");
   }
 
+  // Invariant: activeRoundId must only represent a round this address has actually joined
+  // and that is currently active (SignupOpen/SignupLocked/Live). Never infer from "first live round".
+  let activeRoundId: number | null = null;
+  if (liveRead.value?.rows?.length) {
+    let hadParticipationReadFailure = false;
+    let hadParticipationReadSuccess = false;
+
+    for (const row of liveRead.value.rows) {
+      const joinedRead = await safeRead(async () => {
+        const room = chain.getRoundRoomContract(row.roomAddress);
+        const participation = await room.participationByPlayer(address);
+        return Boolean(participation.joined ?? participation[0]);
+      });
+
+      if (joinedRead.error) {
+        hadParticipationReadFailure = true;
+        readErrors.push(
+          `participationByPlayer(round=${row.roundId}): ${chain.describeError(joinedRead.error)}`
+        );
+        continue;
+      }
+
+      hadParticipationReadSuccess = true;
+      if (joinedRead.value) {
+        activeRoundId = row.roundId;
+        break;
+      }
+    }
+
+    // If no check succeeded and no positive match was found, we cannot guarantee user participation state.
+    if (activeRoundId === null && hadParticipationReadFailure && !hadParticipationReadSuccess) {
+      unavailableFields.push("activeRoundId");
+    }
+  }
+
   const hasAnyValue =
     passRead.hasPass !== null ||
     claimRead.claimable !== null ||
@@ -861,7 +896,7 @@ async function buildChainSummary(chain: ChainContext, address: string): Promise<
       claimableMon: claimRead.claimable !== null ? claimRead.claimable.toString() : "0",
       lockedInRounds: null,
       seasonEstimateMon: null,
-      activeRoundId: liveRead.value?.rows?.[0]?.roundId ?? null,
+      activeRoundId,
       degraded: {
         unavailableFields,
         readErrors,

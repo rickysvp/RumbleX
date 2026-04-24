@@ -4,8 +4,14 @@ import {
   ApiErrorPayload,
   ApiSuccessEnvelope,
   LiveRoundData,
+  MeHistoryRowData,
+  MeStatsData,
   MeClaimsData,
   MeSummaryData,
+  RecentRoundData,
+  RoundDetailData,
+  SeasonCurrentData,
+  SeasonRankRowData,
   TxIntentData,
 } from "./types";
 
@@ -75,6 +81,32 @@ export const walletApi = {
 
   getRoundsLive() {
     return request<LiveRoundData[]>(`/roundslive`);
+  },
+
+  getRoundsRecent(limit = 20) {
+    return request<RecentRoundData[]>(`/roundsrecent?limit=${encodeURIComponent(String(limit))}`);
+  },
+
+  getRoundDetails(roundId: number) {
+    return request<RoundDetailData>(`/rounds/${roundId}`);
+  },
+
+  getMeHistory(address: string) {
+    const q = encodeURIComponent(address);
+    return request<MeHistoryRowData[]>(`/mehistory?address=${q}`);
+  },
+
+  getMeStats(address: string) {
+    const q = encodeURIComponent(address);
+    return request<MeStatsData>(`/mestats?address=${q}`);
+  },
+
+  getSeasonCurrent() {
+    return request<SeasonCurrentData>(`/season/current`);
+  },
+
+  getSeasonRank(seasonId: number) {
+    return request<SeasonRankRowData[]>(`/season/${seasonId}/rank`);
   },
 
   buildRoundJoinIntent(address: string, roundId: number) {
