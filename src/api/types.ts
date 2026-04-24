@@ -29,10 +29,20 @@ export interface MeSummaryData {
   address: string;
   hasPass: boolean;
   walletBalance: string | null;
-  claimableMon: string;
+  claimableMon: string | null;
+  fallbackClaimableMon: string | null;
+  seasonClaimableMon: string | null;
   lockedInRounds: string | null;
   seasonEstimateMon: string | null;
+  seasonEstimatedRewardMon: string | null;
+  seasonAssignedRewardMon: string | null;
+  seasonClaimedRewardMon: string | null;
   activeRoundId: number | null;
+  degraded?: {
+    unavailableFields: string[];
+    readErrors?: string[];
+    passOwnershipSource?: string;
+  };
 }
 
 export interface ClaimRecordView {
@@ -40,15 +50,24 @@ export interface ClaimRecordView {
   sourceId: number;
   amount: string;
   status: "unclaimed" | "claimed";
-  createdAt: string;
+  createdAt: string | null;
   claimedAt: string | null;
 }
 
 export interface MeClaimsData {
-  claimableTotal: string;
+  claimableTotal: string | null;
+  fallbackClaimableMon: string | null;
+  seasonClaimableMon: string | null;
+  seasonEstimatedRewardMon: string | null;
+  seasonAssignedRewardMon: string | null;
+  seasonClaimedRewardMon: string | null;
   fallbackClaims: ClaimRecordView[];
   seasonRewards: ClaimRecordView[];
-  lastUpdatedAt: string;
+  lastUpdatedAt: string | null;
+  degraded?: {
+    unavailableFields: string[];
+    readErrors: string[];
+  };
 }
 
 export interface TxIntentData {
@@ -88,13 +107,13 @@ export interface MeHistoryRowData {
 }
 
 export interface MeStatsData {
-  totalRoundsPlayed: number;
-  totalSurvivedRounds: number;
-  totalKills: number;
-  totalPaidOut: string;
-  totalClaimed: string;
-  currentClaimable: string;
-  netMonDelta: string;
+  totalRoundsPlayed: number | null;
+  totalSurvivedRounds: number | null;
+  totalKills: number | null;
+  totalPaidOut: string | null;
+  totalClaimed: string | null;
+  currentClaimable: string | null;
+  netMonDelta: string | null;
 }
 
 export interface SeasonCurrentData {
@@ -111,6 +130,8 @@ export interface SeasonRankRowData {
   totalKills: number;
   qualified: boolean;
   estimatedReward: string;
+  assignedReward: string;
+  claimedReward: string;
 }
 
 export interface RoundDetailParticipantData {
@@ -119,6 +140,7 @@ export interface RoundDetailParticipantData {
   kills: number;
   isSurvivor: boolean;
   payoutAmount: string;
+  payoutStatus: "none" | "paid" | "claimable";
 }
 
 export interface RoundDetailData {

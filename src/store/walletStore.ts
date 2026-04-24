@@ -19,12 +19,14 @@ interface WalletState {
   hasRumbleXPass: boolean;
   passStatus: WalletPassStatus;
 
-  claimableMon: string;
-  claimableMonNumber: number;
-  fallbackClaimableMon: string;
-  seasonRewardClaimableMon: string;
+  claimableMon: string | null;
+  claimableMonNumber: number | null;
+  fallbackClaimableMon: string | null;
+  seasonRewardClaimableMon: string | null;
   lockedInRounds: string | null;
   seasonEstimateMon: string | null;
+  seasonAssignedRewardMon: string | null;
+  seasonClaimedRewardMon: string | null;
   activeRoundId: number | null;
 
   isConnecting: boolean;
@@ -38,7 +40,9 @@ interface WalletState {
 
   dataSource: WalletDataSource;
   isPending: boolean;
+  isConfirmed: boolean;
   isStale: boolean;
+  sourceBlockNumber: number | null;
 
   setStatus: (status: WalletStatus) => void;
   setWallet: (address: string, addressFull: string, balance: number, hasPass: boolean) => void;
@@ -65,12 +69,14 @@ const initialState = {
   hasPass: false,
   hasRumbleXPass: false,
   passStatus: "unknown" as WalletPassStatus,
-  claimableMon: "0",
-  claimableMonNumber: 0,
-  fallbackClaimableMon: "0",
-  seasonRewardClaimableMon: "0",
+  claimableMon: null as string | null,
+  claimableMonNumber: null as number | null,
+  fallbackClaimableMon: null as string | null,
+  seasonRewardClaimableMon: null as string | null,
   lockedInRounds: null,
   seasonEstimateMon: null,
+  seasonAssignedRewardMon: null as string | null,
+  seasonClaimedRewardMon: null as string | null,
   activeRoundId: null,
   isConnecting: false,
   isRefreshing: false,
@@ -81,7 +87,9 @@ const initialState = {
   lastSyncedAt: null,
   dataSource: "mock" as WalletDataSource,
   isPending: false,
+  isConfirmed: false,
   isStale: false,
+  sourceBlockNumber: null as number | null,
 };
 
 export const useWalletStore = create<WalletState>((set, get) => ({
@@ -155,7 +163,10 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   applySummaryData: (summary, meta) =>
     set((state) => {
       const hasPass = Boolean(summary.hasPass);
-      const claimableMon = normalizeMonString(summary.claimableMon);
+      const claimableMon =
+        summary.claimableMon === null ? null : normalizeMonString(summary.claimableMon);
+      const seasonEstimated =
+        summary.seasonEstimatedRewardMon ?? summary.seasonEstimateMon;
 
       return {
         hasPass,
@@ -167,37 +178,78 @@ export const useWalletStore = create<WalletState>((set, get) => ({
             ? state.monBalance
             : normalizeMonNumber(summary.walletBalance),
         claimableMon,
-        claimableMonNumber: normalizeMonNumber(summary.claimableMon),
+        claimableMonNumber:
+          summary.claimableMon === null ? null : normalizeMonNumber(summary.claimableMon),
+        fallbackClaimableMon:
+          summary.fallbackClaimableMon === null ? null : normalizeMonString(summary.fallbackClaimableMon),
+        seasonRewardClaimableMon:
+          summary.seasonClaimableMon === null ? null : normalizeMonString(summary.seasonClaimableMon),
         lockedInRounds:
           summary.lockedInRounds === null ? null : normalizeMonString(summary.lockedInRounds),
         seasonEstimateMon:
-          summary.seasonEstimateMon === null ? null : normalizeMonString(summary.seasonEstimateMon),
+          seasonEstimated === null ? null : normalizeMonString(seasonEstimated),
+        seasonAssignedRewardMon:
+          summary.seasonAssignedRewardMon === null ? null : normalizeMonString(summary.seasonAssignedRewardMon),
+        seasonClaimedRewardMon:
+          summary.seasonClaimedRewardMon === null ? null : normalizeMonString(summary.seasonClaimedRewardMon),
         activeRoundId: summary.activeRoundId,
         lastSyncedAt: meta.lastSyncedAt,
         dataSource: meta.source,
         isPending: meta.isPending,
+        isConfirmed: meta.isConfirmed,
         isStale: meta.isStale,
+        sourceBlockNumber: meta.sourceBlockNumber,
       };
     }),
 
   applyClaimsData: (claims, meta) => {
-    const fallback = claims.fallbackClaims
+    const fallbackDerived = claims.fallbackClaims
       .filter((item) => item.status === "unclaimed")
       .reduce((acc, item) => acc + normalizeMonNumber(item.amount), 0);
 
-    const season = claims.seasonRewards
+    const seasonDerived = claims.seasonRewards
       .filter((item) => item.status === "unclaimed")
       .reduce((acc, item) => acc + normalizeMonNumber(item.amount), 0);
+
+    const claimableMon =
+      claims.claimableTotal === null ? null : normalizeMonString(claims.claimableTotal);
+    const fallback =
+      claims.fallbackClaimableMon === null
+        ? claims.claimableTotal === null
+          ? null
+          : normalizeMonString(fallbackDerived)
+        : normalizeMonString(claims.fallbackClaimableMon);
+    const season =
+      claims.seasonClaimableMon === null
+        ? claims.claimableTotal === null
+          ? null
+          : normalizeMonString(seasonDerived)
+        : normalizeMonString(claims.seasonClaimableMon);
 
     set({
-      claimableMon: normalizeMonString(claims.claimableTotal),
-      claimableMonNumber: normalizeMonNumber(claims.claimableTotal),
-      fallbackClaimableMon: normalizeMonString(fallback),
-      seasonRewardClaimableMon: normalizeMonString(season),
+      claimableMon,
+      claimableMonNumber:
+        claims.claimableTotal === null ? null : normalizeMonNumber(claims.claimableTotal),
+      fallbackClaimableMon: fallback,
+      seasonRewardClaimableMon: season,
+      seasonEstimateMon:
+        claims.seasonEstimatedRewardMon === null
+          ? null
+          : normalizeMonString(claims.seasonEstimatedRewardMon),
+      seasonAssignedRewardMon:
+        claims.seasonAssignedRewardMon === null
+          ? null
+          : normalizeMonString(claims.seasonAssignedRewardMon),
+      seasonClaimedRewardMon:
+        claims.seasonClaimedRewardMon === null
+          ? null
+          : normalizeMonString(claims.seasonClaimedRewardMon),
       lastSyncedAt: meta.lastSyncedAt,
       dataSource: meta.source,
       isPending: meta.isPending,
+      isConfirmed: meta.isConfirmed,
       isStale: meta.isStale,
+      sourceBlockNumber: meta.sourceBlockNumber,
     });
   },
 

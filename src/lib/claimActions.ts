@@ -11,7 +11,7 @@ export async function claimAll() {
   }
 
   if (isMockMode()) {
-    if (store.claimableMonNumber <= 0) {
+    if (!store.claimableMonNumber || store.claimableMonNumber <= 0) {
       store.setDataError("No claimable MON");
       return;
     }
@@ -29,7 +29,9 @@ export async function claimAll() {
       lastSyncedAt: new Date().toISOString(),
       dataSource: "mock",
       isPending: false,
+      isConfirmed: true,
       isStale: false,
+      sourceBlockNumber: null,
     });
     store.setClaimingAll(false);
     return;

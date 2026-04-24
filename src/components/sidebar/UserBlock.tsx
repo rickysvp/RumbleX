@@ -15,14 +15,26 @@ export function UserBlock() {
     isRefreshing,
     addressFull,
     claimableMon,
+    claimableMonNumber,
+    fallbackClaimableMon,
+    seasonRewardClaimableMon,
+    seasonEstimateMon,
+    seasonAssignedRewardMon,
+    seasonClaimedRewardMon,
     isClaimingAll,
     dataError,
     isStale,
     dataSource,
+    isPending,
+    isConfirmed,
+    lastSyncedAt,
+    sourceBlockNumber,
   } = useWalletStore();
   const [copied, setCopied] = useState(false);
   const [displayBalance, setDisplayBalance] = useState(monBalance);
   const [loadingBlocks, setLoadingBlocks] = useState('░░░');
+  const finalityLabel = isStale ? 'DEGRADED' : isPending ? 'PENDING' : isConfirmed ? 'CONFIRMED' : 'UNKNOWN';
+  const displayClaimable = claimableMon ?? '--';
 
   // Staggered loading blocks
   useEffect(() => {
@@ -127,9 +139,9 @@ export function UserBlock() {
         <div className="text-[9px] text-app-muted font-app-bold uppercase tracking-widest mb-1 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span>MON Balance</span>
-            {(isStale || dataSource === "chain") && (
-              <span className="text-[8px] text-yellow-400 border border-yellow-500/30 px-1 py-0.5">STALE</span>
-            )}
+            <span className={`text-[8px] border px-1 py-0.5 ${
+              isStale ? 'text-yellow-400 border-yellow-500/30' : isPending ? 'text-orange-400 border-orange-500/30' : 'text-green-400 border-green-500/30'
+            }`}>{finalityLabel}</span>
           </div>
           <button 
             onClick={mockWallet.refreshBalance}
@@ -151,15 +163,37 @@ export function UserBlock() {
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="text-[16px] font-app-bold text-app-accent leading-none">
-            {claimableMon}
+            {displayClaimable}
           </div>
           <button
             onClick={() => claimAll().catch(() => undefined)}
-            disabled={isClaimingAll || Number(claimableMon) <= 0}
+            disabled={isClaimingAll || !claimableMonNumber || claimableMonNumber <= 0}
             className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2.5 py-1 tracking-wider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors"
           >
             {isClaimingAll ? "Claiming..." : "Claim All"}
           </button>
+        </div>
+        <div className="mt-2 space-y-1 text-[8px] text-app-muted uppercase tracking-wide">
+          <div className="flex items-center justify-between">
+            <span>Fallback Claimable</span>
+            <span className="text-white font-app-mono">{fallbackClaimableMon ?? '--'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Season Claimable</span>
+            <span className="text-white font-app-mono">{seasonRewardClaimableMon ?? '--'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Season Estimated</span>
+            <span className="text-white font-app-mono">{seasonEstimateMon ?? '--'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Season Assigned</span>
+            <span className="text-white font-app-mono">{seasonAssignedRewardMon ?? '--'}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Season Claimed</span>
+            <span className="text-white font-app-mono">{seasonClaimedRewardMon ?? '--'}</span>
+          </div>
         </div>
       </div>
 
@@ -200,6 +234,24 @@ export function UserBlock() {
           {dataError}
         </div>
       )}
+      <div className="mt-2 text-[8px] text-app-muted uppercase tracking-wide space-y-0.5">
+        <div className="flex items-center justify-between">
+          <span>Finality</span>
+          <span className={`${isStale ? 'text-yellow-400' : isPending ? 'text-orange-400' : 'text-green-400'}`}>{finalityLabel}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Source</span>
+          <span>{dataSource}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Last Sync</span>
+          <span>{lastSyncedAt ? new Date(lastSyncedAt).toLocaleTimeString() : '--'}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span>Block</span>
+          <span>{sourceBlockNumber ?? '--'}</span>
+        </div>
+      </div>
     </div>
   );
 }

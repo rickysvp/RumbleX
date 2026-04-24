@@ -119,6 +119,8 @@ export function RankPage() {
     playerAddress: row.playerAddress,
     kills: row.totalKills,
     estimatedPayout: normalizeMonNumber(row.estimatedReward),
+    assignedReward: normalizeMonNumber(row.assignedReward),
+    claimedReward: normalizeMonNumber(row.claimedReward),
     qualified: row.qualified,
   }));
 
@@ -177,6 +179,8 @@ export function RankPage() {
               <span>source: {meta.source}</span>
               <span>{meta.isPending ? 'pending confirmations' : 'confirmed snapshot'}</span>
               <span>{meta.isStale ? 'stale/degraded' : 'fresh'}</span>
+              <span>synced: {meta.lastSyncedAt ? new Date(meta.lastSyncedAt).toLocaleTimeString() : '--'}</span>
+              <span>block: {meta.sourceBlockNumber ?? '--'}</span>
             </div>
           )}
         </div>
@@ -237,7 +241,9 @@ export function RankPage() {
                     <div className="text-app-accent font-app-mono text-[18px]">
                       {userEntry.estimatedPayout.toFixed(1)} MON
                     </div>
-                    <div className="text-[10px] text-app-muted">Est. Reward</div>
+                    <div className="text-[10px] text-app-muted">Estimated</div>
+                    <div className="text-[9px] text-app-muted">Assigned: {userEntry.assignedReward.toFixed(1)} MON</div>
+                    <div className="text-[9px] text-app-muted">Claimed: {userEntry.claimedReward.toFixed(1)} MON</div>
                   </div>
                 </div>
               </div>
@@ -310,6 +316,7 @@ export function RankPage() {
               <ul className="text-[11px] text-app-muted space-y-2">
                 <li>• Achieve {threshold}+ kills to qualify for season rewards</li>
                 <li>• Qualified players share the season prize pool based on kill count</li>
+                <li>• Estimated = projected payout, Assigned = entitlement recorded, Claimed = already withdrawn</li>
                 <li>• Rewards are distributed at the end of each season</li>
                 <li>• Current season pool: <span className="text-app-accent font-bold">{normalizeMonNumber(season?.prizePool ?? '0').toFixed(0)} MON</span></li>
               </ul>

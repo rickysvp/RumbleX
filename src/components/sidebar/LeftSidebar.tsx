@@ -11,7 +11,20 @@ interface LeftSidebarProps {
 }
 
 export function LeftSidebar({ onNavigate, currentView = 'arena' }: LeftSidebarProps) {
-  const { status: walletStatus, address, monBalance, hasRumbleXPass, claimableMon, isStale, dataSource } = useWalletStore();
+  const {
+    status: walletStatus,
+    address,
+    monBalance,
+    hasRumbleXPass,
+    claimableMon,
+    fallbackClaimableMon,
+    seasonRewardClaimableMon,
+    isStale,
+    isPending,
+    isConfirmed,
+    dataSource,
+    lastSyncedAt,
+  } = useWalletStore();
   const { 
     userHandle, 
     seasonNumber, 
@@ -25,6 +38,7 @@ export function LeftSidebar({ onNavigate, currentView = 'arena' }: LeftSidebarPr
   const [newHandle, setNewHandle] = useState(userHandle);
   
   const isConnected = walletStatus === 'connected';
+  const finalityLabel = isStale ? 'DEGRADED' : isPending ? 'PENDING' : isConfirmed ? 'CONFIRMED' : 'UNKNOWN';
   const userEntry = leaderboard.find(e => e.isUser);
   const kills = userEntry?.kills || 0;
   const qualified = userEntry?.qualified || false;
@@ -112,16 +126,22 @@ export function LeftSidebar({ onNavigate, currentView = 'arena' }: LeftSidebarPr
           <div className="flex items-center justify-between py-2 px-3 bg-[#111] border border-[#222] mb-3">
             <div className="flex flex-col">
               <span className="text-[10px] text-app-muted uppercase">Balance</span>
-              {(isStale || dataSource === "chain") && (
-                <span className="text-[8px] text-yellow-400 uppercase">stale/degraded</span>
-              )}
+              <span className={`text-[8px] uppercase ${
+                isStale ? 'text-yellow-400' : isPending ? 'text-orange-400' : 'text-green-400'
+              }`}>{finalityLabel.toLowerCase()}</span>
             </div>
             <div className="text-right">
               <span className="text-[13px] font-app-bold text-app-accent block">
                 {monBalance.toFixed(2)} MON
               </span>
               <span className="text-[10px] text-app-muted block">
-                Claimable: {claimableMon}
+                Claimable: {claimableMon ?? '--'}
+              </span>
+              <span className="text-[9px] text-app-muted block">
+                Fallback: {fallbackClaimableMon ?? '--'} · Season: {seasonRewardClaimableMon ?? '--'}
+              </span>
+              <span className="text-[8px] text-app-muted block">
+                {dataSource} · {lastSyncedAt ? new Date(lastSyncedAt).toLocaleTimeString() : '--'}
               </span>
             </div>
           </div>

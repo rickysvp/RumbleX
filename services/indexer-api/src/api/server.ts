@@ -61,9 +61,35 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     }
 
     if (indexed.hasIndexedData) {
+      const degradedUnavailableFields: string[] = [];
+      if (!indexed.claimBalanceKnown) {
+        degradedUnavailableFields.push("claimableMon", "fallbackClaimableMon", "seasonClaimableMon");
+      }
+      if (!indexed.seasonStatKnown) {
+        degradedUnavailableFields.push(
+          "seasonEstimateMon",
+          "seasonEstimatedRewardMon",
+          "seasonAssignedRewardMon",
+          "seasonClaimedRewardMon"
+        );
+      }
+
       return res.json(
         ok(
-          indexed.data,
+          {
+            ...indexed.data,
+            claimableMon: indexed.claimBalanceKnown ? indexed.data.claimableMon : null,
+            fallbackClaimableMon: indexed.claimBalanceKnown ? indexed.data.fallbackClaimableMon : null,
+            seasonClaimableMon: indexed.claimBalanceKnown ? indexed.data.seasonClaimableMon : null,
+            seasonEstimateMon: indexed.seasonStatKnown ? indexed.data.seasonEstimateMon : null,
+            seasonEstimatedRewardMon: indexed.seasonStatKnown ? indexed.data.seasonEstimatedRewardMon : null,
+            seasonAssignedRewardMon: indexed.seasonStatKnown ? indexed.data.seasonAssignedRewardMon : null,
+            seasonClaimedRewardMon: indexed.seasonStatKnown ? indexed.data.seasonClaimedRewardMon : null,
+            degraded: {
+              unavailableFields: degradedUnavailableFields,
+              readErrors: [],
+            },
+          },
           buildMeta(
             store,
             "aggregated",
@@ -119,9 +145,33 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     }
 
     if (indexed.hasIndexedData) {
+      const degradedUnavailableFields: string[] = [];
+      if (!indexed.claimBalanceKnown) {
+        degradedUnavailableFields.push("claimableTotal", "fallbackClaimableMon", "seasonClaimableMon");
+      }
+      if (!indexed.seasonStatKnown) {
+        degradedUnavailableFields.push(
+          "seasonEstimatedRewardMon",
+          "seasonAssignedRewardMon",
+          "seasonClaimedRewardMon"
+        );
+      }
+
       return res.json(
         ok(
-          indexed.data,
+          {
+            ...indexed.data,
+            claimableTotal: indexed.claimBalanceKnown ? indexed.data.claimableTotal : null,
+            fallbackClaimableMon: indexed.claimBalanceKnown ? indexed.data.fallbackClaimableMon : null,
+            seasonClaimableMon: indexed.claimBalanceKnown ? indexed.data.seasonClaimableMon : null,
+            seasonEstimatedRewardMon: indexed.seasonStatKnown ? indexed.data.seasonEstimatedRewardMon : null,
+            seasonAssignedRewardMon: indexed.seasonStatKnown ? indexed.data.seasonAssignedRewardMon : null,
+            seasonClaimedRewardMon: indexed.seasonStatKnown ? indexed.data.seasonClaimedRewardMon : null,
+            degraded: {
+              unavailableFields: degradedUnavailableFields,
+              readErrors: [],
+            },
+          },
           buildMeta(
             store,
             "indexer",
@@ -135,6 +185,15 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     }
 
     const fallback = await buildChainClaims(chain, state, address);
+    if (!fallback.available) {
+      return res.status(503).json(
+        fail(
+          ErrorCodes.INDEXER_UNAVAILABLE,
+          "Indexer unavailable and chain fallback failed to resolve claims"
+        )
+      );
+    }
+
     return res.json(
       ok(
         fallback.data,
@@ -148,13 +207,20 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     if (!address) return;
 
     const state = store.getState();
-    if (state.meta.indexerStatus !== "ready") {
-      return res.status(503).json(fail(ErrorCodes.INDEXER_UNAVAILABLE, "Indexer is unavailable"));
-    }
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
 
     const participantRows = Object.values(state.roundParticipants).filter(
       (row) => row.playerAddress === address
     );
+
+    if (!indexerReady && participantRows.length === 0) {
+      return res.status(503).json(
+        fail(
+          ErrorCodes.INDEXER_UNAVAILABLE,
+          "Indexer unavailable and no indexed history snapshot for this address"
+        )
+      );
+    }
 
     const rows = participantRows
       .map((row) => {
@@ -178,8 +244,8 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           store,
           "indexer",
           maxSourceBlock(participantRows),
-          hasPending(participantRows),
-          false,
+          !indexerReady || hasPending(participantRows),
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -191,41 +257,71 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     if (!address) return;
 
     const state = store.getState();
-    if (state.meta.indexerStatus !== "ready") {
-      return res.status(503).json(fail(ErrorCodes.INDEXER_UNAVAILABLE, "Indexer is unavailable"));
-    }
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
 
     const participants = Object.values(state.roundParticipants).filter(
       (row) => row.playerAddress === address
     );
+    const claimRecords = Object.values(state.claimSourceRecords).filter(
+      (claim) => claim.playerAddress === address
+    );
+    const claimBalance = state.claimBalances[address];
+    const hasIndexedData = participants.length > 0 || claimRecords.length > 0 || Boolean(claimBalance);
 
-    const totalRoundsPlayed = participants.length;
-    const totalSurvivedRounds = participants.filter((row) => row.isSurvivor).length;
-    const totalKills = participants.reduce((acc, row) => acc + row.kills, 0);
+    if (!indexerReady && !hasIndexedData) {
+      return res.status(503).json(
+        fail(
+          ErrorCodes.INDEXER_UNAVAILABLE,
+          "Indexer unavailable and no indexed stats snapshot for this address"
+        )
+      );
+    }
 
-    const totalPaidOut = participants
-      .filter((row) => row.payoutStatus === "paid")
-      .reduce((acc, row) => acc + BigInt(row.payoutAmount), 0n)
-      .toString();
+    const participantDataKnown = participants.length > 0 || indexerReady;
+    const claimDataKnown = Boolean(claimBalance) || claimRecords.length > 0 || indexerReady;
 
-    const totalClaimed = Object.values(state.claimSourceRecords)
-      .filter((claim) => claim.playerAddress === address && claim.status === "claimed")
-      .reduce((acc, claim) => acc + BigInt(claim.amount), 0n)
-      .toString();
+    const totalRoundsPlayed = participantDataKnown ? participants.length : null;
+    const totalSurvivedRounds = participantDataKnown
+      ? participants.filter((row) => row.isSurvivor).length
+      : null;
+    const totalKills = participantDataKnown
+      ? participants.reduce((acc, row) => acc + row.kills, 0)
+      : null;
 
-    const currentClaimable = state.claimBalances[address]?.claimableTotal ?? "0";
+    const totalPaidOut = participantDataKnown
+      ? participants
+          .filter((row) => row.payoutStatus === "paid")
+          .reduce((acc, row) => acc + BigInt(row.payoutAmount), 0n)
+          .toString()
+      : null;
 
-    const entrySpent = participants.reduce((acc, row) => {
-      const round = state.rounds[String(row.roundId)];
-      return acc + BigInt(round?.entryFee ?? "0");
-    }, 0n);
+    const totalClaimed = claimDataKnown
+      ? claimRecords
+          .filter((claim) => claim.status === "claimed")
+          .reduce((acc, claim) => acc + BigInt(claim.amount), 0n)
+          .toString()
+      : null;
 
-    const netMonDelta = (
-      BigInt(totalPaidOut) +
-      BigInt(totalClaimed) +
-      BigInt(currentClaimable) -
-      entrySpent
-    ).toString();
+    const currentClaimable = claimBalance
+      ? claimBalance.claimableTotal
+      : indexerReady
+        ? "0"
+        : null;
+
+    const entrySpent = participantDataKnown
+      ? participants.reduce((acc, row) => {
+          const round = state.rounds[String(row.roundId)];
+          return acc + BigInt(round?.entryFee ?? "0");
+        }, 0n)
+      : null;
+
+    const netMonDelta =
+      totalPaidOut !== null &&
+      totalClaimed !== null &&
+      currentClaimable !== null &&
+      entrySpent !== null
+        ? (BigInt(totalPaidOut) + BigInt(totalClaimed) + BigInt(currentClaimable) - entrySpent).toString()
+        : null;
 
     return res.json(
       ok(
@@ -241,9 +337,9 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
         buildMeta(
           store,
           "aggregated",
-          maxSourceBlock(participants),
-          hasPending(participants),
-          false,
+          maxSourceBlock([...participants, ...claimRecords, claimBalance]),
+          !indexerReady || hasPending([...participants, ...claimRecords, claimBalance]),
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -302,10 +398,20 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
   app.get(["/roundsrecent", "/rounds/recent"], (req, res) => {
     const limit = Number(req.query.limit ?? 20);
     const state = store.getState();
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
 
     const settlements = Object.values(state.roundSettlements)
       .sort((a, b) => b.roundId - a.roundId)
       .slice(0, Math.max(1, Math.min(100, limit)));
+
+    if (!indexerReady && settlements.length === 0) {
+      return res.status(503).json(
+        fail(
+          ErrorCodes.INDEXER_UNAVAILABLE,
+          "Indexer unavailable and no indexed round-settlement snapshot"
+        )
+      );
+    }
 
     const rows = settlements.map((settlement) => {
       const participants = Object.values(state.roundParticipants).filter(
@@ -330,8 +436,8 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           store,
           "indexer",
           maxSourceBlock(settlements),
-          hasPending(settlements),
-          false,
+          !indexerReady || hasPending(settlements),
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -345,6 +451,7 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     }
 
     const state = store.getState();
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
     const round = state.rounds[String(roundId)];
     if (!round) {
       return res.status(404).json(fail(ErrorCodes.ROUND_NOT_FOUND, "Round not found"));
@@ -374,8 +481,8 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           store,
           "aggregated",
           maxSourceBlock([round, settlement, ...participants]),
-          hasPending([round, settlement, ...participants]),
-          false,
+          !indexerReady || hasPending([round, settlement, ...participants]),
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -384,9 +491,15 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
 
   app.get(["/season/current", "/seasoncurrent"], (_req, res) => {
     const state = store.getState();
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
     const season = pickCurrentSeason(state);
 
     if (!season) {
+      if (!indexerReady) {
+        return res.status(503).json(
+          fail(ErrorCodes.INDEXER_UNAVAILABLE, "Indexer unavailable and season snapshot is missing")
+        );
+      }
       return res.status(404).json(fail(ErrorCodes.BAD_REQUEST, "No season available"));
     }
 
@@ -403,8 +516,8 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           store,
           "indexer",
           season.sourceBlockNumber,
-          season.confirmationStatus === "pending",
-          false,
+          !indexerReady || season.confirmationStatus === "pending",
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -418,6 +531,7 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     }
 
     const state = store.getState();
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
     const stats = Object.values(state.playerSeasonStats)
       .filter((row) => row.seasonId === seasonId)
       .sort((a, b) => {
@@ -425,12 +539,23 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
         return Number(BigInt(b.estimatedReward) - BigInt(a.estimatedReward));
       });
 
+    if (!indexerReady && stats.length === 0) {
+      return res.status(503).json(
+        fail(
+          ErrorCodes.INDEXER_UNAVAILABLE,
+          "Indexer unavailable and no indexed season-rank snapshot"
+        )
+      );
+    }
+
     const rankRows = stats.map((row) => ({
       playerAddress: row.playerAddress,
       displayName: null,
       totalKills: row.totalKills,
       qualified: row.qualified,
       estimatedReward: row.estimatedReward,
+      assignedReward: row.assignedReward,
+      claimedReward: row.claimedSeasonReward,
     }));
 
     return res.json(
@@ -440,8 +565,8 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           store,
           "aggregated",
           maxSourceBlock(stats),
-          hasPending(stats),
-          false,
+          !indexerReady || hasPending(stats),
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -458,10 +583,19 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     }
 
     const state = store.getState();
+    const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
     const season = state.seasons[String(seasonId)];
     const stat = state.playerSeasonStats[`${seasonId}:${address}`];
 
     if (!season || !stat) {
+      if (!indexerReady) {
+        return res.status(503).json(
+          fail(
+            ErrorCodes.INDEXER_UNAVAILABLE,
+            "Indexer unavailable and no indexed player-season snapshot"
+          )
+        );
+      }
       return res.json(
         ok(
           {
@@ -469,13 +603,14 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
             qualified: false,
             killsToThreshold: season?.qualificationKillThreshold ?? null,
             estimatedReward: "0",
+            assignedReward: "0",
             claimedReward: "0",
           },
           buildMeta(
             store,
             "indexer",
             season?.sourceBlockNumber ?? null,
-            false,
+            !indexerReady,
             false,
             opts.staleAfterMs
           )
@@ -492,14 +627,15 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           qualified: stat.qualified,
           killsToThreshold,
           estimatedReward: stat.estimatedReward,
+          assignedReward: stat.assignedReward,
           claimedReward: stat.claimedSeasonReward,
         },
         buildMeta(
           store,
           "aggregated",
           stat.sourceBlockNumber,
-          stat.confirmationStatus === "pending",
-          false,
+          !indexerReady || stat.confirmationStatus === "pending",
+          !indexerReady,
           opts.staleAfterMs
         )
       )
@@ -717,6 +853,10 @@ function hasPending(values: Array<Partial<Provenance> | undefined | null>): bool
   return values.some((v) => v?.confirmationStatus === "pending");
 }
 
+function isIndexerReady(store: JsonStore, state: DatabaseState, staleAfterMs: number): boolean {
+  return state.meta.indexerStatus === "ready" && !store.isStale(staleAfterMs);
+}
+
 function pickCurrentSeason(state: DatabaseState) {
   const seasons = Object.values(state.seasons);
   if (seasons.length === 0) return null;
@@ -764,6 +904,8 @@ function buildIndexedSummary(state: DatabaseState, address: string) {
 
   return {
     hasIndexedData: Boolean(passState || claimBalance || seasonStat || participantRows.length > 0),
+    claimBalanceKnown: Boolean(claimBalance),
+    seasonStatKnown: Boolean(seasonStat),
     sourceBlockNumber: maxSourceBlock([passState, claimBalance, seasonStat, ...participantRows]),
     pending: hasPending([passState, claimBalance, seasonStat, ...participantRows]),
     data: {
@@ -771,8 +913,13 @@ function buildIndexedSummary(state: DatabaseState, address: string) {
       hasPass: passState?.hasPass ?? false,
       walletBalance: null,
       claimableMon: claimBalance?.claimableTotal ?? "0",
+      fallbackClaimableMon: claimBalance?.fallbackRoundAmount ?? "0",
+      seasonClaimableMon: claimBalance?.seasonRewardAmount ?? "0",
       lockedInRounds: lockedInRounds.toString(),
       seasonEstimateMon: seasonStat?.estimatedReward ?? "0",
+      seasonEstimatedRewardMon: seasonStat?.estimatedReward ?? "0",
+      seasonAssignedRewardMon: seasonStat?.assignedReward ?? "0",
+      seasonClaimedRewardMon: seasonStat?.claimedSeasonReward ?? "0",
       activeRoundId,
     },
   };
@@ -781,6 +928,10 @@ function buildIndexedSummary(state: DatabaseState, address: string) {
 function buildIndexedClaims(state: DatabaseState, address: string) {
   const claimBalance = state.claimBalances[address];
   const claims = Object.values(state.claimSourceRecords).filter((c) => c.playerAddress === address);
+  const currentSeason = pickCurrentSeason(state);
+  const seasonStat = currentSeason
+    ? state.playerSeasonStats[`${currentSeason.seasonId}:${address}`]
+    : undefined;
 
   const fallbackClaims = claims
     .filter((c) => c.claimType === "fallback_round_payout")
@@ -789,10 +940,17 @@ function buildIndexedClaims(state: DatabaseState, address: string) {
 
   return {
     hasIndexedData: Boolean(claimBalance || claims.length > 0),
-    sourceBlockNumber: maxSourceBlock([claimBalance, ...claims]),
-    pending: hasPending([claimBalance, ...claims]),
+    claimBalanceKnown: Boolean(claimBalance),
+    seasonStatKnown: Boolean(seasonStat),
+    sourceBlockNumber: maxSourceBlock([claimBalance, seasonStat, ...claims]),
+    pending: hasPending([claimBalance, seasonStat, ...claims]),
     data: {
       claimableTotal: claimBalance?.claimableTotal ?? "0",
+      fallbackClaimableMon: claimBalance?.fallbackRoundAmount ?? "0",
+      seasonClaimableMon: claimBalance?.seasonRewardAmount ?? "0",
+      seasonEstimatedRewardMon: seasonStat?.estimatedReward ?? "0",
+      seasonAssignedRewardMon: seasonStat?.assignedReward ?? "0",
+      seasonClaimedRewardMon: seasonStat?.claimedSeasonReward ?? "0",
       fallbackClaims,
       seasonRewards,
       lastUpdatedAt: claimBalance?.updatedAt ?? state.meta.lastSyncedAt,
@@ -807,9 +965,14 @@ async function buildChainSummary(chain: ChainContext, address: string): Promise<
     address: string;
     hasPass: boolean;
     walletBalance: string | null;
-    claimableMon: string;
+    claimableMon: string | null;
+    fallbackClaimableMon: string | null;
+    seasonClaimableMon: string | null;
     lockedInRounds: null;
     seasonEstimateMon: null;
+    seasonEstimatedRewardMon: null;
+    seasonAssignedRewardMon: null;
+    seasonClaimedRewardMon: null;
     activeRoundId: number | null;
     degraded: {
       unavailableFields: string[];
@@ -832,6 +995,14 @@ async function buildChainSummary(chain: ChainContext, address: string): Promise<
   const claimRead = await chain.readClaimableTotal(address);
   readErrors.push(...claimRead.errors);
   if (claimRead.claimable === null) unavailableFields.push("claimableMon");
+  unavailableFields.push(
+    "fallbackClaimableMon",
+    "seasonClaimableMon",
+    "seasonEstimateMon",
+    "seasonEstimatedRewardMon",
+    "seasonAssignedRewardMon",
+    "seasonClaimedRewardMon"
+  );
 
   const balanceRead = await safeRead(async () => chain.provider.getBalance(address));
   if (balanceRead.error) {
@@ -893,9 +1064,14 @@ async function buildChainSummary(chain: ChainContext, address: string): Promise<
       address,
       hasPass: passRead.hasPass ?? false,
       walletBalance: balanceRead.value ? balanceRead.value.toString() : null,
-      claimableMon: claimRead.claimable !== null ? claimRead.claimable.toString() : "0",
+      claimableMon: claimRead.claimable !== null ? claimRead.claimable.toString() : null,
+      fallbackClaimableMon: null,
+      seasonClaimableMon: null,
       lockedInRounds: null,
       seasonEstimateMon: null,
+      seasonEstimatedRewardMon: null,
+      seasonAssignedRewardMon: null,
+      seasonClaimedRewardMon: null,
       activeRoundId,
       degraded: {
         unavailableFields,
@@ -914,7 +1090,12 @@ async function buildChainClaims(
   available: boolean;
   sourceBlockNumber: number | null;
   data: {
-    claimableTotal: string;
+    claimableTotal: string | null;
+    fallbackClaimableMon: string | null;
+    seasonClaimableMon: string | null;
+    seasonEstimatedRewardMon: string | null;
+    seasonAssignedRewardMon: string | null;
+    seasonClaimedRewardMon: string | null;
     fallbackClaims: ReturnType<typeof claimRecordView>[];
     seasonRewards: ReturnType<typeof claimRecordView>[];
     lastUpdatedAt: string | null;
@@ -934,6 +1115,13 @@ async function buildChainClaims(
   const claimRead = await chain.readClaimableTotal(address);
   readErrors.push(...claimRead.errors);
   if (claimRead.claimable === null) unavailableFields.push("claimableTotal");
+  unavailableFields.push(
+    "fallbackClaimableMon",
+    "seasonClaimableMon",
+    "seasonEstimatedRewardMon",
+    "seasonAssignedRewardMon",
+    "seasonClaimedRewardMon"
+  );
 
   const available = claimRead.claimable !== null;
 
@@ -941,7 +1129,12 @@ async function buildChainClaims(
     available,
     sourceBlockNumber,
     data: {
-      claimableTotal: claimRead.claimable?.toString() ?? "0",
+      claimableTotal: claimRead.claimable?.toString() ?? null,
+      fallbackClaimableMon: null,
+      seasonClaimableMon: null,
+      seasonEstimatedRewardMon: null,
+      seasonAssignedRewardMon: null,
+      seasonClaimedRewardMon: null,
       fallbackClaims: [],
       seasonRewards: [],
       lastUpdatedAt: state.meta.lastSyncedAt ?? new Date().toISOString(),

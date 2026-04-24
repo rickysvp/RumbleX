@@ -86,6 +86,7 @@ export function HistoryPage() {
                 <span>{meta.isPending ? 'pending confirmations' : 'confirmed snapshot'}</span>
                 <span>{meta.isStale ? 'stale/degraded' : 'fresh'}</span>
                 <span>synced: {meta.lastSyncedAt ? new Date(meta.lastSyncedAt).toLocaleTimeString() : '--'}</span>
+                <span>block: {meta.sourceBlockNumber ?? '--'}</span>
               </div>
             ) : (
               <div className="text-[11px] text-app-muted">Awaiting API metadata...</div>
@@ -163,17 +164,26 @@ export function HistoryPage() {
                       </div>
 
                       <div className="col-span-2 text-right">
-                        <a
-                          href={`https://testnet.monadexplorer.com/tx/${round.resultHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 text-[10px] text-green-400 hover:text-green-300 transition-colors"
-                        >
-                          <CheckCircle size={10} />
-                          <span className="font-app-mono">{`${round.resultHash.slice(0, 8)}...${round.resultHash.slice(-6)}`}</span>
-                          <ExternalLink size={10} />
-                        </a>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`text-[8px] px-1.5 py-0.5 border uppercase tracking-wide ${
+                            round.settledAt
+                              ? (meta?.isPending ? 'text-orange-400 border-orange-500/30' : 'text-green-400 border-green-500/30')
+                              : 'text-yellow-400 border-yellow-500/30'
+                          }`}>
+                            {round.settledAt ? (meta?.isPending ? 'PENDING FINALITY' : 'CONFIRMED') : 'SETTLEMENT PENDING'}
+                          </span>
+                          <a
+                            href={`https://testnet.monadexplorer.com/tx/${round.resultHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 text-[10px] text-green-400 hover:text-green-300 transition-colors"
+                          >
+                            <CheckCircle size={10} />
+                            <span className="font-app-mono">{`${round.resultHash.slice(0, 8)}...${round.resultHash.slice(-6)}`}</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        </div>
                       </div>
                     </div>
 
@@ -207,6 +217,15 @@ export function HistoryPage() {
                                   <span className="text-[11px] text-app-muted">{survivor.kills} kills</span>
                                   <span className="text-[13px] text-app-accent font-app-mono">
                                     +{normalizeMonString(survivor.payoutAmount)} MON Carry Out
+                                  </span>
+                                  <span className={`text-[8px] px-1 py-0.5 border uppercase tracking-wide ${
+                                    survivor.payoutStatus === 'paid'
+                                      ? 'text-green-400 border-green-500/30'
+                                      : survivor.payoutStatus === 'claimable'
+                                        ? 'text-yellow-400 border-yellow-500/30'
+                                        : 'text-app-muted border-app-border'
+                                  }`}>
+                                    {survivor.payoutStatus}
                                   </span>
                                 </div>
                               </div>

@@ -31,22 +31,25 @@ export function StatsPage() {
   const stats = statsQuery.data?.ok
     ? statsQuery.data.data
     : {
-        totalRoundsPlayed: 0,
-        totalSurvivedRounds: 0,
-        totalKills: 0,
-        totalPaidOut: '0',
-        totalClaimed: '0',
-        currentClaimable: '0',
-        netMonDelta: '0',
+        totalRoundsPlayed: null,
+        totalSurvivedRounds: null,
+        totalKills: null,
+        totalPaidOut: null,
+        totalClaimed: null,
+        currentClaimable: null,
+        netMonDelta: null,
       };
 
   const historyRows = historyQuery.data?.ok ? historyQuery.data.data : [];
   const meta = statsQuery.data?.ok ? statsQuery.data.meta : null;
   const gamesPlayed = stats.totalRoundsPlayed;
   const wins = stats.totalSurvivedRounds;
-  const winRate = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0;
-  const estimatedPayout = Number(seasonEstimateMon ?? '0');
-  const netMon = Number(normalizeMonString(stats.netMonDelta));
+  const winRate =
+    gamesPlayed !== null && wins !== null && gamesPlayed > 0
+      ? Math.round((wins / gamesPlayed) * 100)
+      : null;
+  const estimatedPayout = seasonEstimateMon === null ? null : Number(seasonEstimateMon);
+  const netMon = stats.netMonDelta === null ? null : Number(normalizeMonString(stats.netMonDelta));
 
   const loadError = statsQuery.error ?? historyQuery.error;
 
@@ -68,6 +71,8 @@ export function StatsPage() {
               <span>source: {meta.source}</span>
               <span>{meta.isPending ? 'pending confirmations' : 'confirmed snapshot'}</span>
               <span>{meta.isStale ? 'stale/degraded' : 'fresh'}</span>
+              <span>synced: {meta.lastSyncedAt ? new Date(meta.lastSyncedAt).toLocaleTimeString() : '--'}</span>
+              <span>block: {meta.sourceBlockNumber ?? '--'}</span>
             </div>
           )}
         </div>
@@ -89,27 +94,27 @@ export function StatsPage() {
               <StatCard
                 icon={<Target size={20} />}
                 label="Total Kills"
-                value={stats.totalKills.toString()}
-                subtext={wins > 0 ? 'Active' : 'No wins yet'}
-                highlight={wins > 0}
+                value={stats.totalKills === null ? '--' : stats.totalKills.toString()}
+                subtext={wins !== null && wins > 0 ? 'Active' : 'No wins yet'}
+                highlight={wins !== null && wins > 0}
               />
               <StatCard
                 icon={<Trophy size={20} />}
                 label="Season Estimate"
-                value={`${estimatedPayout.toFixed(1)}`}
+                value={estimatedPayout === null ? '--' : `${estimatedPayout.toFixed(1)}`}
                 subtext="MON"
-                highlight={estimatedPayout > 0}
+                highlight={estimatedPayout !== null && estimatedPayout > 0}
               />
               <StatCard
                 icon={<TrendingUp size={20} />}
                 label="Win Rate"
-                value={`${winRate}%`}
+                value={winRate === null ? '--' : `${winRate}%`}
                 subtext="All Time"
               />
               <StatCard
                 icon={<Skull size={20} />}
                 label="Rounds"
-                value={gamesPlayed.toString()}
+                value={gamesPlayed === null ? '--' : gamesPlayed.toString()}
                 subtext="Completed"
               />
             </div>
@@ -119,13 +124,14 @@ export function StatsPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <div className="text-[11px] text-app-muted uppercase mb-1">Net MON</div>
-                  <div className={`text-[24px] font-app-mono ${netMon >= 0 ? 'text-app-accent' : 'text-red-500'}`}>
-                    {netMon >= 0 ? '+' : ''}{netMon.toFixed(1)} <span className="text-[14px]">MON</span>
+                  <div className={`text-[24px] font-app-mono ${netMon === null || netMon >= 0 ? 'text-app-accent' : 'text-red-500'}`}>
+                    {netMon === null ? '--' : `${netMon >= 0 ? '+' : ''}${netMon.toFixed(1)} `}
+                    <span className="text-[14px]">MON</span>
                   </div>
                 </div>
                 <div>
                   <div className="text-[11px] text-app-muted uppercase mb-1">Total Wins</div>
-                  <div className="text-[24px] font-app-mono text-white">{wins}</div>
+                  <div className="text-[24px] font-app-mono text-white">{wins ?? '--'}</div>
                 </div>
               </div>
             </div>
@@ -148,8 +154,17 @@ export function StatsPage() {
                       <div key={`${row.roundId}-${row.joinedAt ?? 'na'}`} className="flex items-center justify-between py-2 px-3 bg-[#0a0a0a] border border-[#222]">
                         <div className="text-[11px] font-app-bold text-app-muted">#{row.roundId}</div>
                         <div className="text-[10px] font-app-bold text-white uppercase">{row.kills} Kills</div>
-                        <div className={`text-[11px] font-app-bold text-right ${payout > 0 ? 'text-app-accent' : 'text-app-muted'}`}>
-                          {payout > 0 ? '+' : ''}{payout.toFixed(1)} MON
+                        <div className={`text-[11px] font-app-bold text-right ${payout > 0 ? 'text-app-accent' : 'text-app-muted'} flex items-center gap-2`}>
+                          <span>{payout > 0 ? '+' : ''}{payout.toFixed(1)} MON</span>
+                          <span className={`text-[8px] px-1 py-0.5 border uppercase ${
+                            row.payoutStatus === 'paid'
+                              ? 'text-green-400 border-green-500/30'
+                              : row.payoutStatus === 'claimable'
+                                ? 'text-yellow-400 border-yellow-500/30'
+                                : 'text-app-muted border-app-border'
+                          }`}>
+                            {row.payoutStatus}
+                          </span>
                         </div>
                       </div>
                     );
@@ -167,19 +182,25 @@ export function StatsPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-app-muted text-[13px]">Total Paid Out</span>
-                  <span className="text-white text-[13px] font-app-mono">{normalizeMonString(stats.totalPaidOut)} MON</span>
+                  <span className="text-white text-[13px] font-app-mono">
+                    {stats.totalPaidOut === null ? '--' : `${normalizeMonString(stats.totalPaidOut)} MON`}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-app-muted text-[13px]">Total Claimed</span>
-                  <span className="text-white text-[13px] font-app-mono">{normalizeMonString(stats.totalClaimed)} MON</span>
+                  <span className="text-white text-[13px] font-app-mono">
+                    {stats.totalClaimed === null ? '--' : `${normalizeMonString(stats.totalClaimed)} MON`}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-app-muted text-[13px]">Current Claimable</span>
-                  <span className="text-white text-[13px] font-app-mono">{normalizeMonString(stats.currentClaimable)} MON</span>
+                  <span className="text-white text-[13px] font-app-mono">
+                    {stats.currentClaimable === null ? '--' : `${normalizeMonString(stats.currentClaimable)} MON`}
+                  </span>
                 </div>
                 <div className="flex justify-between border-t border-[#222] pt-3 mt-3">
                   <span className="text-app-muted text-[13px]">Rounds Survived</span>
-                  <span className="text-app-accent text-[13px] font-app-mono">{stats.totalSurvivedRounds}</span>
+                  <span className="text-app-accent text-[13px] font-app-mono">{stats.totalSurvivedRounds ?? '--'}</span>
                 </div>
               </div>
             </div>

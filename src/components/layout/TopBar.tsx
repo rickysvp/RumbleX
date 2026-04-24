@@ -18,9 +18,19 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
     hasRumbleXPass,
     status,
     claimableMon,
+    claimableMonNumber,
+    fallbackClaimableMon,
+    seasonRewardClaimableMon,
+    seasonEstimateMon,
+    seasonAssignedRewardMon,
+    seasonClaimedRewardMon,
     isClaimingAll,
     isStale,
     dataSource,
+    isPending,
+    isConfirmed,
+    lastSyncedAt,
+    sourceBlockNumber,
   } = useWalletStore();
   const [showDropdown, setShowDropdown] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -28,6 +38,13 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const isConnected = status === 'connected';
+  const finalityLabel = isStale ? 'DEGRADED' : isPending ? 'PENDING' : isConfirmed ? 'CONFIRMED' : 'UNKNOWN';
+  const displayClaimable = claimableMon ?? '--';
+  const displayFallbackClaimable = fallbackClaimableMon ?? '--';
+  const displaySeasonClaimable = seasonRewardClaimableMon ?? '--';
+  const displaySeasonEstimate = seasonEstimateMon ?? '--';
+  const displaySeasonAssigned = seasonAssignedRewardMon ?? '--';
+  const displaySeasonClaimed = seasonClaimedRewardMon ?? '--';
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -138,13 +155,16 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                 <span className="text-[9px] text-app-muted uppercase tracking-wider">BALANCE</span>
                 <span className="text-[15px] font-app-bold text-app-accent">{displayBalance.toFixed(1)}</span>
                 <span className="text-[11px] text-app-accent opacity-60">MON</span>
-                {(isStale || dataSource === "chain") && (
-                  <span className="text-[8px] text-yellow-400 border border-yellow-500/30 px-1 py-0.5">STALE</span>
-                )}
+                <span className={`text-[8px] border px-1 py-0.5 ${
+                  isStale ? 'text-yellow-400 border-yellow-500/30' : isPending ? 'text-orange-400 border-orange-500/30' : 'text-green-400 border-green-500/30'
+                }`}>{finalityLabel}</span>
               </div>
               <div className="flex items-center gap-2 bg-[#111] border border-app-border px-3 py-1.5">
                 <span className="text-[9px] text-app-muted uppercase tracking-wider">CLAIMABLE</span>
-                <span className="text-[14px] font-app-bold text-app-accent">{claimableMon}</span>
+                <span className="text-[14px] font-app-bold text-app-accent">{displayClaimable}</span>
+              </div>
+              <div className="text-[8px] text-app-muted uppercase tracking-wider">
+                {lastSyncedAt ? `sync ${new Date(lastSyncedAt).toLocaleTimeString()}` : 'sync --'}
               </div>
               {hasRumbleXPass && (
                 <span className="bg-app-accent text-black text-[10px] uppercase font-app-bold px-2.5 py-1 tracking-wider">
@@ -216,15 +236,57 @@ export function TopBar({ onMenuOpen, showMenu = true }: TopBarProps) {
                 {/* Claim */}
                 <div className="p-4 border-b border-app-border">
                   <div className="text-[9px] text-app-muted uppercase tracking-widest mb-2">Claimable MON</div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[18px] font-app-bold text-app-accent">{claimableMon}</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[18px] font-app-bold text-app-accent">{displayClaimable}</span>
                     <button
                       onClick={() => claimAll().catch(() => undefined)}
-                      disabled={isClaimingAll || Number(claimableMon) <= 0}
+                      disabled={isClaimingAll || !claimableMonNumber || claimableMonNumber <= 0}
                       className="bg-app-accent text-black text-[9px] uppercase font-app-bold px-2 py-1 tracking-wider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors"
                     >
                       {isClaimingAll ? "Claiming..." : "Claim All"}
                     </button>
+                  </div>
+                  <div className="space-y-1 text-[9px] text-app-muted uppercase">
+                    <div className="flex items-center justify-between">
+                      <span>Fallback Claimable</span>
+                      <span className="text-white font-app-mono">{displayFallbackClaimable}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Season Claimable</span>
+                      <span className="text-white font-app-mono">{displaySeasonClaimable}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Season Estimated</span>
+                      <span className="text-white font-app-mono">{displaySeasonEstimate}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Season Assigned</span>
+                      <span className="text-white font-app-mono">{displaySeasonAssigned}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Season Claimed</span>
+                      <span className="text-white font-app-mono">{displaySeasonClaimed}</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-app-border text-[8px] text-app-muted uppercase tracking-wide space-y-0.5">
+                    <div className="flex items-center justify-between">
+                      <span>Finality</span>
+                      <span className={`${isStale ? 'text-yellow-400' : isPending ? 'text-orange-400' : 'text-green-400'}`}>
+                        {finalityLabel}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Source</span>
+                      <span>{dataSource}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Last Sync</span>
+                      <span>{lastSyncedAt ? new Date(lastSyncedAt).toLocaleTimeString() : '--'}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Block</span>
+                      <span>{sourceBlockNumber ?? '--'}</span>
+                    </div>
                   </div>
                 </div>
 
