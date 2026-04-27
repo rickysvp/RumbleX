@@ -13,6 +13,32 @@ export interface ApiServerOptions {
 
 export function createApiServer(store: JsonStore, chain: ChainContext, opts: ApiServerOptions) {
   const app = express();
+
+  const allowedOrigins = (process.env.CORS_ORIGIN ?? "*")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+
+    if (allowedOrigins.includes("*")) {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+    } else if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+    }
+
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
+
+    next();
+  });
+
   app.use(express.json());
 
   app.get("/health", (_req, res) => {
@@ -658,6 +684,7 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
       }
 
       const seasonId = await chain.rumbleXPass.activeSeasonId();
+      const mintPrice = await chain.rumbleXPass.mintPrice();
       const data = chain.rumbleXPass.interface.encodeFunctionData("mintPass", [address, seasonId]);
 
       return res.json(
@@ -665,7 +692,7 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
           {
             to: chain.manifest.contracts.RumbleXPass.address,
             data,
-            value: "0",
+            value: mintPrice.toString(),
           },
           buildMeta(store, "chain", await chain.provider.getBlockNumber(), true, false, opts.staleAfterMs)
         )
