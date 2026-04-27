@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { isMockMode } from '../config/dataMode';
 import { useGameStore } from '../store/gameStore';
 import { useDevStore } from '../store/devStore';
 import { simulationEngine } from '../lib/simulationEngine';
@@ -7,9 +8,12 @@ import { narrativeEngine } from '../lib/narrativeEngine';
 export function useSimulation() {
   const phase = useGameStore(state => state.phase);
   const simulationIntervalMs = useDevStore(state => state.simulationIntervalMs);
+  const mockMode = isMockMode();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (!mockMode) return;
+
     // Clear any existing timeout when phase changes or speed changes
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -90,5 +94,5 @@ export function useSimulation() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [phase, simulationIntervalMs]);
+  }, [mockMode, phase, simulationIntervalMs]);
 }

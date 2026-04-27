@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { getApiErrorMessage } from '../../api/format';
 import { LoadoutPanel } from '../loadout/LoadoutPanel';
 import { useGameStore } from '../../store/gameStore';
 import { useWalletStore } from '../../store/walletStore';
@@ -18,9 +19,10 @@ const formatTime = (seconds: number) => {
 export function EntryOpenStage() {
   const [isLoadoutOpen, setIsLoadoutOpen] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [mintError, setMintError] = useState<string | null>(null);
   
   const { roundNumber, timeRemaining, entryFee, prizePool, userLoadout } = useGameStore();
-  const { status: walletStatus, hasRumbleXPass, passStatus, isMintingPass, activeRoundId } = useWalletStore();
+  const { status: walletStatus, hasRumbleXPass, passStatus, isMintingPass, activeRoundId, dataError } = useWalletStore();
   const liveRounds = useRoundStore((state) => state.liveRounds);
   const selectedRoundId = useRoundStore((state) => state.selectedRoundId);
   const setSelectedRoundId = useRoundStore((state) => state.setSelectedRoundId);
@@ -65,9 +67,18 @@ export function EntryOpenStage() {
     setIsLoadoutOpen(true);
   };
 
+  const handleMintPass = async () => {
+    setMintError(null);
+    try {
+      await mockPass.mintRumbleXPass();
+    } catch (error) {
+      setMintError(getApiErrorMessage(error));
+    }
+  };
+
   return (
     <>
-      <div className="h-full w-full flex flex-col justify-center p-3 sm:p-4 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards] relative">
+      <div className="h-full w-full flex flex-col justify-start md:justify-center p-3 sm:p-4 overflow-y-auto custom-scrollbar animate-[fadeIn_0.15s_ease-in-out_forwards] relative">
         {/* Background Image - scaled down and shifted left */}
         <div 
           className="absolute inset-y-0 left-0 w-full bg-no-repeat"
@@ -120,7 +131,7 @@ export function EntryOpenStage() {
                </div>
             </div>
 
-            {liveMode && (
+            {liveMode && userView !== 'missing_pass' && (
               <div className="bg-[#0a0a0a] border border-app-border p-2 mb-2">
                 <div className="text-[8px] text-app-muted uppercase tracking-[2px] mb-1.5 flex items-center justify-between">
                   <span>Live Rounds</span>
@@ -214,7 +225,7 @@ export function EntryOpenStage() {
                   <span className="text-[8px] font-app-bold opacity-60 tracking-widest text-app-accent">Wallet connected. Verifying access.</span>
                 </button>
               ) : userView === 'missing_pass' ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 mb-2">
                   {/* Requirement Info Panel */}
                   <div className="bg-app-accent/5 border border-app-accent/20 p-2 sm:p-2.5 animate-fadeIn">
                     <div className="text-app-accent font-app-bold text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
@@ -230,7 +241,7 @@ export function EntryOpenStage() {
                   </div>
 
                   <button
-                    onClick={() => mockPass.mintRumbleXPass()}
+                    onClick={handleMintPass}
                     disabled={isMintingPass}
                     className="group relative bg-app-accent text-black font-app-bold text-[14px] sm:text-[16px] py-3 sm:py-4 px-5 sm:px-6 uppercase tracking-[2px] transition-all hover:bg-white hover:scale-[1.02] active:scale-[0.98] overflow-hidden shadow-[0_0_15px_rgba(235,255,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -245,6 +256,12 @@ export function EntryOpenStage() {
                       )}
                     </span>
                   </button>
+
+                  {(mintError || dataError) && (
+                    <div className="text-[9px] text-red-400 uppercase tracking-wide border border-red-500/30 bg-red-500/10 p-2">
+                      {mintError ?? dataError}
+                    </div>
+                  )}
                 </div>
               ) : userView === 'not_joinable' ? (
                 <button

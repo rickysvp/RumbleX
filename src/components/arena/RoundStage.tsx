@@ -2,10 +2,12 @@ import React from 'react';
 import { EntryOpenStage } from './EntryOpenStage';
 import { LiveStage } from './LiveStage';
 import { ConcludedStage } from './ConcludedStage';
+import { isLiveSummaryMode } from '../../config/dataMode';
 import { useGameStore } from '../../store/gameStore';
 
 export function RoundStage() {
   const phase = useGameStore(state => state.phase);
+  const liveMode = isLiveSummaryMode();
 
   return (
     <div className="w-full h-full bg-[#0A0A0A] relative overflow-hidden">
@@ -15,13 +17,16 @@ export function RoundStage() {
       </div>
 
       <div className="relative z-10 h-full w-full">
-        {phase === 'entry_open' && (
+        {liveMode && (
           <EntryOpenStage />
         )}
-        {phase === 'live' && (
+        {!liveMode && phase === 'entry_open' && (
+          <EntryOpenStage />
+        )}
+        {!liveMode && phase === 'live' && (
           <LiveStage />
         )}
-        {phase === 'concluded' && (
+        {!liveMode && phase === 'concluded' && (
           <ConcludedStage />
         )}
       </div>

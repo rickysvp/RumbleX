@@ -1,16 +1,17 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { FeedRow } from './FeedRow';
 import { useGameStore } from '../../store/gameStore';
+import { getApiErrorMessage, normalizeMonString } from '../../api/format';
+import { isLiveSummaryMode } from '../../config/dataMode';
+import { useRoundsRecent } from '../../hooks/queries/useInsightsQueries';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-interface MixedFeedProps {
-  eventsEndRef: React.RefObject<HTMLDivElement>;
-}
-
 export function MixedFeed() {
+  const liveMode = isLiveSummaryMode();
   const [activeTab, setActiveTab] = useState('ALL');
   const feedEvents = useGameStore(state => state.feedEvents || []);
   const parentRef = useRef<HTMLDivElement>(null);
+  const recentRoundsQuery = useRoundsRecent(30);
 
   // Get player handles and user handle once at the parent level
   const players = useGameStore(state => state.players);
@@ -82,6 +83,65 @@ export function MixedFeed() {
       handleSendMessage();
     }
   };
+
+  if (liveMode) {
+    const rows = recentRoundsQuery.data?.ok ? recentRoundsQuery.data.data : [];
+    const meta = recentRoundsQuery.data?.ok ? recentRoundsQuery.data.meta : null;
+
+    return (
+      <div className="h-full flex flex-col bg-[#0D0D0D] relative">
+        <div className="px-3 sm:px-5 pt-3 sm:pt-4 pb-3 border-b border-app-border shrink-0 bg-[#0D0D0D] z-10">
+          <div className="font-app-bold tracking-widest text-app-muted uppercase text-[11px] sm:text-[12px] flex items-center gap-2">
+            <span className="text-app-accent">■</span> CHAIN FEED
+          </div>
+          {meta && (
+            <div className="mt-1 text-[9px] text-app-muted uppercase tracking-wide flex flex-wrap gap-2">
+              <span>source: {meta.source}</span>
+              <span>{meta.isPending ? 'pending' : 'confirmed'}</span>
+              <span>{meta.isStale ? 'stale' : 'fresh'}</span>
+              <span>block: {meta.sourceBlockNumber ?? '--'}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-3 sm:px-5 py-3">
+          {recentRoundsQuery.isLoading && (
+            <div className="text-app-muted text-[11px] uppercase tracking-[2px]">Loading rounds...</div>
+          )}
+
+          {recentRoundsQuery.error && (
+            <div className="text-red-400 text-[11px] uppercase tracking-[1px]">
+              {getApiErrorMessage(recentRoundsQuery.error)}
+            </div>
+          )}
+
+          {!recentRoundsQuery.isLoading && !recentRoundsQuery.error && rows.length === 0 && (
+            <div className="text-app-muted text-[11px] uppercase tracking-[2px]">No settled rounds yet.</div>
+          )}
+
+          {!recentRoundsQuery.isLoading && !recentRoundsQuery.error && rows.length > 0 && (
+            <div className="space-y-2">
+              {rows.map((row) => (
+                <div key={row.roundId} className="border border-[#222] bg-[#0a0a0a] p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white text-[12px] font-app-bold">ROUND #{row.roundId}</span>
+                    <span className="text-[9px] text-app-muted uppercase">
+                      {row.settledAt ? new Date(row.settledAt).toLocaleTimeString() : 'pending'}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-app-muted flex flex-wrap gap-3">
+                    <span>Players: {row.participants}</span>
+                    <span>Survivors: {row.survivors}</span>
+                    <span>Volume: {normalizeMonString(row.volume)} MON</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-[#0D0D0D] relative">

@@ -1,10 +1,10 @@
 export type DataMode = "mock" | "hybrid" | "live";
 
-const rawMode = (import.meta.env.VITE_DATA_MODE ?? "mock").toLowerCase();
+const rawMode = (import.meta.env.VITE_DATA_MODE ?? "live").toLowerCase();
 
 export const dataMode: DataMode = rawMode === "live" || rawMode === "hybrid" || rawMode === "mock"
   ? (rawMode as DataMode)
-  : "mock";
+  : "live";
 
 export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8787").replace(/\/$/, "");
 
