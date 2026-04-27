@@ -1,35 +1,35 @@
 {
   "network": "monad-testnet",
-  "chainId": 31337,
-  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "generatedAtBlock": 0,
+  "chainId": 10143,
+  "deployer": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+  "owner": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+  "generatedAtBlock": 27901461,
   "contracts": {
     "RumbleXPass": {
-      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "startBlock": 0
+      "address": "0x8C66c3664567d2Cb206D3EEa4d226082cF0C6d60",
+      "startBlock": 27901461
     },
     "SeasonVault": {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "startBlock": 0
+      "address": "0xcC7aE161498c5394F6e893fAfF7053bD56287a99",
+      "startBlock": 27901461
     },
     "ClaimVault": {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "startBlock": 0
+      "address": "0x2d052d00CA38BF6C92234d59C0c986522AAbFD10",
+      "startBlock": 27901461
     },
     "RoundFactory": {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "startBlock": 0
+      "address": "0x8cB40DfB5d381730D4794b6FFaf53e7ba4b6E8d7",
+      "startBlock": 27901461
     },
     "ProtocolTreasury": {
-      "address": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+      "address": "0xCbD07EEf73E6583A9A45db65E911788FA5232bE9"
     }
   },
   "roles": {
-    "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "roundOperator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "seasonOperator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "claimOperator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "passMinter": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    "owner": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "roundOperator": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "seasonOperator": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "claimOperator": "0x2ada9f18330985935eB444833Ac6854eE91f58b1",
+    "passMinter": "0x2ada9f18330985935eB444833Ac6854eE91f58b1"
   }
 }
