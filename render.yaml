@@ -23,7 +23,7 @@ services:
         value: "5000"
       - key: INDEXER_STALE_AFTER_MS
         value: "120000"
-    disks:
-      - name: indexer-data
-        mountPath: /var/data
-        sizeGB: 1
+    disk:
+      name: indexer-data
+      mountPath: /var/data
+      sizeGB: 1
