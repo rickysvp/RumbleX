@@ -2,7 +2,7 @@ services:
   - type: web
     name: rumblex-indexer-api
     runtime: node
-    plan: starter
+    plan: free
     rootDir: .
     buildCommand: npm install
     startCommand: INDEXER_API_PORT=$PORT npm run indexer:api
@@ -15,15 +15,9 @@ services:
         sync: false
       - key: DEPLOYMENT_MANIFEST_PATH
         value: /opt/render/project/src/onchain/deployments/monad-testnet.json
-      - key: INDEXER_DB_PATH
-        value: /var/data/indexer-db.json
       - key: INDEXER_CONFIRMATION_BLOCKS
         value: "0"
       - key: INDEXER_POLL_INTERVAL_MS
         value: "5000"
       - key: INDEXER_STALE_AFTER_MS
         value: "120000"
-    disk:
-      name: indexer-data
-      mountPath: /var/data
-      sizeGB: 1
