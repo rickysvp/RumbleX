@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { isAddress } from "ethers";
+import { Interface, isAddress } from "ethers";
 import { ChainContext } from "../contracts/chain";
 import { JsonStore } from "../models/store";
 import { ApiMeta, ClaimSourceRecordModel, DatabaseState, Provenance } from "../models/types";
@@ -431,10 +431,13 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
       .slice(0, Math.max(1, Math.min(100, limit)));
 
     if (!indexerReady && settlements.length === 0) {
-      return res.status(503).json(
-        fail(
-          ErrorCodes.INDEXER_UNAVAILABLE,
-          "Indexer unavailable and no indexed round-settlement snapshot"
+      const sourceBlockNumber = state.meta.latestIndexedBlock > 0
+        ? state.meta.latestIndexedBlock
+        : null;
+      return res.json(
+        ok(
+          [],
+          buildMeta(store, "chain", sourceBlockNumber, true, true, opts.staleAfterMs)
         )
       );
     }
@@ -515,15 +518,25 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
     );
   });
 
-  app.get(["/season/current", "/seasoncurrent"], (_req, res) => {
+  app.get(["/season/current", "/seasoncurrent"], async (_req, res) => {
     const state = store.getState();
     const indexerReady = isIndexerReady(store, state, opts.staleAfterMs);
     const season = pickCurrentSeason(state);
 
     if (!season) {
       if (!indexerReady) {
-        return res.status(503).json(
-          fail(ErrorCodes.INDEXER_UNAVAILABLE, "Indexer unavailable and season snapshot is missing")
+        const fallback = await buildChainCurrentSeason(chain);
+        if (!fallback.available) {
+          return res.status(503).json(
+            fail(ErrorCodes.INDEXER_UNAVAILABLE, "Indexer unavailable and season snapshot is missing")
+          );
+        }
+
+        return res.json(
+          ok(
+            fallback.data,
+            buildMeta(store, "chain", fallback.sourceBlockNumber, true, true, opts.staleAfterMs)
+          )
         );
       }
       return res.status(404).json(fail(ErrorCodes.BAD_REQUEST, "No season available"));
@@ -566,10 +579,13 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
       });
 
     if (!indexerReady && stats.length === 0) {
-      return res.status(503).json(
-        fail(
-          ErrorCodes.INDEXER_UNAVAILABLE,
-          "Indexer unavailable and no indexed season-rank snapshot"
+      const sourceBlockNumber = state.meta.latestIndexedBlock > 0
+        ? state.meta.latestIndexedBlock
+        : null;
+      return res.json(
+        ok(
+          [],
+          buildMeta(store, "chain", sourceBlockNumber, true, true, opts.staleAfterMs)
         )
       );
     }
@@ -684,7 +700,7 @@ export function createApiServer(store: JsonStore, chain: ChainContext, opts: Api
       }
 
       const seasonId = await chain.rumbleXPass.activeSeasonId();
-      const mintPrice = await chain.rumbleXPass.mintPrice();
+      const mintPrice = await readPassMintPrice(chain);
       const data = chain.rumbleXPass.interface.encodeFunctionData("mintPass", [address, seasonId]);
 
       return res.json(
@@ -892,6 +908,93 @@ function pickCurrentSeason(state: DatabaseState) {
   if (active.length > 0) return active[0];
 
   return seasons.sort((a, b) => b.seasonId - a.seasonId)[0];
+}
+
+async function readPassMintPrice(chain: ChainContext): Promise<bigint> {
+  const contractRead = await safeRead(async () => {
+    const fn = (chain.rumbleXPass as unknown as { mintPrice?: () => Promise<unknown> }).mintPrice;
+    if (typeof fn !== "function") {
+      throw new Error("mintPrice method unavailable on loaded ABI");
+    }
+    const value = await fn();
+    return BigInt(String(value));
+  });
+
+  if (contractRead.value !== null) {
+    return contractRead.value;
+  }
+
+  const mintPriceInterface = new Interface(["function mintPrice() view returns (uint256)"]);
+  const rawRead = await safeRead(async () => {
+    const data = mintPriceInterface.encodeFunctionData("mintPrice", []);
+    const raw = await chain.provider.call({
+      to: chain.manifest.contracts.RumbleXPass.address,
+      data,
+    });
+    const [value] = mintPriceInterface.decodeFunctionResult("mintPrice", raw);
+    return BigInt(String(value));
+  });
+
+  if (rawRead.value !== null) {
+    return rawRead.value;
+  }
+
+  const cErr = contractRead.error ? chain.describeError(contractRead.error) : "unknown";
+  const rErr = rawRead.error ? chain.describeError(rawRead.error) : "unknown";
+  throw new Error(`Unable to read pass mintPrice (contract=${cErr}, raw=${rErr})`);
+}
+
+async function buildChainCurrentSeason(chain: ChainContext): Promise<{
+  available: boolean;
+  sourceBlockNumber: number | null;
+  data: {
+    seasonId: number;
+    status: string;
+    endsAt: null;
+    prizePool: string;
+    qualificationKillThreshold: number;
+  } | null;
+}> {
+  const blockRead = await safeRead(async () => chain.provider.getBlockNumber());
+  const sourceBlockNumber = blockRead.value ?? null;
+
+  const seasonIdRead = await safeRead(async () => {
+    const seasonId = await chain.rumbleXPass.activeSeasonId();
+    return Number(seasonId.toString());
+  });
+
+  if (seasonIdRead.value === null) {
+    return { available: false, sourceBlockNumber, data: null };
+  }
+
+  const seasonId = seasonIdRead.value;
+  const seasonRowRead = await safeRead(async () => chain.seasonVault.seasons(seasonId));
+
+  const row = seasonRowRead.value as
+    | { poolBalance?: unknown; qualificationThreshold?: unknown; closed?: unknown; [key: number]: unknown }
+    | null;
+
+  const poolBalance = row
+    ? String(row.poolBalance ?? row[0] ?? "0")
+    : "0";
+  const qualificationThreshold = row
+    ? Number(row.qualificationThreshold ?? row[1] ?? 0)
+    : 0;
+  const closed = row
+    ? Boolean(row.closed ?? row[3] ?? false)
+    : false;
+
+  return {
+    available: true,
+    sourceBlockNumber,
+    data: {
+      seasonId,
+      status: closed ? "Closed" : "Active",
+      endsAt: null,
+      prizePool: poolBalance,
+      qualificationKillThreshold: Number.isFinite(qualificationThreshold) ? qualificationThreshold : 0,
+    },
+  };
 }
 
 function claimRecordView(claim: ClaimSourceRecordModel) {

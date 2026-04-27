@@ -34,16 +34,18 @@ export function formatAddressShort(address: string): string {
 
 export function getApiErrorMessage(error: unknown): string {
   if (error instanceof ApiClientError) {
+    if (error.code === "TX_BUILD_FAILED" || error.code === "CHAIN_READ_FAILED") {
+      return error.message;
+    }
+
     const byCode: Record<string, string> = {
       PASS_REQUIRED: "RumbleX Pass required",
       NOTHING_TO_CLAIM: "No claimable MON",
-      TX_BUILD_FAILED: "Failed to build transaction",
       INDEXER_STALE: "Indexer data is stale",
       INDEXER_UNAVAILABLE: "Indexer unavailable",
       PASS_ALREADY_OWNED: "Pass already owned",
       ROUND_NOT_JOINABLE: "Round is not joinable",
       ALREADY_JOINED: "Already joined this round",
-      CHAIN_READ_FAILED: "Chain read failed",
     };
     return byCode[error.code] ?? error.message;
   }
