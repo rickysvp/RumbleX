@@ -55,8 +55,6 @@ async function main() {
     pollIntervalMs: config.indexerPollIntervalMs,
   });
 
-  await indexer.start();
-
   const app = createApiServer(store, chain, { staleAfterMs: config.staleAfterMs });
   app.listen(config.apiPort, () => {
     // eslint-disable-next-line no-console
@@ -74,6 +72,10 @@ async function main() {
       );
     }
   });
+
+  // Start indexer in background so the API health endpoint is immediately available
+  // during long initial backfills (e.g. first boot on Render).
+  void indexer.start();
 }
 
 main().catch((error) => {
